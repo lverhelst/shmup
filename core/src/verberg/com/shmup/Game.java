@@ -14,6 +14,7 @@ import components.BodyComponent;
 import components.Car;
 import components.GameObject;
 import components.MyInputAdapter;
+import systems.WorldSystem;
 
 public class Game extends ApplicationAdapter {
 	SpriteBatch batch;
@@ -26,6 +27,7 @@ public class Game extends ApplicationAdapter {
 
     //move to render component
     Box2DDebugRenderer debugRenderer;
+    OrthographicCamera camera;
     OrthographicCamera cam;
 
     GameObject go;
@@ -36,11 +38,12 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
 
         world = new World(new Vector2(0f, 0f), true); //shmup bros has no downward gravity
         world.setVelocityThreshold(0.0f);
 
+        WorldSystem test = new WorldSystem();
+        test.create(world);
 
         //This seems back-asswards
         car = new Car(world);
@@ -51,6 +54,7 @@ public class Game extends ApplicationAdapter {
         debugRenderer = new Box2DDebugRenderer();
         cam = new OrthographicCamera();
         cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
+        cam.update();
 
         Gdx.input.setInputProcessor(new MyInputAdapter());
 	}
@@ -60,11 +64,15 @@ public class Game extends ApplicationAdapter {
         car.update();
         Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
         world.step(STEP, 6, 2);
-		//Gdx.gl.glClearColor(1, 0, 0, 1);
-		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		//batch.begin();
-		//batch.draw(img, 0, 0);
-		//batch.end();
+        cam.update();
+
         debugRenderer.render(world,cam.combined);
+
+
+        //Gdx.gl.glClearColor(1, 0, 0, 1);
+        //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        //batch.begin();
+        //batch.draw(img, 0, 0);
+        //batch.end();
 	}
 }
