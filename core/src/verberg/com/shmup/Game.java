@@ -64,6 +64,8 @@ public class Game extends ApplicationAdapter {
         car.update();
         Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
         world.step(STEP, 6, 2);
+        cam.position.set(car.getBody().getPosition().x, car.getBody().getPosition().y, 10);
+
         cam.update();
 
         debugRenderer.render(world,cam.combined);
