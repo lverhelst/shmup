@@ -4,7 +4,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
@@ -172,9 +174,51 @@ public class Car {
             }
         }
 
-
+        //FIRE THE MISSLES
+        if(MyInputAdapter.getKeysdown()[Input.Keys.SPACE]){
+            fireBalls(this.body.getPosition(), this.body.getLinearVelocity());
+        }
     }
 
+    long lastbullet = 0;
+    Body ball;
+    public void createBall(){
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        ball = Game.world.createBody(bodyDef);
+        CircleShape circle = new CircleShape();
+        circle.setRadius(1f);
+        FixtureDef fixture = new FixtureDef();
+        fixture.shape = circle;
+        fixture.density = 0.1f;
+        fixture.friction = 0.1f;
+        ball.createFixture(fixture);
+    }
+    //move to bullet class? weapon compoenent?
+    public void fireBalls(Vector2 position, Vector2 linearVelocity){
+        if(lastbullet + 200 > System.currentTimeMillis()){
+            return;
+        }
+        lastbullet = System.currentTimeMillis();
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        //add 90 since car definition is 90 deg off 0
+        float direction = body.getAngle() + (float)Math.PI/2;
+        float addx = (float)(Math.cos(direction)) * 10f;
+        float addy = (float)(Math.sin(direction)) * 10f;
 
+        Body bulletbody = Game.world.createBody(bodyDef);
+        bulletbody.setTransform(position.add(addx,addy), direction);
+        CircleShape circle = new CircleShape();
+        circle.setRadius(1f);
+        FixtureDef fixture = new FixtureDef();
+        fixture.shape = circle;
+        fixture.density = 1f;
+        fixture.friction = 0.1f;
+
+        bulletbody.createFixture(fixture);
+        bulletbody.applyLinearImpulse(((float) Math.cos(direction)) * 1500f, ((float) Math.sin(direction)) * 1500f, bulletbody.getWorldCenter().x, bulletbody.getWorldCenter().y, true);
+        circle.dispose();
+    }
 
 }

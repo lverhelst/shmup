@@ -88,7 +88,7 @@ public class Tire {
         body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
 
         //dampen angular velocity
-       // body.applyAngularImpulse(0.1f * body.getInertia() * body.getAngularVelocity(), true);
+        body.applyAngularImpulse(0.1f * body.getInertia() * body.getAngularVelocity(), true);
 
     }
 
