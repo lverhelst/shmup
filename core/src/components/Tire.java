@@ -7,6 +7,9 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+
+import verberg.com.shmup.Game;
+
 /**
  * https://github.com/lverhelst/shmup.git
  * Created by Orion on 11/18/2015.
@@ -17,8 +20,23 @@ public class Tire {
     float maxBackwardSpeed = -150;
     float maxDriveForce = 25;
     float maxLateralImpulse = 2;
-
+    Vector2 location;
+    boolean canTurn;
+    String name;
     Body body;
+
+    public Tire(){
+        BodyDef bdef = new BodyDef();
+        bdef.type = BodyDef.BodyType.DynamicBody;
+
+        body = Game.getWorld().createBody(bdef);
+
+
+        PolygonShape pShape = new PolygonShape();
+        pShape.setAsBox(0.5f, 1.25f);
+        Fixture fixture = body.createFixture(pShape, 1f);
+       // fixture.setSensor(true);
+    }
 
     public Tire(World world){
         BodyDef bdef = new BodyDef();
@@ -29,6 +47,17 @@ public class Tire {
         pShape.setAsBox(0.5f, 1.25f);
         Fixture fixture = body.createFixture(pShape, 1f);
 
+    }
+
+
+    public void setCharacteristics(String name, boolean canTurn, Vector2 location, float maxForwardSpeed, float maxBackwardSpeed, float maxDriveForce, float maxLateralImpulse){
+        this.name = name;
+        this.canTurn = canTurn;
+        this.location = location;
+        this.maxForwardSpeed = maxForwardSpeed;
+        this.maxBackwardSpeed = maxBackwardSpeed;
+        this.maxDriveForce = maxDriveForce;
+        this.maxLateralImpulse = maxLateralImpulse;
     }
 
     public void setCharacteristics(float maxForwardSpeed, float maxBackwardSpeed, float maxDriveForce, float maxLateralImpulse){
@@ -59,32 +88,27 @@ public class Tire {
         body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
 
         //dampen angular velocity
-        body.applyAngularImpulse(0.1f * body.getInertia() * body.getAngularVelocity(), true);
+       // body.applyAngularImpulse(0.1f * body.getInertia() * body.getAngularVelocity(), true);
 
     }
 
     public void updateDrive(){
         float desiredSpeed = 0;
         if(MyInputAdapter.getKeysdown()[Input.Keys.UP]) {
-            System.out.print("UP");
             desiredSpeed = maxForwardSpeed;
         }
         else if(MyInputAdapter.getKeysdown()[Input.Keys.DOWN]) {
-            System.out.print("DN");
             desiredSpeed = maxBackwardSpeed;
         }else return;
 
         //current speed
         Vector2 currentForwardNormal = body.getWorldVector(new Vector2(0,1));
-        //save current forward normal into a new vector, because for some fucking reason
-        //the fucking current forward normal vector is reset to god damn 0
-        //after the fucking force calculation
-        //name the vector wtf, since that's appropritate in this fucking case
+        //strangle enough currentForwardNormal gets cleared somehow
+        //so we save current forward normal into a new vector
         Vector2 wtf = new Vector2(currentForwardNormal.x,currentForwardNormal.y);
         float currentSpeed = getForwardVelocity().dot(wtf);
         //apply the forces!
         float force = 0;
-        System.out.println(desiredSpeed + " " + currentSpeed);
         if(desiredSpeed > currentSpeed)
             force = maxDriveForce;
         else if (desiredSpeed < currentSpeed)

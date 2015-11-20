@@ -14,6 +14,7 @@ import components.BodyComponent;
 import components.Car;
 import components.GameObject;
 import components.MyInputAdapter;
+import systems.CarFactory;
 import systems.WorldSystem;
 
 public class Game extends ApplicationAdapter {
@@ -32,8 +33,14 @@ public class Game extends ApplicationAdapter {
 
     GameObject go;
 
-	World world;
+    //don't think we need multiple worlds am I right?
+	public static World world;
 	Car car;
+
+    public static World getWorld(){
+        return world;
+    }
+
 
 	@Override
 	public void create () {
@@ -45,8 +52,11 @@ public class Game extends ApplicationAdapter {
         WorldSystem test = new WorldSystem();
         test.create(world);
 
+        CarFactory carFactory = new CarFactory();
+        car = carFactory.produceCar();
+
         //This seems back-asswards
-        car = new Car(world);
+       // car = new Car(world);
 
       //  go = new GameObject(car.getBody());
 
@@ -68,7 +78,7 @@ public class Game extends ApplicationAdapter {
 
         cam.update();
 
-        debugRenderer.render(world,cam.combined);
+        debugRenderer.render(world, cam.combined);
 
 
         //Gdx.gl.glClearColor(1, 0, 0, 1);
