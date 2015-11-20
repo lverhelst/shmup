@@ -26,7 +26,9 @@ public class WorldSystem {
         Random rand = new Random();
 
         for(int i = 0; i < 100; i++) {
-            createBox(rand.nextInt(640), rand.nextInt(480), 10/PPM, 10/PPM);
+            createBox(i * 3, (i%2 == 0 ? 0 : 280), 10/PPM, 10/PPM);
+            createBox((i%2 == 0 ? 0 : 280), i * 3, 10/PPM, 10/PPM);
+
         }
     }
 
@@ -43,11 +45,11 @@ public class WorldSystem {
     }
 
     public Body createBox(float x, float y, float w, float h) {
-        y = Gdx.graphics.getHeight()- y;
+       // y = Gdx.graphics.getHeight()- y;
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(new Vector2(x + w, y + h));
+        bodyDef.position.set(new Vector2(x, y));
 
         Body body = world.createBody(bodyDef);
         PolygonShape box = new PolygonShape();
