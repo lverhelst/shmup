@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import verberg.com.shmup.Game;
 
@@ -30,10 +31,13 @@ public class Car implements ShmupActor{
     private Tire[] tires;
     RevoluteJoint[] joints;
 
+    public int x,y;
 
     //JSON INSTANTIATION
     public Car(){
         //used for instantiating from Json
+        x = new Random().nextInt(242);
+        y = new Random().nextInt(242);
     }
 
     public void setProperties(String name, float density, Vector2[] vertices){
@@ -46,7 +50,9 @@ public class Car implements ShmupActor{
         //create car body
         BodyDef bdef = new BodyDef();
         bdef.type = BodyDef.BodyType.DynamicBody;
-        bdef.position.set(new Vector2(640/5, 480/5));
+
+
+        bdef.position.set(new Vector2(x,y));
         body = Game.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();

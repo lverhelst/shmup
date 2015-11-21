@@ -10,7 +10,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
+import java.util.ArrayList;
+
 import Input.Command;
+import components.AI;
 import components.Car;
 import components.MyInputAdapter;
 import systems.CarFactory;
@@ -30,6 +33,8 @@ public class Game extends ApplicationAdapter {
     OrthographicCamera camera;
     OrthographicCamera cam;
 
+
+    public ArrayList<AI> aiList;
 
 
     //don't think we need multiple worlds am I right?
@@ -54,6 +59,13 @@ public class Game extends ApplicationAdapter {
         CarFactory carFactory = new CarFactory();
         car = carFactory.produceCar();
 
+        aiList = new ArrayList<AI>();
+        for(int i = 0; i < 3; i++){
+            AI ai = new AI();
+            ai.setInControlof(carFactory.produceCar());
+            aiList.add(ai);
+        }
+
         //This seems back-asswards
        // car = new Car(world);
 
@@ -73,6 +85,14 @@ public class Game extends ApplicationAdapter {
             cmd.execute(car);
         }
 
+        //for AI in AIList
+        //AI.getcommands
+        //cmd.execute(AI.car)
+        for(AI ai : aiList){
+            for(Command cmd : ai.getCommands()){
+                cmd.execute(ai.getInControlof());
+            }
+        }
 
     }
 

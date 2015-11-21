@@ -49,7 +49,7 @@ public class CarFactory {
         Tire tire;
         Vector2 v2;
         for(JsonValue tValue : jCar.get("tires")){
-            tire = new Tire();
+            tire = new Tire(car.x,car.y);
             tValue.get(name);
 
             v2 = new Vector2(tValue.get("location").asFloatArray()[0],tValue.get("location").asFloatArray()[1]);

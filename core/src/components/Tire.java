@@ -25,9 +25,10 @@ public class Tire {
     String name;
     Body body;
 
-    public Tire(){
+    public Tire(int x, int y){
         BodyDef bdef = new BodyDef();
         bdef.type = BodyDef.BodyType.DynamicBody;
+        bdef.position.set(new Vector2(x,y));
         body = Game.getWorld().createBody(bdef);
 
 
