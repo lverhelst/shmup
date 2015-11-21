@@ -28,8 +28,8 @@ public class WorldSystem {
         for(int i = 0; i < 100; i++) {
             createBox(i * 3, (i%2 == 0 ? 0 : 280), 10/PPM, 10/PPM);
             createBox((i%2 == 0 ? 0 : 280), i * 3, 10/PPM, 10/PPM);
-
         }
+
     }
 
     public void createGround(float x, float y, float w, float h) {
@@ -43,6 +43,7 @@ public class WorldSystem {
         body.createFixture(box, 0.0f);
         box.dispose();
     }
+
 
     public Body createBox(float x, float y, float w, float h) {
        // y = Gdx.graphics.getHeight()- y;

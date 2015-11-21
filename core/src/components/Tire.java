@@ -28,7 +28,6 @@ public class Tire {
     public Tire(){
         BodyDef bdef = new BodyDef();
         bdef.type = BodyDef.BodyType.DynamicBody;
-
         body = Game.getWorld().createBody(bdef);
 
 
@@ -80,7 +79,7 @@ public class Tire {
 
     public void updateFriction(){
         //kill sideways movement
-        Vector2 impulse = getLateralVelocity().mulAdd(getLateralVelocity(), -1 * body.getMass());
+        Vector2 impulse = getLateralVelocity().scl(-1 * body.getMass());
         //allow skidding
         if(impulse.len() > maxLateralImpulse)
             impulse = impulse.scl(maxLateralImpulse / impulse.len());
@@ -89,6 +88,12 @@ public class Tire {
 
         //dampen angular velocity
         body.applyAngularImpulse(0.1f * body.getInertia() * body.getAngularVelocity(), true);
+
+        //drag
+        Vector2 currentForwardNormal = getForwardVelocity();
+        float speed = (float)Math.sqrt(currentForwardNormal.x * currentForwardNormal.x + currentForwardNormal.y * currentForwardNormal.y);
+        body.applyForceToCenter(currentForwardNormal.scl(-0.02f * speed),true);
+
 
     }
 
@@ -102,7 +107,7 @@ public class Tire {
         }else return;
 
         //current speed
-        Vector2 currentForwardNormal = body.getWorldVector(new Vector2(0,1));
+        Vector2 currentForwardNormal = body.getWorldVector(new Vector2(0, 1));
         //strangle enough currentForwardNormal gets cleared somehow
         //so we save current forward normal into a new vector
         Vector2 wtf = new Vector2(currentForwardNormal.x,currentForwardNormal.y);
@@ -115,6 +120,36 @@ public class Tire {
             force = -maxDriveForce;
         else return;
 
+        body.applyForce(wtf.scl(force), body.getWorldCenter(), true);
+    }
+
+    public void accelerate(){
+        //current speed
+        Vector2 currentForwardNormal = body.getWorldVector(new Vector2(0,1));
+        //strangle enough currentForwardNormal gets cleared somehow
+        //so we save current forward normal into a new vector
+        Vector2 wtf = new Vector2(currentForwardNormal.x,currentForwardNormal.y);
+        float currentSpeed = getForwardVelocity().dot(wtf);
+        //apply the forces!
+        float force;
+        if(maxForwardSpeed > currentSpeed)
+            force = maxDriveForce;
+        else return;
+        body.applyForce(wtf.scl(force), body.getWorldCenter(), true);
+    }
+
+    public void deccelerate(){
+        //current speed
+        Vector2 currentForwardNormal = body.getWorldVector(new Vector2(0,1));
+        //strangle enough currentForwardNormal gets cleared somehow
+        //so we save current forward normal into a new vector
+        Vector2 wtf = new Vector2(currentForwardNormal.x,currentForwardNormal.y);
+        float currentSpeed = getForwardVelocity().dot(wtf);
+        //apply the forces!
+        float force;
+        if(maxBackwardSpeed < currentSpeed)
+            force = -maxDriveForce;
+        else return;
         body.applyForce(wtf.scl(force), body.getWorldCenter(), true);
     }
 

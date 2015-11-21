@@ -19,7 +19,7 @@ import verberg.com.shmup.Game;
 /**
  * Created by Orion on 11/18/2015.
  */
-public class Car {
+public class Car implements ShmupActor{
 
     Body body;
     RevoluteJoint flJoint, frJoint;
@@ -153,72 +153,52 @@ public class Car {
         for(Tire t: tires){
             t.updateFriction();
         }
-        for(Tire t: tires){
-            t.updateDrive();
-        }
-
-        float lockAngle = (float)Math.toRadians(35);
-        float desiredAngle = 0;
-
-        if(MyInputAdapter.getKeysdown()[Input.Keys.LEFT]){
-            //move left
-            desiredAngle = lockAngle;
-        }
-        if(MyInputAdapter.getKeysdown()[Input.Keys.RIGHT]){
-            //move right
-            desiredAngle = -lockAngle;
-        }
-        for(int i = 0; i < joints.length; i++ ){
-            if(tires[i].canTurn){
-                joints[i].setLimits(desiredAngle, desiredAngle);
-            }
-        }
 
         //FIRE THE MISSLES
         if(MyInputAdapter.getKeysdown()[Input.Keys.SPACE]){
-            fireBalls(this.body.getPosition(), this.body.getLinearVelocity());
+            Bullet.createAndFire(this.body,this.body.getPosition(), this.body.getLinearVelocity());
         }
     }
 
-    long lastbullet = 0;
-    Body ball;
-    public void createBall(){
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        ball = Game.world.createBody(bodyDef);
-        CircleShape circle = new CircleShape();
-        circle.setRadius(1f);
-        FixtureDef fixture = new FixtureDef();
-        fixture.shape = circle;
-        fixture.density = 0.1f;
-        fixture.friction = 0.1f;
-        ball.createFixture(fixture);
-    }
-    //move to bullet class? weapon compoenent?
-    public void fireBalls(Vector2 position, Vector2 linearVelocity){
-        if(lastbullet + 200 > System.currentTimeMillis()){
-            return;
+    public void turnLeft(){
+        float lockAngle = (float)Math.toRadians(35);
+        for(int i = 0; i < joints.length; i++ ){
+            if(tires[i].canTurn){
+                joints[i].setLimits(lockAngle, lockAngle);
+            }
         }
-        lastbullet = System.currentTimeMillis();
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        //add 90 since car definition is 90 deg off 0
-        float direction = body.getAngle() + (float)Math.PI/2;
-        float addx = (float)(Math.cos(direction)) * 10f;
-        float addy = (float)(Math.sin(direction)) * 10f;
-
-        Body bulletbody = Game.world.createBody(bodyDef);
-        bulletbody.setTransform(position.add(addx,addy), direction);
-        CircleShape circle = new CircleShape();
-        circle.setRadius(1f);
-        FixtureDef fixture = new FixtureDef();
-        fixture.shape = circle;
-        fixture.density = 1f;
-        fixture.friction = 0.1f;
-
-        bulletbody.createFixture(fixture);
-        bulletbody.applyLinearImpulse(((float) Math.cos(direction)) * 1500f, ((float) Math.sin(direction)) * 1500f, bulletbody.getWorldCenter().x, bulletbody.getWorldCenter().y, true);
-        circle.dispose();
     }
+
+    public void turnRight(){
+        float lockAngle = -1 * (float)Math.toRadians(35);
+        for(int i = 0; i < joints.length; i++ ){
+            if(tires[i].canTurn){
+                joints[i].setLimits(lockAngle, lockAngle);
+            }
+        }
+    }
+
+    public void turnStraight(){
+        float lockAngle = 0;
+        for(int i = 0; i < joints.length; i++ ){
+            if(tires[i].canTurn){
+                joints[i].setLimits(lockAngle, lockAngle);
+            }
+        }
+    }
+
+    public void accelerate(){
+        for(Tire t: tires){
+            t.accelerate();
+        }
+    }
+
+    public void deccelerate(){
+        for(Tire t: tires){
+            t.deccelerate();
+        }
+    }
+
+
 
 }

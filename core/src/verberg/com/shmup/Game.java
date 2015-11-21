@@ -10,9 +10,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
-import components.BodyComponent;
+import Input.Command;
 import components.Car;
-import components.GameObject;
 import components.MyInputAdapter;
 import systems.CarFactory;
 import systems.WorldSystem;
@@ -31,7 +30,7 @@ public class Game extends ApplicationAdapter {
     OrthographicCamera camera;
     OrthographicCamera cam;
 
-    GameObject go;
+
 
     //don't think we need multiple worlds am I right?
 	public static World world;
@@ -40,14 +39,14 @@ public class Game extends ApplicationAdapter {
     public static World getWorld(){
         return world;
     }
-
+    MyInputAdapter playerInput;
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 
         world = new World(new Vector2(0f, 0f), true); //shmup bros has no downward gravity
-        world.setVelocityThreshold(0.0f);
+        world.setVelocityThreshold(0.01f);
 
         WorldSystem test = new WorldSystem();
         test.create(world);
@@ -58,20 +57,30 @@ public class Game extends ApplicationAdapter {
         //This seems back-asswards
        // car = new Car(world);
 
-      //  go = new GameObject(car.getBody());
-
         //debug renderer, make sure to move this later
         debugRenderer = new Box2DDebugRenderer();
         cam = new OrthographicCamera();
         cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
         cam.update();
 
-        Gdx.input.setInputProcessor(new MyInputAdapter());
+        Gdx.input.setInputProcessor(playerInput = new MyInputAdapter());
 	}
+
+    public void update(){
+        car.update(); //apply friction first since it uses the speed of the car
+        //have to properly link car to player
+        for(Command cmd : playerInput.getCommands()){
+            cmd.execute(car);
+        }
+
+
+    }
+
 
 	@Override
 	public void render () {
-        car.update();
+        update();
+
         Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
         world.step(STEP, 6, 2);
         cam.position.set(car.getBody().getPosition().x, car.getBody().getPosition().y, 10);

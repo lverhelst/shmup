@@ -12,25 +12,25 @@
         "name" : "RearLeft",
         "canTurn" : false,
         "location" : [-2.5,0],
-        "maxForwardSpeed" : 150,
+        "maxForwardSpeed" : 120,
         "maxBackwardsSpeed": -40,
-        "maxDriveForce": 500,
+        "maxDriveForce": 200,
         "maxLateralImpulse" : 8.5
       },
       {
         "name" : "RearRight",
         "canTurn" : false,
         "location" : [2.5,0],
-        "maxForwardSpeed" : 150,
+        "maxForwardSpeed" : 120,
         "maxBackwardsSpeed": -40,
-        "maxDriveForce": 500,
+        "maxDriveForce": 200,
         "maxLateralImpulse" : 8.5
       },
       {
         "name" : "FrontLeft",
         "canTurn" : true,
-        "location" : [-2.5,7],
-        "maxForwardSpeed" : 150,
+        "location" : [-2.5,5],
+        "maxForwardSpeed" : 80,
         "maxBackwardsSpeed": -40,
         "maxDriveForce": 300,
         "maxLateralImpulse" : 7.5
@@ -38,12 +38,12 @@
       {
         "name" : "FrontRight",
         "canTurn" : true,
-        "location" : [2.5,7],
-        "maxForwardSpeed" : 150,
+        "location" : [2.5,5],
+        "maxForwardSpeed" : 80,
         "maxBackwardsSpeed": -40,
         "maxDriveForce": 300,
         "maxLateralImpulse" : 7.5
-      },
+      }
     ]
   }
 }
