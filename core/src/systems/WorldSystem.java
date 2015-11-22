@@ -4,17 +4,13 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
-
-import java.util.Random;
-
-import verberg.com.shmup.Game;
 
 /**
  * Created by Orion on 11/17/2015.
@@ -29,7 +25,6 @@ public class WorldSystem {
 
     public void create(World world) {
         this.world = world;
-        Random rand = new Random();
 
         loadWorld(Gdx.files.internal("defaultLevel"));
     }
@@ -43,12 +38,15 @@ public class WorldSystem {
         for(JsonValue block : blocks){
             float[] pos = block.get("location").asFloatArray();
             float[] size = block.get("size").asFloatArray();
+            float friction = block.get("friction").asFloat();
+            float density = block.get("density").asFloat();
+            BodyDef.BodyType type = block.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
 
-            createBox(pos[0], pos[1], size[0], size[1], 1, BodyDef.BodyType.StaticBody);
+            createBox(pos[0], pos[1], size[0], size[1], friction, density, type);
         }
     }
 
-    public Body createBox(float x, float y, float w, float h, float friction, BodyDef.BodyType type) {
+    public Body createBox(float x, float y, float w, float h, float friction, float density, BodyType type) {
         //box2d doubles these when it creates the box... so I am undoing that so coords are consistant
         w /= 2;
         h /= 2;
@@ -65,7 +63,13 @@ public class WorldSystem {
 
         PolygonShape box = new PolygonShape();
         box.setAsBox(w, h);
-        body.createFixture(box, friction);
+
+        FixtureDef fixture = new FixtureDef();
+        fixture.shape = box;
+        fixture.density = density;
+        fixture.friction = friction;
+
+        body.createFixture(fixture);
         box.dispose();
 
         return body;
