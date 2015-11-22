@@ -15,6 +15,4 @@ public class ShmupActor{
         removeable = isRemoveable;
     }
 
-
-
 }

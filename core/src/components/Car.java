@@ -65,7 +65,7 @@ public class Car extends ShmupActor implements Physical {
         pShape.set(vertices);
 
         Fixture f = body.createFixture(pShape, 0.1f);
-        f.setUserData(TYPE.CAR);
+        f.setUserData(this);
 
         //common joint shit
         RevoluteJointDef jointDef = new RevoluteJointDef();
