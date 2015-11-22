@@ -4,17 +4,13 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
-
-import java.util.Random;
-
-import verberg.com.shmup.Game;
 
 /**
  * Created by Orion on 11/17/2015.
@@ -29,14 +25,6 @@ public class WorldSystem {
 
     public void create(World world) {
         this.world = world;
-        Random rand = new Random();
-
-        /*
-        for(int i = 0; i < 100; i++) {
-            createBox(i * 3, (i%2 == 0 ? 0 : 280), 10/PPM, 10/PPM);
-            createBox((i%2 == 0 ? 0 : 280), i * 3, 10/PPM, 10/PPM);
-        }
-        */
 
         loadWorld(Gdx.files.internal("defaultLevel"));
     }
@@ -50,12 +38,15 @@ public class WorldSystem {
         for(JsonValue block : blocks){
             float[] pos = block.get("location").asFloatArray();
             float[] size = block.get("size").asFloatArray();
+            float friction = block.get("friction").asFloat();
+            float density = block.get("density").asFloat();
+            BodyDef.BodyType type = block.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
 
-            createGround(pos[0], pos[1], size[0], size[1]);
+            createBox(pos[0], pos[1], size[0], size[1], friction, density, type);
         }
     }
 
-    public void createGround(float x, float y, float w, float h) {
+    public Body createBox(float x, float y, float w, float h, float friction, float density, BodyType type) {
         //box2d doubles these when it creates the box... so I am undoing that so coords are consistant
         w /= 2;
         h /= 2;
@@ -65,34 +56,19 @@ public class WorldSystem {
         y -= 64f;
 
         BodyDef bodyDef = new BodyDef();
+        bodyDef.type = type;
         bodyDef.position.set(new Vector2(x + w, y + h));
 
         Body body = world.createBody(bodyDef);
 
         PolygonShape box = new PolygonShape();
         box.setAsBox(w, h);
-        body.createFixture(box, 1f);
-        box.dispose();
-    }
 
-
-    public Body createBox(float x, float y, float w, float h) {
-        //box2d doubles these when it creates the box... so I am undoing that so coords are consistant
-        w /= 2;
-        h /= 2;
-
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(new Vector2(x, y));
-
-        Body body = world.createBody(bodyDef);
-        PolygonShape box = new PolygonShape();
         FixtureDef fixture = new FixtureDef();
         fixture.shape = box;
-        fixture.density = 1.0f;
-        fixture.friction = 0.1f;
+        fixture.density = density;
+        fixture.friction = friction;
 
-        box.setAsBox(w, h);
         body.createFixture(fixture);
         box.dispose();
 
