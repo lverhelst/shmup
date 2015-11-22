@@ -8,6 +8,8 @@ import verberg.com.shmup.Game;
 
 /**
  * Created by Orion on 11/21/2015.
+ * We create a munitions factory so that you don't have to remember to add your bullet
+ * to the actor list every spot you create one.
  */
 
 public class MunitionsFactory {

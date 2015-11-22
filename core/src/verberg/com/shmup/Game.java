@@ -18,6 +18,7 @@ import Input.Command;
 import components.AI;
 import components.Car;
 import components.MyInputAdapter;
+import components.Physical;
 import components.ShmupActor;
 import systems.CarFactory;
 import systems.MyContactListener;
@@ -95,7 +96,7 @@ public class Game extends ApplicationAdapter {
 
 
     public static synchronized void removeActor(ShmupActor shmupActor){
-        actors.add(shmupActor);
+        actors.remove(shmupActor);
     }
 
     public void update(){
@@ -114,15 +115,15 @@ public class Game extends ApplicationAdapter {
             }
         }
 
-
         Iterator<ShmupActor> actorIterator = actors.iterator();
-
+        ShmupActor next;
         while(actorIterator.hasNext()){
-            if(actorIterator.next().isRemoveable()){
-                actors.remove(actorIterator.next());
+            if((next = actorIterator.next()).isRemoveable()){
+                if(next instanceof Physical)
+                    ((Physical)next).destroy();
+                actorIterator.remove();
             }
         }
-
     }
 
 
@@ -132,6 +133,7 @@ public class Game extends ApplicationAdapter {
 
         Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
         world.step(STEP, 6, 2);
+
         cam.position.set(car.getBody().getPosition().x, car.getBody().getPosition().y, 10);
 
         cam.update();

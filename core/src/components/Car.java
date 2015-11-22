@@ -3,6 +3,7 @@ package components;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
@@ -17,7 +18,7 @@ import verberg.com.shmup.Game;
 /**
  * Created by Orion on 11/18/2015.
  */
-public class Car implements ShmupActor{
+public class Car extends ShmupActor implements Physical {
 
     Body body;
     RevoluteJoint flJoint, frJoint;
@@ -63,7 +64,8 @@ public class Car implements ShmupActor{
         PolygonShape pShape = new PolygonShape();
         pShape.set(vertices);
 
-        body.createFixture(pShape, 0.1f);
+        Fixture f = body.createFixture(pShape, 0.1f);
+        f.setUserData(TYPE.CAR);
 
         //common joint shit
         RevoluteJointDef jointDef = new RevoluteJointDef();
@@ -220,8 +222,15 @@ public class Car implements ShmupActor{
     }
 
     @Override
-    public boolean isRemoveable() {
-        return false;
+    public void checkCollision(Object p) {
+        if(p instanceof Bullet){
+            //this.takeDamage()
+        }
+    }
+
+    @Override
+    public void destroy() {
+        Game.world.destroyBody(body);
     }
 
 }

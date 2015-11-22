@@ -3,8 +3,18 @@ package components;
 /**
  * Created by Orion on 11/20/2015.
  */
-public interface ShmupActor {
+public class ShmupActor{
 
-    boolean isRemoveable();
+    private boolean removeable;
+
+    public boolean isRemoveable(){
+        return removeable;
+    }
+
+    public void setRemoveable(boolean isRemoveable){
+        removeable = isRemoveable;
+    }
+
+
 
 }

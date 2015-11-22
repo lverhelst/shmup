@@ -13,17 +13,13 @@ import verberg.com.shmup.Game;
  *
  * Created by Orion on 11/20/2015.
  */
-public class Bullet implements ShmupActor {
+public class Bullet extends ShmupActor implements Physical {
 
     ShmupActor owner;
+    Body bulletbody;
 
     public Bullet(ShmupActor owner){
         this.owner = owner;
-    }
-
-    @Override
-    public boolean isRemoveable() {
-        return false;
     }
 
     public void launch(Body sourceBody){
@@ -34,7 +30,7 @@ public class Bullet implements ShmupActor {
         float addx = (float)(Math.cos(direction)) * 8f;
         float addy = (float)(Math.sin(direction)) * 8f;
 
-        Body bulletbody = Game.world.createBody(bodyDef);
+        bulletbody = Game.world.createBody(bodyDef);
         bulletbody.setTransform(sourceBody.getPosition().add(addx, addy), direction);
         CircleShape circle = new CircleShape();
         circle.setRadius(1f);
@@ -51,4 +47,17 @@ public class Bullet implements ShmupActor {
         circle.dispose();
     }
 
+
+    @Override
+    public void checkCollision(Object p) {
+        if(p instanceof Car){
+            //((Car)p).takeDamage
+        }
+        setRemoveable(true);
+    }
+
+    @Override
+    public void destroy() {
+        Game.world.destroyBody(bulletbody);
+    }
 }

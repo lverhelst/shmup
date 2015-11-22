@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
 import components.Bullet;
+import components.Physical;
 import verberg.com.shmup.Game;
 
 /**
@@ -19,13 +20,12 @@ public class MyContactListener implements ContactListener{
         Fixture fixtureB = contact.getFixtureB();
 
 
-        if(fixtureA.getUserData() instanceof Bullet){
-            //flag for destruction
+        if(fixtureA.getUserData() instanceof Physical){
+            ((Physical)fixtureA.getUserData()).checkCollision(fixtureB.getUserData());
         }
-        if(fixtureB.getUserData() instanceof Bullet){
-            //flag for destruction
+        if(fixtureB.getUserData() instanceof Physical){
+            ((Physical)fixtureB.getUserData()).checkCollision(fixtureA.getUserData());
         }
-
     }
 
     @Override

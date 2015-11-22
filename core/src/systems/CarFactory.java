@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import components.Car;
 import components.Tire;
+import verberg.com.shmup.Game;
 
 /**
  * While this isn't technically a Factory class, I think it's fun to name something that reads in a list of attributes
@@ -59,7 +60,7 @@ public class CarFactory {
             tires.add(tire);
         }
         car.assemble(tires.toArray(new Tire[tires.size()]));
-
+        Game.addActor(car);
         return car;
     }
 
