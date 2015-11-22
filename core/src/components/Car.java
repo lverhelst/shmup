@@ -1,12 +1,8 @@
 package components;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
@@ -15,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import java.util.ArrayList;
 import java.util.Random;
 
+import systems.MunitionsFactory;
 import verberg.com.shmup.Game;
 
 /**
@@ -31,7 +28,15 @@ public class Car implements ShmupActor{
     private Tire[] tires;
     RevoluteJoint[] joints;
 
+    private long lastBullet = 0;
+
     public int x,y;
+
+    public enum CarStatus{
+        NORMAL,
+        DESTROYED
+    }
+    CarStatus status = CarStatus.NORMAL;
 
     //JSON INSTANTIATION
     public Car(){
@@ -159,11 +164,6 @@ public class Car implements ShmupActor{
         for(Tire t: tires){
             t.updateFriction();
         }
-
-        //FIRE THE MISSLES
-        if(MyInputAdapter.getKeysdown()[Input.Keys.SPACE]){
-            Bullet.createAndFire(this.body,this.body.getPosition(), this.body.getLinearVelocity());
-        }
     }
 
     public void turnLeft(){
@@ -205,6 +205,23 @@ public class Car implements ShmupActor{
         }
     }
 
+    public void destruct(){
+        for(RevoluteJoint j : joints){
+            Game.world.destroyJoint(j);
+        }
+        status = CarStatus.DESTROYED;
+    }
 
+    public void fire(){
+        if(lastBullet + 250 < System.currentTimeMillis()){
+            MunitionsFactory.createBullet(this).launch(this.body);
+            lastBullet = System.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public boolean isRemoveable() {
+        return false;
+    }
 
 }

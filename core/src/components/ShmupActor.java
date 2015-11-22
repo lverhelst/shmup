@@ -5,4 +5,6 @@ package components;
  */
 public interface ShmupActor {
 
+    boolean isRemoveable();
+
 }

@@ -29,13 +29,16 @@ public class AI {
     }
 
     public Command[] getCommands(){
+        if(((Car)inControlof).status == Car.CarStatus.DESTROYED)
+            return new Command[0];
+
         ArrayList<Command> cmd = new ArrayList<Command>();
         CarCommands carCmd = new CarCommands();
         Random random = new Random();
-        if(random.nextInt(8) < 4){
+        if(random.nextInt(8) < 2){
             cmd.add(carCmd.new AccelerateCommand());
         }
-        if(random.nextInt(8) == 4){
+        if(random.nextInt(8) < 4){
             cmd.add(carCmd.new DecellerateCommand());
         }
         boolean turned = false;
@@ -49,6 +52,9 @@ public class AI {
         }
         if(!turned){
             cmd.add(carCmd.new PowerSteerCommand());
+        }
+        if(random.nextInt(1000) == 7){
+            cmd.add(carCmd.new destructCommand());
         }
         return cmd.toArray(new Command[cmd.size()]);
     }

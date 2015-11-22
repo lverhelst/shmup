@@ -66,6 +66,10 @@ public class MyInputAdapter extends InputAdapter {
         if(!(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.RIGHT])) {
             cmd.add(carCmd.new PowerSteerCommand());
         }
+        if(keysdown[Input.Keys.SPACE]){
+            cmd.add(carCmd.new FireCommand());
+        }
+
         return cmd.toArray(new Command[cmd.size()]);
     }
 }

@@ -48,4 +48,22 @@ public class CarCommands  {
             }
         }
     }
+
+    public class destructCommand implements  Command {
+        public void execute(ShmupActor car) {
+            if (car instanceof Car) {
+                //send the car to the crusher's
+                ((Car) car).destruct();
+            }
+        }
+    }
+
+    public class FireCommand implements  Command{
+        @Override
+        public void execute(ShmupActor a) {
+            if(a instanceof  Car){
+                ((Car)a).fire();
+            }
+        }
+    }
 }

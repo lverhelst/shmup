@@ -59,6 +59,7 @@ public class CarFactory {
             tires.add(tire);
         }
         car.assemble(tires.toArray(new Tire[tires.size()]));
+
         return car;
     }
 

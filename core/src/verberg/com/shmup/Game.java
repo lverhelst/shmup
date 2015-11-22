@@ -10,18 +10,27 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import Input.Command;
 import components.AI;
 import components.Car;
 import components.MyInputAdapter;
+import components.ShmupActor;
 import systems.CarFactory;
+import systems.MyContactListener;
 import systems.WorldSystem;
 
 public class Game extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
+
+
+    private static ArrayList<ShmupActor> actors = new ArrayList<ShmupActor>();
+
+
 
     //move to static shit class
     private static final float STEP = 1/60f;
@@ -52,6 +61,7 @@ public class Game extends ApplicationAdapter {
 
         world = new World(new Vector2(0f, 0f), true); //shmup bros has no downward gravity
         world.setVelocityThreshold(0.01f);
+        world.setContactListener(new MyContactListener());
 
         WorldSystem test = new WorldSystem();
         test.create(world);
@@ -78,6 +88,16 @@ public class Game extends ApplicationAdapter {
         Gdx.input.setInputProcessor(playerInput = new MyInputAdapter());
 	}
 
+
+    public static synchronized void addActor(ShmupActor shmupActor){
+        actors.add(shmupActor);
+    }
+
+
+    public static synchronized void removeActor(ShmupActor shmupActor){
+        actors.add(shmupActor);
+    }
+
     public void update(){
         car.update(); //apply friction first since it uses the speed of the car
         //have to properly link car to player
@@ -91,6 +111,15 @@ public class Game extends ApplicationAdapter {
         for(AI ai : aiList){
             for(Command cmd : ai.getCommands()){
                 cmd.execute(ai.getInControlof());
+            }
+        }
+
+
+        Iterator<ShmupActor> actorIterator = actors.iterator();
+
+        while(actorIterator.hasNext()){
+            if(actorIterator.next().isRemoveable()){
+                actors.remove(actorIterator.next());
             }
         }
 
