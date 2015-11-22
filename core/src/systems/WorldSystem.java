@@ -44,7 +44,7 @@ public class WorldSystem {
             float[] pos = block.get("location").asFloatArray();
             float[] size = block.get("size").asFloatArray();
 
-            createBox(pos[0], pos[1], size[0], size[1], 1, BodyDef.BodyType.DynamicBody);
+            createBox(pos[0], pos[1], size[0], size[1], 1, BodyDef.BodyType.StaticBody);
         }
     }
 
