@@ -1,5 +1,6 @@
 package systems;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -8,6 +9,8 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 
 import java.util.Random;
 
@@ -35,90 +38,21 @@ public class WorldSystem {
         }
         */
 
-        //bottom left
-        createGround(0, 0, 50f, 2f);
-        createGround(0, 2, 2f, 46f);
-        createGround(0, 48f, 15, 2f);
-        createGround(35, 48f, 15, 2f);
-        createGround(50f, 0, 2f, 15);
-        createGround(50f, 35, 2f, 15);
+        loadWorld(Gdx.files.internal("defaultLevel"));
+    }
 
-        //bottom outer wall
-        createGround(52, 6.5f, 96, 2);
-        createGround(148, 6.5f, 2, 8.5f);
-        createGround(150, 13, 18, 2);
-        createGround(168, 6.5f, 2, 8.5f);
-        createGround(170, 6.5f, 96, 2);
+    public void loadWorld(FileHandle level) {
+        JsonReader reader = new JsonReader();
+        JsonValue json = reader.parse(level);
+        JsonValue map = json.get("level");
+        JsonValue blocks = map.get("blocks");
 
-        //bottom inner wall
-        createGround(52, 41.5f, 96, 2);
-        createGround(148, 35, 2, 8.5f);
-        createGround(168, 35, 2, 8.5f);
-        createGround(170, 41.5f, 96, 2);
+        for(JsonValue block : blocks){
+            float[] pos = block.get("location").asFloatArray();
+            float[] size = block.get("size").asFloatArray();
 
-        //bottom right
-        createGround(266, 0, 50f, 2f);
-        createGround(266, 48f, 15, 2f);
-        createGround(301, 48f, 15, 2f);
-        createGround(316, 0, 2f, 50);
-        createGround(266, 2, 2f, 13);
-        createGround(266, 35, 2f, 13);
-
-        //left outer wall
-        createGround(6.5f, 50, 2, 96);
-        createGround(6.5f, 146, 8.5f, 2);
-        createGround(13, 148, 2, 18);
-        createGround(6.5f, 166, 8.5f, 2);
-        createGround(6.5f, 168, 2, 96);
-
-        //left inner wall
-        createGround(41.5f, 50, 2, 96);
-        createGround(35, 146, 8.5f, 2);
-        createGround(35, 166, 8.5f, 2);
-        createGround(41.5f, 168, 2, 96);
-
-        //right inner wall
-        createGround(272.5f, 50, 2, 96);
-        createGround(272.5f, 146, 8.5f, 2);
-        createGround(272.5f, 166, 8.5f, 2);
-        createGround(272.5f, 168, 2, 96);
-
-        //right outer wall
-        createGround(307.5f, 50, 2, 96);
-        createGround(301, 148, 2, 18);
-        createGround(301, 146, 8.5f, 2);
-        createGround(301, 166, 8.5f, 2);
-        createGround(307.5f, 168, 2, 96);
-
-        //top left
-        createGround(0, 312, 50f, 2f);
-        createGround(0, 264, 15, 2f);
-        createGround(35, 264, 15, 2f);
-        createGround(0, 266, 2f, 46f);
-        createGround(50f, 264, 2f, 15);
-        createGround(50f, 299, 2f, 15);
-
-        //top right
-        createGround(266, 312, 50f, 2f);
-        createGround(266, 264, 15, 2f);
-        createGround(301, 264, 15, 2f);
-        createGround(316, 264, 2f, 50);
-        createGround(266, 266, 2f, 13);
-        createGround(266, 299, 2f, 13);
-
-        //top inner wall
-        createGround(52, 270.5f, 96, 2);
-        createGround(148, 270.5f, 2, 8.5f);
-        createGround(168, 270.5f, 2, 8.5f);
-        createGround(170, 270.5f, 96, 2);
-
-        //top outer wall
-        createGround(52, 305.5f, 96, 2);
-        createGround(148, 299, 2, 8.5f);
-        createGround(150, 299, 18, 2);
-        createGround(168, 299, 2, 8.5f);
-        createGround(170, 305.5f, 96, 2);
-
+            createGround(pos[0], pos[1], size[0], size[1]);
+        }
     }
 
     public void createGround(float x, float y, float w, float h) {
