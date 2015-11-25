@@ -1,4 +1,4 @@
-package components;
+package gameObjects;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -12,7 +12,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import java.util.ArrayList;
 import java.util.Random;
 
-import systems.MunitionsFactory;
+import Factories.MunitionsFactory;
 import verberg.com.shmup.Game;
 
 /**
@@ -37,7 +37,7 @@ public class Car extends ShmupActor implements Physical {
         NORMAL,
         DESTROYED
     }
-    CarStatus status = CarStatus.NORMAL;
+    public CarStatus status = CarStatus.NORMAL;
 
     //JSON INSTANTIATION
     public Car(){

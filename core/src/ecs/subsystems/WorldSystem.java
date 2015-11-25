@@ -1,4 +1,4 @@
-package systems;
+package ecs.subsystems;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
@@ -14,7 +14,8 @@ import com.badlogic.gdx.utils.JsonValue;
 
 /**
  * Created by Orion on 11/17/2015.
- *
+ * TODO: Rename to Level
+ * TODO: Find better spot for this one
  */
 public class WorldSystem {
     //NOTE: Not sure if this was your intended use... but can be moved elsewhere if needed

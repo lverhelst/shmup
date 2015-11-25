@@ -1,7 +1,9 @@
 package Input;
 
-import components.Car;
-import components.ShmupActor;
+import gameObjects.Car;
+import gameObjects.ShmupActor;
+import ecs.Entity;
+import ecs.components.SteeringComponent;
 
 /**
  * Created by Orion on 11/20/2015.
@@ -30,12 +32,24 @@ public class CarCommands  {
                 ((Car) car).turnLeft();
             }
         }
+
+        public void execute(Entity entity){
+            if(entity.has(SteeringComponent.class)){
+                ((SteeringComponent)entity.get(SteeringComponent.class)).setSteeringDirection(SteeringComponent.DIRECTION.LEFT);
+            }
+        }
     }
 
     public class RightTurnCommand implements Command {
         public void execute(ShmupActor car) {
             if (car instanceof Car) {
                 ((Car) car).turnRight();
+            }
+        }
+
+        public void execute(Entity entity){
+            if(entity.has(SteeringComponent.class)){
+                ((SteeringComponent)entity.get(SteeringComponent.class)).setSteeringDirection(SteeringComponent.DIRECTION.RIGHT);
             }
         }
     }
@@ -45,6 +59,12 @@ public class CarCommands  {
             if (car instanceof Car) {
                 //send the car to Gay Camp
                 ((Car) car).turnStraight();
+            }
+        }
+
+        public void execute(Entity entity){
+            if(entity.has(SteeringComponent.class)){
+                ((SteeringComponent)entity.get(SteeringComponent.class)).setSteeringDirection(SteeringComponent.DIRECTION.STRAIGHT);
             }
         }
     }

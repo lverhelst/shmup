@@ -1,4 +1,4 @@
-package components;
+package Input;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
@@ -7,30 +7,21 @@ import java.util.ArrayList;
 
 import Input.Command;
 import Input.CarCommands;
+import ecs.Entity;
+import verberg.com.shmup.Game;
+import verberg.com.shmup.INTENT;
+import verberg.com.shmup.Message;
 
 /**
  * Created by Orion on 11/17/2015.
  */
 public class MyInputAdapter extends InputAdapter {
 
-    private static boolean consumed;
-    private static int lastKeycode;
-
-    public static int getLastKeycode() {
-        consumed = true;
-        return lastKeycode;
-    }
-
-    public static boolean isConsumed() {
-        return consumed;
-    }
-
     private static boolean[] keysdown =  new boolean[256];
 
     public static boolean[] getKeysdown(){
         return keysdown;
     }
-
 
     @Override
     public boolean keyDown(int keycode) {
@@ -41,8 +32,6 @@ public class MyInputAdapter extends InputAdapter {
     @Override
     public boolean keyUp(int keycode) {
         keysdown[keycode] = false;
-        consumed = false;
-        lastKeycode = keycode;
         return false;
     }
 
@@ -71,5 +60,31 @@ public class MyInputAdapter extends InputAdapter {
         }
 
         return cmd.toArray(new Command[cmd.size()]);
+    }
+
+    /**
+     * Should be called by whatever system registers entity as player controlled
+     * @param entity
+     */
+    public static void getIntentsForPlayerControlledEntity(Entity entity){
+        if(keysdown[Input.Keys.UP]){
+            Game.messageManager.addMessage(new Message(entity, INTENT.ACCELERATE));
+        }
+        if(keysdown[Input.Keys.DOWN]){
+            Game.messageManager.addMessage(new Message(entity, INTENT.DECELERATE));
+        }
+
+        if(keysdown[Input.Keys.LEFT]){
+            Game.messageManager.addMessage(new Message(entity, INTENT.LEFTTURN));
+        }
+        if(keysdown[Input.Keys.RIGHT]){
+            Game.messageManager.addMessage(new Message(entity, INTENT.RIGHTTURN));
+        }
+        if(!(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.RIGHT])) {
+            Game.messageManager.addMessage(new Message(entity, INTENT.STRAIGHT));
+        }
+        if(keysdown[Input.Keys.SPACE]){
+            Game.messageManager.addMessage(new Message(entity, INTENT.FIRE));
+        }
     }
 }

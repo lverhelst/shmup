@@ -1,4 +1,4 @@
-package components;
+package gameObjects;
 
 /**
  * Created by Orion on 11/20/2015.

@@ -1,4 +1,4 @@
-package components;
+package gameObjects;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 import verberg.com.shmup.Game;
+import Input.MyInputAdapter;
 
 /**
  * https://github.com/lverhelst/shmup.git
@@ -94,8 +95,6 @@ public class Tire {
         Vector2 currentForwardNormal = getForwardVelocity();
         float speed = (float)Math.sqrt(currentForwardNormal.x * currentForwardNormal.x + currentForwardNormal.y * currentForwardNormal.y);
         body.applyForceToCenter(currentForwardNormal.scl(-0.02f * speed),true);
-
-
     }
 
     public void updateDrive(){

@@ -1,9 +1,7 @@
-package systems;
+package Factories;
 
-import com.badlogic.gdx.physics.box2d.Body;
-
-import components.Bullet;
-import components.ShmupActor;
+import gameObjects.Bullet;
+import gameObjects.ShmupActor;
 import verberg.com.shmup.Game;
 
 /**

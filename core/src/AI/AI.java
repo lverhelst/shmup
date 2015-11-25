@@ -1,12 +1,12 @@
-package components;
-
-import com.badlogic.gdx.Input;
+package AI;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 import Input.CarCommands;
 import Input.Command;
+import gameObjects.Car;
+import gameObjects.ShmupActor;
 
 /**
  * Roughin in AI

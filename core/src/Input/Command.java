@@ -1,6 +1,6 @@
 package Input;
 
-import components.ShmupActor;
+import gameObjects.ShmupActor;
 
 /**
  * Created by Orion on 11/20/2015.

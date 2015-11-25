@@ -10,19 +10,23 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import Input.Command;
-import components.AI;
-import components.Car;
-import components.MyInputAdapter;
-import components.Physical;
-import components.ShmupActor;
-import systems.CarFactory;
-import systems.MyContactListener;
-import systems.WorldSystem;
+import AI.AI;
+import ecs.subsystems.InputSystem;
+import gameObjects.Car;
+import Input.MyInputAdapter;
+import gameObjects.Physical;
+import gameObjects.ShmupActor;
+import ecs.subsystems.CameraSystem;
+import ecs.Entity;
+import ecs.subsystems.SteeringSystem;
+import ecs.subsystems.WeaponSystem;
+import Factories.CarFactory;
+import ecs.subsystems.ContactSystem;
+import ecs.subsystems.WorldSystem;
 
 public class Game extends ApplicationAdapter {
 	SpriteBatch batch;
@@ -30,21 +34,30 @@ public class Game extends ApplicationAdapter {
 
 
     private static ArrayList<ShmupActor> actors = new ArrayList<ShmupActor>();
+    private static ArrayList<Entity> entities = new ArrayList<Entity>();
 
-
+    //Temporary until replaced by Emery's Messaging components
+    public static MessageManager messageManager = new MessageManager();
 
     //move to static shit class
     private static final float STEP = 1/60f;
     public static final int V_WIDTH = 620/5;
     public static final int V_HEIGHT = 480/5;
 
-    //move to render component
+    //move to render Component
     Box2DDebugRenderer debugRenderer;
     OrthographicCamera camera;
     OrthographicCamera cam;
 
 
     public ArrayList<AI> aiList;
+
+
+    //Initialize systems for ECS
+    InputSystem inputSystem = new InputSystem();
+    SteeringSystem steeringSystem = new SteeringSystem();
+    CameraSystem cameraSystem = new CameraSystem();
+    WeaponSystem weaponSystem = new WeaponSystem();
 
 
     //don't think we need multiple worlds am I right?
@@ -56,19 +69,28 @@ public class Game extends ApplicationAdapter {
     }
     MyInputAdapter playerInput;
 
+    boolean ecsMode = true;
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 
         world = new World(new Vector2(0f, 0f), true); //shmup bros has no downward gravity
         world.setVelocityThreshold(0.01f);
-        world.setContactListener(new MyContactListener());
+        world.setContactListener(new ContactSystem());
 
         WorldSystem test = new WorldSystem();
         test.create(world);
 
         CarFactory carFactory = new CarFactory();
-        car = carFactory.produceCar();
+
+        if(ecsMode)
+            carFactory.produceCarECS();
+        else
+            car = carFactory.produceCar();
+
+
+
 
         aiList = new ArrayList<AI>();
         for(int i = 0; i < 3; i++){
@@ -99,12 +121,37 @@ public class Game extends ApplicationAdapter {
         actors.remove(shmupActor);
     }
 
+
+    public static synchronized void addEntity(Entity entity){
+        entities.add(entity);
+    }
+    public static synchronized void removeEntity(Entity entity){
+        entities.remove(entity);
+    }
+
+
     public void update(){
-        car.update(); //apply friction first since it uses the speed of the car
-        //have to properly link car to player
-        for(Command cmd : playerInput.getCommands()){
-            cmd.execute(car);
+
+        //update collision listener
+        world.step(STEP, 6, 2);
+
+        if(!ecsMode) {
+            car.update(); //apply friction first since it uses the speed of the car
+            //have to properly link car to player
+            for (Command cmd : playerInput.getCommands()) {
+                cmd.execute(car);
+            }
+
+            cam.position.set(car.getBody().getPosition().x, car.getBody().getPosition().y, 10);
+            cam.update();
+        }else{
+            inputSystem.update(entities);
+            steeringSystem.update(entities);
+            cameraSystem.update(entities, cam);
+            weaponSystem.update(entities);
         }
+
+
 
         //for AI in AIList
         //AI.getcommands
@@ -124,19 +171,16 @@ public class Game extends ApplicationAdapter {
                 actorIterator.remove();
             }
         }
+
+        messageManager.clearMessages();
     }
 
 
-	@Override
-	public void render () {
+    @Override
+    public void render () {
         update();
 
         Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
-        world.step(STEP, 6, 2);
-
-        cam.position.set(car.getBody().getPosition().x, car.getBody().getPosition().y, 10);
-
-        cam.update();
 
         debugRenderer.render(world, cam.combined);
 

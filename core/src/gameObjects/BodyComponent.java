@@ -1,4 +1,4 @@
-package components;
+package gameObjects;
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -10,7 +10,7 @@ import com.badlogic.gdx.physics.box2d.World;
 /**
  * Created by Orion on 11/17/2015.
 
-    Body Component makes a physics box...maybe this is more of a physics component.
+    Body Component makes a physics box...maybe this is more of a physics Component.
 
  */
 public class BodyComponent {
