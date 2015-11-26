@@ -2,17 +2,19 @@ package Input;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.controllers.ControllerAdapter;
 
 import java.util.ArrayList;
 
 import AI.IntentGenerator;
-import Input.Command;
-import Input.CarCommands;
 import ecs.Entity;
 import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
 import verberg.com.shmup.Message;
+import verberg.com.shmup.MessageManager;
+import verberg.com.shmup.SteeringMessage;
+import verberg.com.shmup.WeaponMessage;
+
+import static com.badlogic.gdx.Input.Keys.CONTROL_RIGHT;
 
 /**
  * Created by Orion on 11/17/2015.
@@ -71,23 +73,23 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
     @Override
     public void generateIntents(Entity entity){
         if(keysdown[Input.Keys.UP]||keysdown[Input.Keys.W]){
-            Game.messageManager.addMessage(new Message(entity, INTENT.ACCELERATE));
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.ACCELERATE));
         }
         if(keysdown[Input.Keys.DOWN]||keysdown[Input.Keys.S]){
-            Game.messageManager.addMessage(new Message(entity, INTENT.DECELERATE));
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.DECELERATE));
         }
 
         if(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.A]){
-            Game.messageManager.addMessage(new Message(entity, INTENT.LEFTTURN));
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.LEFTTURN));
         }
         if(keysdown[Input.Keys.RIGHT]||keysdown[Input.Keys.D]){
-            Game.messageManager.addMessage(new Message(entity, INTENT.RIGHTTURN));
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.RIGHTTURN));
         }
         if(!(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.RIGHT])) {
-            Game.messageManager.addMessage(new Message(entity, INTENT.STRAIGHT));
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.STRAIGHT));
         }
-        if(keysdown[Input.Keys.SPACE]||keysdown[Input.Keys.CONTROL_RIGHT]){
-            Game.messageManager.addMessage(new Message(entity, INTENT.FIRE));
+        if(keysdown[Input.Keys.SPACE]||keysdown[CONTROL_RIGHT]){
+            MessageManager.addMessage(new WeaponMessage(entity));
         }
     }
 }

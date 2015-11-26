@@ -145,9 +145,11 @@ public class Game extends ApplicationAdapter {
             cam.update();
         }else{
             inputSystem.update(entities);
-            steeringSystem.update(entities);
+            //steeringSystem.update(entities);
+            MessageManager.update();
+
             cameraSystem.update(entities, cam);
-            weaponSystem.update(entities);
+            //weaponSystem.update(entities);
         }
 
 
@@ -171,7 +173,7 @@ public class Game extends ApplicationAdapter {
                 actorIterator.remove();
             }
         }
-        messageManager.clearMessages();
+        //messageManager.clearMessages();
     }
 
 
