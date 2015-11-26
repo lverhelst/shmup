@@ -11,7 +11,10 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
 import java.util.ArrayList;
+import java.util.Random;
 
+import AI.IntentGenerator;
+import AI.AI;
 import gameObjects.Car;
 import gameObjects.Tire;
 import ecs.components.CameraAttachmentComponent;
@@ -19,7 +22,7 @@ import ecs.Entity;
 import ecs.components.JointComponent;
 import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
-import ecs.components.PlayerControlledComponent;
+import ecs.components.ControlledComponent;
 import ecs.components.SteeringComponent;
 import ecs.components.WeaponComponent;
 import verberg.com.shmup.Game;
@@ -77,7 +80,7 @@ public class CarFactory {
     }
 
     //TODO: Move to produce predefined Entity structure class?
-    public void produceCarECS(){
+    public void produceCarECS(IntentGenerator ig){
         JsonReader jr = new JsonReader();
         JsonValue jv = jr.parse(Gdx.files.internal("carlist"));
         JsonValue jCar = jv.get("car");
@@ -98,15 +101,24 @@ public class CarFactory {
         BodyDef bdef = new BodyDef();
         bdef.type = BodyDef.BodyType.DynamicBody;
 
-
-        bdef.position.set(new Vector2(64, 64)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        Random random = new Random();
+        bdef.position.set(new Vector2(random.nextInt(128), random.nextInt(128))); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body carbody = Game.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();
         pShape.set(vertices);
 
         Fixture f = carbody.createFixture(pShape, 0.1f);
-        Entity carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new WeaponComponent());
+        Entity carBodyEntity = null;
+        if(!(ig instanceof AI)){
+            carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new WeaponComponent(), new ControlledComponent(ig));
+        }else{
+            carBodyEntity = new Entity(new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(ig));
+        }
+        if(carBodyEntity == null)
+            return;
+
+
         f.setUserData(carBodyEntity);
 
 
@@ -135,7 +147,7 @@ public class CarFactory {
             Fixture fixture = tireBody.createFixture(tireShape, 1f);
 
             //really you just control the tires
-            Entity tireEntity = new Entity(tValue.getString("name"), steering, new PhysicalComponent(tireBody), new PlayerControlledComponent());
+            Entity tireEntity = new Entity(tValue.getString("name"), steering, new PhysicalComponent(tireBody), new ControlledComponent(ig));
             fixture.setUserData(tireEntity);
 
             Entity jointEntity = new Entity("JointEntity", new JointComponent(carbody, tireBody, v2));

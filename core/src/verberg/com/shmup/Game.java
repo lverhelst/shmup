@@ -39,14 +39,13 @@ public class Game extends ApplicationAdapter {
     //Temporary until replaced by Emery's Messaging components
     public static MessageManager messageManager = new MessageManager();
 
-    //move to static shit class
+    //move to static variables class
     private static final float STEP = 1/60f;
     public static final int V_WIDTH = 620/5;
     public static final int V_HEIGHT = 480/5;
 
     //move to render Component
     Box2DDebugRenderer debugRenderer;
-    OrthographicCamera camera;
     OrthographicCamera cam;
 
 
@@ -82,10 +81,12 @@ public class Game extends ApplicationAdapter {
         WorldSystem test = new WorldSystem();
         test.create(world);
 
+        Gdx.input.setInputProcessor(playerInput = new MyInputAdapter());
+
         CarFactory carFactory = new CarFactory();
 
         if(ecsMode)
-            carFactory.produceCarECS();
+            carFactory.produceCarECS(playerInput);
         else
             car = carFactory.produceCar();
 
@@ -94,9 +95,7 @@ public class Game extends ApplicationAdapter {
 
         aiList = new ArrayList<AI>();
         for(int i = 0; i < 3; i++){
-            AI ai = new AI();
-            ai.setInControlof(carFactory.produceCar());
-            aiList.add(ai);
+            carFactory.produceCarECS(new AI());
         }
 
         //This seems back-asswards
@@ -108,7 +107,7 @@ public class Game extends ApplicationAdapter {
         cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
         cam.update();
 
-        Gdx.input.setInputProcessor(playerInput = new MyInputAdapter());
+
 	}
 
 
@@ -156,12 +155,13 @@ public class Game extends ApplicationAdapter {
         //for AI in AIList
         //AI.getcommands
         //cmd.execute(AI.car)
-        for(AI ai : aiList){
+        /*for(AI ai : aiList){
             for(Command cmd : ai.getCommands()){
                 cmd.execute(ai.getInControlof());
             }
-        }
+        }*/
 
+        //Will need to be put into the contact system (probably)
         Iterator<ShmupActor> actorIterator = actors.iterator();
         ShmupActor next;
         while(actorIterator.hasNext()){
@@ -171,7 +171,6 @@ public class Game extends ApplicationAdapter {
                 actorIterator.remove();
             }
         }
-
         messageManager.clearMessages();
     }
 

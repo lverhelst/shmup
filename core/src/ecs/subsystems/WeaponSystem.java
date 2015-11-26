@@ -16,6 +16,8 @@ import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.WeaponComponent;
 import verberg.com.shmup.Game;
+import verberg.com.shmup.INTENT;
+import verberg.com.shmup.MessageManager;
 
 /**
  * Created by Orion on 11/23/2015.
@@ -34,7 +36,7 @@ public class WeaponSystem extends SubSystem {
                 WeaponComponent wc = e.get(WeaponComponent.class);
                 //Move this check to an input system
                 //The input system/AI should create intents
-                if(MyInputAdapter.getKeysdown()[Input.Keys.SPACE]){
+                if(MessageManager.hasMessage(e, INTENT.FIRE)){
                     if(wc.lastFire + wc.firingDelay < System.currentTimeMillis()){
                         Body sourceBody = null;
                         if(e.has(PhysicalComponent.class)){

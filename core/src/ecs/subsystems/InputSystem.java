@@ -1,12 +1,9 @@
 package ecs.subsystems;
 
-import com.badlogic.gdx.InputAdapter;
-
 import java.util.ArrayList;
 
-import Input.MyInputAdapter;
 import ecs.Entity;
-import ecs.components.PlayerControlledComponent;
+import ecs.components.ControlledComponent;
 
 /**
  * Created by Orion on 11/24/2015.
@@ -16,8 +13,9 @@ public class InputSystem {
 
     public void update(ArrayList<Entity> entities){
         for(Entity e : entities){
-            if(e.has(PlayerControlledComponent.class)){
-                MyInputAdapter.getIntentsForPlayerControlledEntity(e);
+            if(e.has(ControlledComponent.class)){
+                ControlledComponent pc = e.get(ControlledComponent.class);
+                pc.ig.generateIntents(e);
             }
         }
     }

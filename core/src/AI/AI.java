@@ -5,19 +5,27 @@ import java.util.Random;
 
 import Input.CarCommands;
 import Input.Command;
+import ecs.Entity;
 import gameObjects.Car;
 import gameObjects.ShmupActor;
+import verberg.com.shmup.Game;
+import verberg.com.shmup.INTENT;
+import verberg.com.shmup.Message;
 
 /**
  * Roughin in AI
  * Created by Orion on 11/21/2015.
  */
-public class AI {
+public class AI implements IntentGenerator {
 
     ShmupActor inControlof;
+    long lastIntent = 0;
+    int intentDelay = 250;
+    int bozoNumber = 5;
+    Random random;
 
     public AI(){
-
+        random = new Random();
     }
 
     public ShmupActor getInControlof() {
@@ -57,5 +65,35 @@ public class AI {
             cmd.add(carCmd.new destructCommand());
         }
         return cmd.toArray(new Command[cmd.size()]);
+    }
+
+    @Override
+    public void generateIntents(Entity entity) {
+        if(lastIntent + intentDelay > System.currentTimeMillis())
+        {
+            lastIntent = System.currentTimeMillis();
+            bozoNumber = random.nextInt(10);
+        }
+        //Add messages to message manager
+        if(bozoNumber < 7){
+            Game.messageManager.addMessage(new Message(entity, INTENT.ACCELERATE));
+        }
+        if(bozoNumber == 7){
+            Game.messageManager.addMessage(new Message(entity, INTENT.DECELERATE));
+        }
+        boolean didTurn = false;
+        if(bozoNumber < 4 ){
+            Game.messageManager.addMessage(new Message(entity, INTENT.LEFTTURN));
+            didTurn |= true;
+        } else if(bozoNumber < 7){
+            Game.messageManager.addMessage(new Message(entity, INTENT.RIGHTTURN));
+            didTurn |= true;
+        }
+        if(!didTurn) {
+            Game.messageManager.addMessage(new Message(entity, INTENT.STRAIGHT));
+        }
+        if(bozoNumber < 8){
+            Game.messageManager.addMessage(new Message(entity, INTENT.FIRE));
+        }
     }
 }

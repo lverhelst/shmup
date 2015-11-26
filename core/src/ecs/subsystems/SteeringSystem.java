@@ -1,17 +1,15 @@
 package ecs.subsystems;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 
 import java.util.ArrayList;
 
-import Input.MyInputAdapter;
 import ecs.Entity;
 import ecs.SubSystem;
 import ecs.components.JointComponent;
 import ecs.components.PhysicalComponent;
-import ecs.components.PlayerControlledComponent;
+import ecs.components.ControlledComponent;
 import ecs.components.SteeringComponent;
 import verberg.com.shmup.INTENT;
 import verberg.com.shmup.MessageManager;
@@ -37,7 +35,7 @@ public class SteeringSystem extends SubSystem {
 
                 //IS -- denotes that this should be in the input system
                 //Should check isControlledComponent
-                if(entity.has(PlayerControlledComponent.class)){
+                if(entity.has(ControlledComponent.class)){
                     //IS
                     if(MessageManager.hasMessage(entity, INTENT.ACCELERATE)){ //Should be (check messages for entity ID, CMD.UP
 

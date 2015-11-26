@@ -2,9 +2,11 @@ package Input;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.controllers.ControllerAdapter;
 
 import java.util.ArrayList;
 
+import AI.IntentGenerator;
 import Input.Command;
 import Input.CarCommands;
 import ecs.Entity;
@@ -15,7 +17,7 @@ import verberg.com.shmup.Message;
 /**
  * Created by Orion on 11/17/2015.
  */
-public class MyInputAdapter extends InputAdapter {
+public class MyInputAdapter extends InputAdapter implements IntentGenerator {
 
     private static boolean[] keysdown =  new boolean[256];
 
@@ -66,24 +68,25 @@ public class MyInputAdapter extends InputAdapter {
      * Should be called by whatever system registers entity as player controlled
      * @param entity
      */
-    public static void getIntentsForPlayerControlledEntity(Entity entity){
-        if(keysdown[Input.Keys.UP]){
+    @Override
+    public void generateIntents(Entity entity){
+        if(keysdown[Input.Keys.UP]||keysdown[Input.Keys.W]){
             Game.messageManager.addMessage(new Message(entity, INTENT.ACCELERATE));
         }
-        if(keysdown[Input.Keys.DOWN]){
+        if(keysdown[Input.Keys.DOWN]||keysdown[Input.Keys.S]){
             Game.messageManager.addMessage(new Message(entity, INTENT.DECELERATE));
         }
 
-        if(keysdown[Input.Keys.LEFT]){
+        if(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.A]){
             Game.messageManager.addMessage(new Message(entity, INTENT.LEFTTURN));
         }
-        if(keysdown[Input.Keys.RIGHT]){
+        if(keysdown[Input.Keys.RIGHT]||keysdown[Input.Keys.D]){
             Game.messageManager.addMessage(new Message(entity, INTENT.RIGHTTURN));
         }
         if(!(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.RIGHT])) {
             Game.messageManager.addMessage(new Message(entity, INTENT.STRAIGHT));
         }
-        if(keysdown[Input.Keys.SPACE]){
+        if(keysdown[Input.Keys.SPACE]||keysdown[Input.Keys.CONTROL_RIGHT]){
             Game.messageManager.addMessage(new Message(entity, INTENT.FIRE));
         }
     }
