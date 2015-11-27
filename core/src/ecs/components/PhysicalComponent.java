@@ -12,9 +12,11 @@ import ecs.Component;
 public class PhysicalComponent extends Component {
 
     public int maxContacts = 0, numberOfContact = 0;
+    public boolean isRoot; //Says if this node is the root of an entity tree
     Body box2dBody;
 
     public PhysicalComponent(Body body){
+        isRoot = false;
         this.box2dBody = body;
     }
 

@@ -3,6 +3,7 @@ package ecs;
 import java.util.HashMap;
 import java.util.UUID;
 
+import ecs.components.ChildEntityComponent;
 import ecs.components.ParentEntityComponent;
 import verberg.com.shmup.Game;
 
@@ -92,7 +93,18 @@ public class Entity {
     }
 
     public void removeComponent(Class c){
-        if(has(c.getSuperclass()))
+        if(has(c))
             this.components.remove(c);
+    }
+
+    public void recursiveRemove(Class c){
+        if(has(c))
+            removeComponent(c);
+        if(has(ChildEntityComponent.class)){
+            ChildEntityComponent cec = get(ChildEntityComponent.class);
+            for(Entity e : cec.childList){
+                e.recursiveRemove(c);
+            }
+        }
     }
 }

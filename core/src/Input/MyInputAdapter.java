@@ -42,33 +42,6 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
         return false;
     }
 
-    public Command[] getCommands(){
-        ArrayList<Command> cmd = new ArrayList<Command>();
-        CarCommands carCmd = new CarCommands();
-        if(keysdown[Input.Keys.UP]){
-            cmd.add(carCmd.new AccelerateCommand());
-        }
-        if(keysdown[Input.Keys.DOWN]){
-            cmd.add(carCmd.new DecellerateCommand());
-        }
-
-        if(keysdown[Input.Keys.LEFT]){
-            cmd.add(carCmd.new LeftTurnCommand());
-
-        }
-        if(keysdown[Input.Keys.RIGHT]){
-            cmd.add(carCmd.new RightTurnCommand());
-        }
-        if(!(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.RIGHT])) {
-            cmd.add(carCmd.new PowerSteerCommand());
-        }
-        if(keysdown[Input.Keys.SPACE]){
-            cmd.add(carCmd.new FireCommand());
-        }
-
-        return cmd.toArray(new Command[cmd.size()]);
-    }
-
     /**
      * Should be called by whatever system registers entity as player controlled
      * @param entity
