@@ -16,10 +16,8 @@ import java.util.Random;
 import AI.IntentGenerator;
 import AI.AI;
 import ecs.components.ChildEntityComponent;
-import ecs.components.DamageComponent;
 import ecs.components.HealthComponent;
 import gameObjects.Car;
-import gameObjects.Tire;
 import ecs.components.CameraAttachmentComponent;
 import ecs.Entity;
 import ecs.components.JointComponent;
@@ -44,43 +42,6 @@ public class CarFactory {
         jsonText = fileHandle.readString();
     }
 
-    public Car produceCar(){
-        JsonReader jr = new JsonReader();
-        JsonValue jv = jr.parse(Gdx.files.internal("carlist"));
-        JsonValue jCar = jv.get("car");
-        JsonValue jVertices  = jCar.get("vertices");
-
-        String name = jCar.getString("name");
-        float density = jCar.getFloat("density");
-
-        float[] x_vertices = jVertices.child().asFloatArray() ;
-        float[] y_vertices = jVertices.child().next().asFloatArray();
-        Vector2[] vertices = new Vector2[x_vertices.length];
-
-        for(int x = 0; x < x_vertices.length; x++){
-            vertices[x] = new Vector2(x_vertices[x], y_vertices[x]);
-        }
-        Car car = new Car();
-        car.setProperties(name, density, vertices);
-
-        //grab tires definitions
-        ArrayList<Tire> tires = new ArrayList<Tire>();
-        Tire tire;
-        Vector2 v2;
-        for(JsonValue tValue : jCar.get("tires")){
-            tire = new Tire(car.x,car.y);
-            tValue.get(name);
-
-            v2 = new Vector2(tValue.get("location").asFloatArray()[0],tValue.get("location").asFloatArray()[1]);
-            tire.setCharacteristics(tValue.getString("name"),tValue.getBoolean("canTurn"),v2,tValue.getInt("maxForwardSpeed"),tValue.getInt("maxBackwardsSpeed")
-                    ,tValue.getInt("maxDriveForce"),tValue.getFloat("maxLateralImpulse"));
-
-            tires.add(tire);
-        }
-        car.assemble(tires.toArray(new Tire[tires.size()]));
-        Game.addActor(car);
-        return car;
-    }
 
     //TODO: Move to produce predefined Entity structure class?
     public void produceCarECS(IntentGenerator ig){
@@ -117,10 +78,11 @@ public class CarFactory {
         if(!(ig instanceof AI)){
             carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new WeaponComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
         }else{
-            carBodyEntity = new Entity(new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(ig), new HealthComponent(100), new ChildEntityComponent(),cec);
+            carBodyEntity = new Entity(new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(ig), new HealthComponent(100),cec);
         }
         if(carBodyEntity == null)
             return;
+        ((PhysicalComponent)carBodyEntity.get(PhysicalComponent.class)).isRoot = true;
 
 
         f.setUserData(carBodyEntity);
@@ -157,10 +119,25 @@ public class CarFactory {
             Entity jointEntity = new Entity("JointEntity", new JointComponent(carbody, tireBody, v2));
             tireEntity.addComponent(new ParentEntityComponent(jointEntity));
 
+
             jointEntity.addComponent(new ParentEntityComponent(carBodyEntity));
+            jointEntity.addComponent(new ChildEntityComponent(tireEntity));
+
+            cec.childList.add(jointEntity);
+
         }
+    }
+
+    public void applyLifeTimeWarranty(Entity e){
+        //navigate to root
+
+        //if root is dead rebuild entirely
+
+        //else rebuild missing wheels
+
 
 
     }
+
 
 }

@@ -10,9 +10,7 @@ import ecs.Entity;
 import ecs.components.DamageComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
-import gameObjects.Physical;
 import verberg.com.shmup.INTENT;
-import verberg.com.shmup.Message;
 import verberg.com.shmup.MessageManager;
 import verberg.com.shmup.RemoveMessage;
 
