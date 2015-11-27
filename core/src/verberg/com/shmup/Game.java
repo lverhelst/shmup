@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import Input.Command;
 import AI.AI;
+import AI.IntentGenerator;
 import ecs.subsystems.InputSystem;
 import gameObjects.Car;
 import Input.MyInputAdapter;
@@ -66,7 +67,7 @@ public class Game extends ApplicationAdapter {
     public static World getWorld(){
         return world;
     }
-    MyInputAdapter playerInput;
+    static MyInputAdapter playerInput;
 
     boolean ecsMode = true;
 
@@ -109,6 +110,10 @@ public class Game extends ApplicationAdapter {
 
 
 	}
+
+    public static IntentGenerator getPlayerInput(){
+        return playerInput;
+    }
 
 
     public static synchronized void addActor(ShmupActor shmupActor){

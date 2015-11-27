@@ -6,12 +6,14 @@ import java.util.Random;
 import Input.CarCommands;
 import Input.Command;
 import ecs.Entity;
+import ecs.components.HealthComponent;
 import gameObjects.Car;
 import gameObjects.ShmupActor;
 import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
 import verberg.com.shmup.Message;
 import verberg.com.shmup.MessageManager;
+import verberg.com.shmup.SpawnMessage;
 import verberg.com.shmup.SteeringMessage;
 import verberg.com.shmup.WeaponMessage;
 
@@ -64,7 +66,7 @@ public class AI implements IntentGenerator {
         if(!turned){
             cmd.add(carCmd.new PowerSteerCommand());
         }
-        if(random.nextInt(1000) == 7){
+        if(random.nextInt(10000) == 7){
             cmd.add(carCmd.new destructCommand());
         }
         return cmd.toArray(new Command[cmd.size()]);
@@ -72,7 +74,16 @@ public class AI implements IntentGenerator {
 
     @Override
     public void generateIntents(Entity entity) {
-        if(lastIntent + intentDelay > System.currentTimeMillis())
+
+        if(entity.has(HealthComponent.class)){
+            if(((HealthComponent)entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
+                //Ya can't shoot if your dead
+                //MessageManager.addMessage(new SpawnMessage(entity));
+                return;
+            }
+        }
+
+        if(lastIntent + intentDelay < System.currentTimeMillis())
         {
             lastIntent = System.currentTimeMillis();
             bozoNumber = random.nextInt(10);
@@ -95,7 +106,7 @@ public class AI implements IntentGenerator {
         if(!didTurn) {
             MessageManager.addMessage(new SteeringMessage(entity, INTENT.STRAIGHT));
         }
-        if(bozoNumber < 8){
+        if(bozoNumber == 4){
             MessageManager.addMessage(new WeaponMessage(entity));
         }
     }

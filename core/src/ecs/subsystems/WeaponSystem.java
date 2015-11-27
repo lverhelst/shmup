@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import Input.MyInputAdapter;
 import ecs.Entity;
 import ecs.SubSystem;
+import ecs.components.DamageComponent;
+import ecs.components.HealthComponent;
 import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.WeaponComponent;
@@ -30,6 +32,14 @@ public class WeaponSystem extends SubSystem {
         ArrayList<PhysicalComponent> bullets  = new ArrayList<PhysicalComponent>();
         ArrayList<Fixture> setUserDataForThese  = new ArrayList<Fixture>();
 
+        if(entity.has(HealthComponent.class)){
+            if(((HealthComponent)entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
+                //Ya can't shoot if your dead
+                return;
+            }
+        }
+
+
         if(entity.has(WeaponComponent.class)){
             WeaponComponent wc = entity.get(WeaponComponent.class);
             //Move this check to an input system
@@ -46,6 +56,7 @@ public class WeaponSystem extends SubSystem {
 
                 BodyDef bodyDef = new BodyDef();
                 bodyDef.type = BodyDef.BodyType.DynamicBody;
+
                 //add 90 since car definition is 90 deg off 0
                 float direction = sourceBody.getAngle() + (float)Math.PI/2;
                 float addx = (float)(Math.cos(direction)) * 8f;
@@ -53,30 +64,33 @@ public class WeaponSystem extends SubSystem {
 
                 Body bulletbody = Game.world.createBody(bodyDef);
                 bulletbody.setTransform(sourceBody.getPosition().add(addx, addy), direction);
+
                 CircleShape circle = new CircleShape();
                 circle.setRadius(1f);
                 FixtureDef fixture = new FixtureDef();
                 fixture.shape = circle;
-                fixture.density = 1f;
+                fixture.density = 10f;
                 fixture.friction = 0.1f;
 
                 Fixture bulletFixture = bulletbody.createFixture(fixture);
 
                 createBulletsForThese.add(entity);
-                bullets.add(new PhysicalComponent(bulletbody));
+                PhysicalComponent pc = new PhysicalComponent(bulletbody);
+                pc.maxContacts = 1; //Bullets can only hit 1 object before being destroyed
+                bullets.add(pc);
                 setUserDataForThese.add(bulletFixture);
 
 
-                bulletbody.applyLinearImpulse(((float) Math.cos(direction)) * 1500f, ((float) Math.sin(direction)) * 1500f, bulletbody.getWorldCenter().x, bulletbody.getWorldCenter().y, true);
+                bulletbody.applyLinearImpulse(((float) Math.cos(direction)) * 15000f, ((float) Math.sin(direction)) * 15000f, bulletbody.getWorldCenter().x, bulletbody.getWorldCenter().y, true);
                 circle.dispose();
 
                 wc.lastFire = System.currentTimeMillis();
             }
         }
 
-        //create bullets here cause of concurrent modification shit
+        //create bullets here cause of concurrent modification
         for(int i = 0; i < bullets.size(); i++){
-            Entity bEntity = new Entity(bullets.get(i), new ParentEntityComponent(createBulletsForThese.get(i)));
+            Entity bEntity = new Entity(bullets.get(i), new ParentEntityComponent(createBulletsForThese.get(i)), new DamageComponent(20));
             setUserDataForThese.get(i).setUserData(bEntity);
         }
     }

@@ -20,6 +20,7 @@ public class MessageManager {
     public static void update() {
         for(Message msg: messages) {
             msg.submitMessage();
+
         }
 
         clearMessages();

@@ -12,6 +12,9 @@ public enum INTENT {
     DESTRUCT,
     DAMAGE,
     STRAIGHT,
-    REMOVE_ENTITY
+    REMOVE,
+    DIED,
+    SPAWN_PLAYER,
+    SPAWN_AI
 
 }

@@ -15,6 +15,9 @@ import java.util.Random;
 
 import AI.IntentGenerator;
 import AI.AI;
+import ecs.components.ChildEntityComponent;
+import ecs.components.DamageComponent;
+import ecs.components.HealthComponent;
 import gameObjects.Car;
 import gameObjects.Tire;
 import ecs.components.CameraAttachmentComponent;
@@ -110,10 +113,11 @@ public class CarFactory {
 
         Fixture f = carbody.createFixture(pShape, 0.1f);
         Entity carBodyEntity = null;
+        ChildEntityComponent cec = new ChildEntityComponent();
         if(!(ig instanceof AI)){
-            carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new WeaponComponent(), new ControlledComponent(ig));
+            carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new WeaponComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
         }else{
-            carBodyEntity = new Entity(new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(ig));
+            carBodyEntity = new Entity(new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(ig), new HealthComponent(100), new ChildEntityComponent(),cec);
         }
         if(carBodyEntity == null)
             return;
@@ -147,11 +151,13 @@ public class CarFactory {
             Fixture fixture = tireBody.createFixture(tireShape, 1f);
 
             //really you just control the tires
-            Entity tireEntity = new Entity(tValue.getString("name"), steering, new PhysicalComponent(tireBody), new ControlledComponent(ig));
+            Entity tireEntity = new Entity(tValue.getString("name"), steering, new PhysicalComponent(tireBody), new ControlledComponent(ig), new HealthComponent(10));
             fixture.setUserData(tireEntity);
 
             Entity jointEntity = new Entity("JointEntity", new JointComponent(carbody, tireBody, v2));
             tireEntity.addComponent(new ParentEntityComponent(jointEntity));
+
+            jointEntity.addComponent(new ParentEntityComponent(carBodyEntity));
         }
 
 

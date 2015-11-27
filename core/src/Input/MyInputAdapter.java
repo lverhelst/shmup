@@ -7,10 +7,12 @@ import java.util.ArrayList;
 
 import AI.IntentGenerator;
 import ecs.Entity;
+import ecs.components.HealthComponent;
 import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
 import verberg.com.shmup.Message;
 import verberg.com.shmup.MessageManager;
+import verberg.com.shmup.SpawnMessage;
 import verberg.com.shmup.SteeringMessage;
 import verberg.com.shmup.WeaponMessage;
 
@@ -30,6 +32,7 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
     @Override
     public boolean keyDown(int keycode) {
         keysdown[keycode] = true;
+
         return super.keyDown(keycode);
     }
 
@@ -72,20 +75,36 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
      */
     @Override
     public void generateIntents(Entity entity){
+
+        if(entity.has(HealthComponent.class)){
+            if(((HealthComponent)entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
+                //Ya can't shoot if your dead
+                for(int i = 0; i < keysdown.length; i++) {
+                    if(keysdown[i]) {
+                        MessageManager.addMessage(new SpawnMessage(entity));
+                        return;
+                    }
+                }
+            }
+        }
+
+
         if(keysdown[Input.Keys.UP]||keysdown[Input.Keys.W]){
             MessageManager.addMessage(new SteeringMessage(entity, INTENT.ACCELERATE));
         }
         if(keysdown[Input.Keys.DOWN]||keysdown[Input.Keys.S]){
             MessageManager.addMessage(new SteeringMessage(entity, INTENT.DECELERATE));
         }
-
+        boolean didTurn = false;
         if(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.A]){
             MessageManager.addMessage(new SteeringMessage(entity, INTENT.LEFTTURN));
+            didTurn |= true;
         }
         if(keysdown[Input.Keys.RIGHT]||keysdown[Input.Keys.D]){
             MessageManager.addMessage(new SteeringMessage(entity, INTENT.RIGHTTURN));
+            didTurn |= true;
         }
-        if(!(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.RIGHT])) {
+        if(!didTurn) {
             MessageManager.addMessage(new SteeringMessage(entity, INTENT.STRAIGHT));
         }
         if(keysdown[Input.Keys.SPACE]||keysdown[CONTROL_RIGHT]){

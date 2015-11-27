@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 
 import ecs.Entity;
 import ecs.SubSystem;
+import ecs.components.HealthComponent;
 import ecs.components.JointComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.ControlledComponent;
@@ -22,6 +23,15 @@ public class SteeringSystem extends SubSystem {
     private boolean didTurn;
 
     public void update(Entity entity, INTENT intent){
+
+        if(entity.has(HealthComponent.class)){
+            if(((HealthComponent)entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
+                //Ya can't steer if your dead
+                return;
+            }
+        }
+
+
         if(entity.has(SteeringComponent.class)) {
             SteeringComponent sc = entity.get(SteeringComponent.class);
             //This should be separated into a input system and should make intent messages
