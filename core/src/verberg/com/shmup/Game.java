@@ -27,7 +27,6 @@ import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
 import Factories.CarFactory;
 import ecs.subsystems.ContactSystem;
-import ecs.subsystems.WorldSystem;
 
 public class Game extends ApplicationAdapter {
 	SpriteBatch batch;
@@ -79,7 +78,7 @@ public class Game extends ApplicationAdapter {
         world.setVelocityThreshold(0.01f);
         world.setContactListener(new ContactSystem());
 
-        WorldSystem test = new WorldSystem();
+        Level test = new Level();
         test.create(world);
 
         Gdx.input.setInputProcessor(playerInput = new MyInputAdapter());
