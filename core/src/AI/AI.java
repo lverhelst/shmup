@@ -11,6 +11,9 @@ import gameObjects.ShmupActor;
 import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
 import verberg.com.shmup.Message;
+import verberg.com.shmup.MessageManager;
+import verberg.com.shmup.SteeringMessage;
+import verberg.com.shmup.WeaponMessage;
 
 /**
  * Roughin in AI
@@ -76,24 +79,24 @@ public class AI implements IntentGenerator {
         }
         //Add messages to message manager
         if(bozoNumber < 7){
-            Game.messageManager.addMessage(new Message(entity, INTENT.ACCELERATE));
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.ACCELERATE));
         }
         if(bozoNumber == 7){
-            Game.messageManager.addMessage(new Message(entity, INTENT.DECELERATE));
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.DECELERATE));
         }
         boolean didTurn = false;
         if(bozoNumber < 4 ){
-            Game.messageManager.addMessage(new Message(entity, INTENT.LEFTTURN));
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.LEFTTURN));
             didTurn |= true;
         } else if(bozoNumber < 7){
-            Game.messageManager.addMessage(new Message(entity, INTENT.RIGHTTURN));
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.RIGHTTURN));
             didTurn |= true;
         }
         if(!didTurn) {
-            Game.messageManager.addMessage(new Message(entity, INTENT.STRAIGHT));
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.STRAIGHT));
         }
         if(bozoNumber < 8){
-            Game.messageManager.addMessage(new Message(entity, INTENT.FIRE));
+            MessageManager.addMessage(new WeaponMessage(entity));
         }
     }
 }

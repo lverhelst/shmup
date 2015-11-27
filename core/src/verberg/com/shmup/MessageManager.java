@@ -2,9 +2,6 @@ package verberg.com.shmup;
 
 import java.util.ArrayList;
 
-import ecs.Entity;
-import ecs.components.ParentEntityComponent;
-
 /**
  * Created by Orion on 11/24/2015.
  */
@@ -20,17 +17,11 @@ public class MessageManager {
         messages.clear();
     }
 
-    public static Message[] getMessages(){
-        return messages.toArray(new Message[messages.size()]);
-    }
-
-    public static boolean hasMessage(Entity e, INTENT i){
-        for(Message m : messages){
-            if(m.entity.equals(e) && m.intent == i)
-                return true;
+    public static void update() {
+        for(Message msg: messages) {
+            msg.submitMessage();
         }
-        return false;
+
+        clearMessages();
     }
-
-
 }
