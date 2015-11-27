@@ -11,6 +11,7 @@ public enum INTENT {
     FIRE,
     DESTRUCT,
     DAMAGE,
-    STRAIGHT
+    STRAIGHT,
+    REMOVE_ENTITY
 
 }

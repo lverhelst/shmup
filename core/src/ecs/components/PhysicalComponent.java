@@ -10,6 +10,8 @@ import ecs.Component;
  * A box2d body
  */
 public class PhysicalComponent extends Component {
+
+    public int maxContacts = 0, numberOfContact = 0;
     Body box2dBody;
 
     public PhysicalComponent(Body body){

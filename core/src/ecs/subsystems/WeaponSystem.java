@@ -66,7 +66,9 @@ public class WeaponSystem extends SubSystem {
                         Fixture bulletFixture = bulletbody.createFixture(fixture);
 
                         createBulletsForThese.add(e);
-                        bullets.add(new PhysicalComponent(bulletbody));
+                        PhysicalComponent pc = new PhysicalComponent(bulletbody);
+                        pc.maxContacts = 1; //Bullets can only hit 1 object before being destroyed
+                        bullets.add(pc);
                         setUserDataForThese.add(bulletFixture);
 
 
