@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import AI.IntentGenerator;
 import ecs.Entity;
 import ecs.components.HealthComponent;
+import ecs.components.PhysicalComponent;
 import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
 import verberg.com.shmup.Message;
 import verberg.com.shmup.MessageManager;
+import verberg.com.shmup.RemoveMessage;
 import verberg.com.shmup.SpawnMessage;
 import verberg.com.shmup.SteeringMessage;
 import verberg.com.shmup.WeaponMessage;
@@ -52,16 +54,33 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
         if(entity.has(HealthComponent.class)){
             if(((HealthComponent)entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
                 //Ya can't shoot if your dead
-                for(int i = 0; i < keysdown.length; i++) {
-                    if(keysdown[i]) {
-                        MessageManager.addMessage(new SpawnMessage(entity));
-                        return;
+                if (entity.has(PhysicalComponent.class)) {
+                    if (((PhysicalComponent) entity.get(PhysicalComponent.class)).isRoot) {
+                        if(keysdown[Input.Keys.Y]) {
+                                System.out.println("SPAWN");
+                                //is dead respawn
+                                MessageManager.addMessage(new SpawnMessage(entity));
+                                return;
+                            }
+
+                        
                     }
                 }
             }
         }
 
-
+        //Suicide
+        if(keysdown[Input.Keys.T]) {
+            if (entity.has(PhysicalComponent.class)) {
+                if (((PhysicalComponent) entity.get(PhysicalComponent.class)).isRoot) {
+                    if (entity.has(HealthComponent.class)) {
+                        ((HealthComponent) entity.get(HealthComponent.class)).cur_health = 0;
+                        MessageManager.addMessage(new RemoveMessage(entity,INTENT.DIED));
+                    }
+                }
+                return;
+            }
+        }
         if(keysdown[Input.Keys.UP]||keysdown[Input.Keys.W]){
             MessageManager.addMessage(new SteeringMessage(entity, INTENT.ACCELERATE));
         }

@@ -4,8 +4,10 @@ import java.util.Random;
 
 import ecs.Entity;
 import ecs.components.HealthComponent;
+import ecs.components.PhysicalComponent;
 import verberg.com.shmup.INTENT;
 import verberg.com.shmup.MessageManager;
+import verberg.com.shmup.SpawnMessage;
 import verberg.com.shmup.SteeringMessage;
 import verberg.com.shmup.WeaponMessage;
 
@@ -29,18 +31,24 @@ public class AI implements IntentGenerator {
     @Override
     public void generateIntents(Entity entity) {
 
+
         if(entity.has(HealthComponent.class)){
             if(((HealthComponent)entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
-                //Ya can't shoot if your dead
-                //MessageManager.addMessage(new SpawnMessage(entity));
+                if (entity.has(PhysicalComponent.class)) {
+                    if (((PhysicalComponent) entity.get(PhysicalComponent.class)).isRoot) {
+
+                        MessageManager.addMessage(new SpawnMessage(entity));
+                    }
+                }
                 return;
             }
         }
-
         if(lastIntent + intentDelay < System.currentTimeMillis())
         {
             lastIntent = System.currentTimeMillis();
             bozoNumber = random.nextInt(10);
+
+
         }
         //Add messages to message manager
         if(bozoNumber < 7){

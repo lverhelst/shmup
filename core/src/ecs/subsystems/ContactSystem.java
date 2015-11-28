@@ -78,7 +78,6 @@ public class ContactSystem implements ContactListener{
 
             if(aEntity.recursiveHas(HealthComponent.class) && bEntity.recursiveHas(DamageComponent.class)){
                 ((HealthComponent)aEntity.recursiveGet(HealthComponent.class)).cur_health -= ((DamageComponent)bEntity.recursiveGet(DamageComponent.class)).damage;
-
                 if(((HealthComponent)aEntity.recursiveGet(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
                     MessageManager.addMessage(new RemoveMessage(aEntity,INTENT.DIED));
 

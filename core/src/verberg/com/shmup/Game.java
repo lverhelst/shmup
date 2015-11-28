@@ -77,7 +77,7 @@ public class Game extends ApplicationAdapter {
 
 
         aiList = new ArrayList<AI>();
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < 4; i++){
             carFactory.produceCarECS(new AI());
         }
 

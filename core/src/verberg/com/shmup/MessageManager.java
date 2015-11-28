@@ -7,6 +7,7 @@ import java.util.ArrayList;
  */
 public class MessageManager {
 
+    static int i = 0;
     static ArrayList<Message> messages = new ArrayList<Message>();
 
     public static  void addMessage(Message m){
@@ -20,9 +21,10 @@ public class MessageManager {
     public static void update() {
         for(Message msg: messages) {
             msg.submitMessage();
-
+            if((msg instanceof SpawnMessage)) {
+                System.out.println((++i) + " " +  ((SpawnMessage)msg).e);
+            }
         }
-
         clearMessages();
     }
 }

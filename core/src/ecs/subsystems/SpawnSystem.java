@@ -21,15 +21,19 @@ public class SpawnSystem {
             HealthComponent hc = ((HealthComponent)entity.get(HealthComponent.class));
             if(hc.getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
                 //Ya can't shoot if your dead
-                hc.cur_health = hc.max_health;
+                //hc.cur_health = hc.max_health;
 
-                //re-add all the other components (render)?
-                //Set any physical components to be a not sensor
-                //spawn in some location if
-                //TODO:
                 if(entity.recursiveHas(PhysicalComponent.class)){
-                    for(Fixture f : ((PhysicalComponent) entity.get(PhysicalComponent.class)).getBody().getFixtureList()) {
-                        f.setSensor(false);
+                    PhysicalComponent pc = (PhysicalComponent) entity.get(PhysicalComponent.class);
+                    for(Fixture f : pc.getBody().getFixtureList()) {
+                      // f.setSensor(false);
+                    }
+                    //We know only car bodies are root
+                    //Car bodies are the point we want for the respawn message, cause we can traverse it's tree at that point
+                    //At some point we may want a type component to determine if an entity is part of a car/bullet/someother type/boat
+                    if(pc.isRoot){
+                        //Rebuild the car from the definition
+                        carFactory.applyLifeTimeWarranty(entity);
                     }
                 }
             }

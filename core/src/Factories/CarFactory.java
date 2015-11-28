@@ -73,6 +73,7 @@ public class CarFactory {
         pShape.set(vertices);
 
         Fixture f = carbody.createFixture(pShape, 0.1f);
+        f.setDensity(density);
         Entity carBodyEntity = null;
         ChildEntityComponent cec = new ChildEntityComponent();
         if(!(ig instanceof AI)){
@@ -129,13 +130,105 @@ public class CarFactory {
     }
 
     public void applyLifeTimeWarranty(Entity e){
-        //navigate to root
+        ControlledComponent cc = null;
+        if(e.has(ControlledComponent.class)) {
+            cc = e.get(ControlledComponent.class);
+        }
+        if(cc == null){
+            //Error, can't apply warranty to uncontrolled object
+            //TODO: Err Msg/Assert
+            return;
+        }
 
-        //if root is dead rebuild entirely
-
-        //else rebuild missing wheels
 
 
+
+        Game.removeEntity(e);
+
+        //root check was done in the spawn system
+        //could also do that here
+        JsonReader jr = new JsonReader();
+        JsonValue jv = jr.parse(Gdx.files.internal("carlist"));
+        JsonValue jCar = jv.get("car");
+        JsonValue jVertices  = jCar.get("vertices");
+
+        String name = jCar.getString("name");
+        float density = jCar.getFloat("density");
+
+        float[] x_vertices = jVertices.child().asFloatArray() ;
+        float[] y_vertices = jVertices.child().next().asFloatArray();
+        Vector2[] vertices = new Vector2[x_vertices.length];
+
+        for(int x = 0; x < x_vertices.length; x++){
+            vertices[x] = new Vector2(x_vertices[x], y_vertices[x]);
+        }
+
+        //create car body
+        BodyDef bdef = new BodyDef();
+        bdef.type = BodyDef.BodyType.DynamicBody;
+
+
+        Random random = new Random();
+        bdef.position.set(new Vector2(random.nextInt(128), random.nextInt(128))); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        Body carbody = Game.getWorld().createBody(bdef);
+
+        PolygonShape pShape = new PolygonShape();
+        pShape.set(vertices);
+
+        Fixture f = carbody.createFixture(pShape, 0.1f);
+        f.setDensity(density);
+        ChildEntityComponent cec = new ChildEntityComponent();
+        if(!(cc.ig instanceof AI)){
+            e = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new WeaponComponent(), new HealthComponent(100), new ControlledComponent(cc.ig),cec );
+        }else{
+            e = new Entity(new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(cc.ig), new HealthComponent(100),cec);
+        }
+        if(e == null)
+            return;
+        ((PhysicalComponent)e.get(PhysicalComponent.class)).isRoot = true;
+
+
+        f.setUserData(e);
+
+
+        Vector2 v2;
+        for(JsonValue tValue : jCar.get("tires")){
+
+            tValue.get(name);
+
+            v2 = new Vector2(tValue.get("location").asFloatArray()[0],tValue.get("location").asFloatArray()[1]);
+
+            //Tire entity
+            SteeringComponent steering = new SteeringComponent();
+            steering.canTurn = tValue.getBoolean("canTurn");
+            steering.maxForwardSpeed = tValue.getInt("maxForwardSpeed");
+            steering.maxBackwardsSpeed = tValue.getInt("maxBackwardsSpeed");
+            steering.maxDriveForce = tValue.getInt("maxDriveForce");
+            steering.maxLateralImpulse = tValue.getFloat("maxLateralImpulse");
+            //max box2d body of tire
+            BodyDef tireBodyDef = new BodyDef();
+            tireBodyDef.type = BodyDef.BodyType.DynamicBody;
+            tireBodyDef.position.set(carbody.getPosition()); //set tire location to car body location
+            Body tireBody = Game.getWorld().createBody(bdef);
+
+            PolygonShape tireShape = new PolygonShape();
+            tireShape.setAsBox(0.5f, 1.25f);
+            Fixture fixture = tireBody.createFixture(tireShape, 1f);
+
+            //really you just control the tires
+            Entity tireEntity = new Entity(tValue.getString("name"), steering, new PhysicalComponent(tireBody), new ControlledComponent(cc.ig), new HealthComponent(10));
+            fixture.setUserData(tireEntity);
+
+            Entity jointEntity = new Entity("JointEntity", new JointComponent(carbody, tireBody, v2));
+            tireEntity.addComponent(new ParentEntityComponent(jointEntity));
+
+
+            jointEntity.addComponent(new ParentEntityComponent(e));
+            jointEntity.addComponent(new ChildEntityComponent(tireEntity));
+
+            cec.childList.add(jointEntity);
+
+        }
 
     }
 

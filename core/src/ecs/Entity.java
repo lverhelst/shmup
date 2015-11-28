@@ -98,13 +98,13 @@ public class Entity {
     }
 
     public void recursiveRemove(Class c){
-        if(has(c))
-            removeComponent(c);
         if(has(ChildEntityComponent.class)){
             ChildEntityComponent cec = get(ChildEntityComponent.class);
             for(Entity e : cec.childList){
                 e.recursiveRemove(c);
             }
         }
+        if(has(c))
+            removeComponent(c);
     }
 }

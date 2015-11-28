@@ -19,7 +19,6 @@ public class CameraSystem extends SubSystem {
             for(Entity e : entities){
                 if(e.has(CameraAttachmentComponent.class)){
                     if(e.has(PhysicalComponent.class)){
-                        CameraAttachmentComponent cac = e.get(CameraAttachmentComponent.class);
                         PhysicalComponent pc = e.get(PhysicalComponent.class);
                         camera.position.set(pc.getBody().getPosition().x, pc.getBody().getPosition().y, 10);
                         camera.update();
