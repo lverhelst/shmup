@@ -1,38 +1,62 @@
 {
   "level": {
     "name" : "default",
+	"groups" : [
+		{	"location" : [0,0],
+			"blocks" : [
+				{	"location" : [0,	0],		"size" : [50,	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{ 	"location" : [0,	2],		"size" : [2,	46],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{ 	"location" : [0, 	48],	"size" : [15, 	2],  	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{ 	"location" : [35, 	48],	"size" : [15, 	2],  	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{ 	"location" : [50, 	0],		"size" : [2, 	15], 	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{ 	"location" : [50, 	35],	"size" : [2, 	15],	"friction" : 1, "density" : 1, 	"dynamic" : false }
+			]
+		},		
+		{	"location" : [266,0],
+			"blocks" : [
+				{	"location" : [2,	0],		"size" : [50,	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{ 	"location" : [50,	2],		"size" : [2,	46],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{ 	"location" : [35, 	48],	"size" : [17, 	2],  	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{ 	"location" : [2, 	48],	"size" : [13, 	2],  	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{ 	"location" : [0, 	0],		"size" : [2, 	15], 	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{ 	"location" : [0, 	35],	"size" : [2, 	15],	"friction" : 1, "density" : 1, 	"dynamic" : false }
+			]
+		},			
+		{	"location" : [50,6.5],
+			"blocks" : [
+				{	"location" : [2, 	0], 	"size" : [96, 	2], 	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [98, 	0], 	"size" : [2, 	8.5],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [100, 	6.5], 	"size" : [18, 	2], 	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [118, 	0],		"size" : [2, 	8.5],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [120, 	0], 	"size" : [96, 	2], 	"friction" : 1, "density" : 1, 	"dynamic" : false }
+			]
+		},	
+		{	"location" : [6.5,50],
+			"blocks" : [				
+				{	"location" : [0, 	0], 	"size" : [2, 	96],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [0, 	96], 	"size" : [8.5, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [6.5, 	98], 	"size" : [2, 	18],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [0, 	116], 	"size" : [8.5, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [0, 	118], 	"size" : [2, 	96],	"friction" : 1, "density" : 1, 	"dynamic" : false }
+			]
+		},		
+		{	"location" : [50,35],
+			"blocks" : [
+				{	"location" : [2, 	6.5], 	"size" : [96, 	2], 	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [98, 	0], 	"size" : [2, 	8.5],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [118, 	0], 	"size" : [2, 	8.5],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+				{	"location" : [120, 	6.5], 	"size" : [96, 	2], 	"friction" : 1, "density" : 1, 	"dynamic" : false }
+			]
+		}
+	],
+	"spawns" : [	
+        {	"location" : [10, 10], 	"size" : [35, 	35] },
+        {	"location" : [276, 10], "size" : [35, 	35] },
+        {	"location" : [10, 276], "size" : [35, 	35] },
+        {	"location" : [276, 276], "size" : [35, 	35] },
+        {	"location" : [75, 75], "size" : [150, 	150] }
+	],
     "blocks" : [
-		{	"location" : [0,	0],		"size" : [50,	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
-		{ 	"location" : [0,	2],		"size" : [2,	46],	"friction" : 1, "density" : 1, 	"dynamic" : false },
-		{ 	"location" : [0, 	48],	"size" : [15, 	2],  	"friction" : 1, "density" : 1, 	"dynamic" : false },
-		{ 	"location" : [35, 	48],	"size" : [15, 	2],  	"friction" : 1, "density" : 1, 	"dynamic" : false },
-		{ 	"location" : [50, 	0],		"size" : [2, 	15], 	"friction" : 1, "density" : 1, 	"dynamic" : false },
-		{ 	"location" : [50, 	35],	"size" : [2, 	15],	"friction" : 1, "density" : 1, 	"dynamic" : false },	  
-	  
-		{	"location" : [52, 	6.5], 	"size" : [96, 	2], 	"friction" : 1, "density" : 1, 	"dynamic" : false },
-		{	"location" : [148, 	6.5], 	"size" : [2, 	8.5],	"friction" : 1, "density" : 1, 	"dynamic" : false },
-		{	"location" : [150, 	13], 	"size" : [18, 	2], 	"friction" : 1, "density" : 1, 	"dynamic" : false },
-		{	"location" : [168, 	6.5],	"size" : [2, 	8.5],	"friction" : 1, "density" : 1, 	"dynamic" : false },
-		{	"location" : [170, 	6.5], 	"size" : [96, 	2], 	"friction" : 1, "density" : 1, 	"dynamic" : false },		
-		
-        {	"location" : [52, 	41.5], 	"size" : [96, 	2], 	"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [148, 	35], 	"size" : [2, 	8.5],	"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [168, 	35], 	"size" : [2, 	8.5],	"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [170, 	41.5], 	"size" : [96, 	2], 	"friction" : 1, "density" : 1, 	"dynamic" : false },		
-		
-        {	"location" : [266, 	0], 	"size" : [50, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [266, 	48], 	"size" : [15, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [301, 	48], 	"size" : [15, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [316, 	0], 	"size" : [2, 	50],	"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [266, 	2], 	"size" : [2, 	13],	"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [266, 	35], 	"size" : [2, 	13],	"friction" : 1, "density" : 1, 	"dynamic" : false },		
-		
-        {	"location" : [6.5, 	50], 	"size" : [2, 	96],	"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [6.5, 	146], 	"size" : [8.5, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [13, 	148], 	"size" : [2, 	18],	"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [6.5, 	166], 	"size" : [8.5, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"location" : [6.5, 	168], 	"size" : [2, 	96],	"friction" : 1, "density" : 1, 	"dynamic" : false },		
-		
         {	"location" : [41.5, 50], 	"size" : [2, 	96],	"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"location" : [35, 	146], 	"size" : [8.5, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"location" : [35, 	166], 	"size" : [8.5, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
