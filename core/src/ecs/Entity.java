@@ -1,5 +1,6 @@
 package ecs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -93,9 +94,25 @@ public class Entity {
     }
 
     public void removeComponent(Class c){
-        if(has(c))
+        if(has(c)) {
+            this.components.get(c).dispose();
             this.components.remove(c);
+        }
     }
+
+
+    public void removeAllComponents(){
+        ArrayList<Component> removeThis = new ArrayList<Component>();
+        for(Component c : components.values()){
+            c.dispose();
+            removeThis.add(c);
+        }
+        for(Component rm : removeThis){
+            components.remove(rm.getClass());
+        }
+
+    }
+
 
     public void recursiveRemove(Class c){
         if(has(ChildEntityComponent.class)){
@@ -107,4 +124,5 @@ public class Entity {
         if(has(c))
             removeComponent(c);
     }
+
 }

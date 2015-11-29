@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import AI.AI;
 import AI.IntentGenerator;
+import ecs.components.ChildEntityComponent;
 import ecs.subsystems.InputSystem;
 import Input.MyInputAdapter;
 import ecs.subsystems.CameraSystem;
@@ -49,13 +50,13 @@ public class Game extends ApplicationAdapter {
     WeaponSystem weaponSystem = new WeaponSystem();
 
     //don't think we need multiple worlds am I right?
-	public static World world;
+	private static World world;
 
     public static World getWorld(){
         return world;
     }
     static MyInputAdapter playerInput;
-
+    Level test;
 
 	@Override
 	public void create () {
@@ -65,7 +66,7 @@ public class Game extends ApplicationAdapter {
         world.setVelocityThreshold(0.01f);
         world.setContactListener(new ContactSystem());
 
-        Level test = new Level();
+        test = new Level();
         test.create(world);
 
         Gdx.input.setInputProcessor(playerInput = new MyInputAdapter());
@@ -97,19 +98,32 @@ public class Game extends ApplicationAdapter {
         return playerInput;
     }
 
+    //move to entity manager
     public static synchronized void addEntity(Entity entity){
         entities.add(entity);
     }
     public static synchronized void removeEntity(Entity entity){
         entities.remove(entity);
     }
+    public static synchronized void removeEntityTree(Entity entity){
+        if(entity.has(ChildEntityComponent.class)){
+            for(Entity e : ((ChildEntityComponent)entity.get(ChildEntityComponent.class)).childList ) {
+                removeEntityTree(e);
+            }
+        }
+        entity.removeAllComponents();
+        entities.remove(entity);
+    }
+
+
+
 
 
     public void update(){
-
+        test.update();
         //update collision listener
         world.step(STEP, 6, 2);
-
+        System.out.println("Entities: " + entities.size() + " Box2DBodies " + world.getBodyCount());
 
         inputSystem.update(entities);
         //steeringSystem.update(entities);

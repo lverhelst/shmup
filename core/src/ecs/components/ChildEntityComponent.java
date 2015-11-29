@@ -25,5 +25,12 @@ public class ChildEntityComponent extends Component {
         childList.add(e);
     }
 
+    @Override
+    public void dispose() {
+        super.dispose();
+        for(Entity e : childList){
+            e.removeAllComponents();
+        }
 
+    }
 }

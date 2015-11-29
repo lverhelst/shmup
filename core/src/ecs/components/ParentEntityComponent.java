@@ -17,5 +17,13 @@ public class ParentEntityComponent extends Component
         this.parent = parent;
     }
 
+    @Override
+    public void dispose(){
+        //do not dispose of parent entity
+        //since the disposal iterates down the tree, we would have
+        //reached this from the parent already
+        //trying to dispose or remove the parent entity's components
+        //causes an infinite loop > stack overflow
+    }
 
 }

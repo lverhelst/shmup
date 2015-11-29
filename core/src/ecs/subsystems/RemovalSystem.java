@@ -30,7 +30,7 @@ public class RemovalSystem extends SubSystem{
             }
             if (e.recursiveHas(JointComponent.class)) {
                 Joint j = ((JointComponent) e.recursiveGet(JointComponent.class)).joint;
-                Game.world.destroyJoint(j);
+                Game.getWorld().destroyJoint(j);
             }
             Game.removeEntity(e);
         }
@@ -41,14 +41,14 @@ public class RemovalSystem extends SubSystem{
                     //Destroy Joints
                     //should replace with recursive remove
 
-                    if(e.has(ChildEntityComponent.class)){
+                   if(e.has(ChildEntityComponent.class)){
                         ChildEntityComponent cec = e.get(ChildEntityComponent.class);
                         for(Entity child : cec.childList){
                             if(child.has(JointComponent.class)){
 
                                 Joint j = ((JointComponent)child.get(JointComponent.class)).joint;
                                 if(j != null) {
-                                    Game.world.destroyJoint(j);
+                                    Game.getWorld().destroyJoint(j);
                                     ((JointComponent)child.get(JointComponent.class)).joint = null;
                                 }
                                 e.removeComponent(JointComponent.class);
@@ -65,7 +65,7 @@ public class RemovalSystem extends SubSystem{
                          if(parent.has(JointComponent.class)){
                              Joint j = ((JointComponent)parent.get(JointComponent.class)).joint;
                              if(j != null) {
-                                 Game.world.destroyJoint(j);
+                                 Game.getWorld().destroyJoint(j);
                                  ((JointComponent)parent.get(JointComponent.class)).joint = null;
                              }
 

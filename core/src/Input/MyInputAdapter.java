@@ -63,7 +63,7 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
                                 return;
                             }
 
-                        
+
                     }
                 }
             }

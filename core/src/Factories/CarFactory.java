@@ -66,7 +66,7 @@ public class CarFactory {
         bdef.type = BodyDef.BodyType.DynamicBody;
 
         Random random = new Random();
-        bdef.position.set(new Vector2(random.nextInt(128), random.nextInt(128))); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        bdef.position.set(new Vector2(random.nextInt(128) + 64, random.nextInt(128) + 64)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body carbody = Game.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();
@@ -74,6 +74,7 @@ public class CarFactory {
 
         Fixture f = carbody.createFixture(pShape, 0.1f);
         f.setDensity(density);
+        f.setRestitution(1.0f);
         Entity carBodyEntity = null;
         ChildEntityComponent cec = new ChildEntityComponent();
         if(!(ig instanceof AI)){
@@ -112,7 +113,7 @@ public class CarFactory {
             PolygonShape tireShape = new PolygonShape();
             tireShape.setAsBox(0.5f, 1.25f);
             Fixture fixture = tireBody.createFixture(tireShape, 1f);
-
+            fixture.setRestitution(1.0f);
             //really you just control the tires
             Entity tireEntity = new Entity(tValue.getString("name"), steering, new PhysicalComponent(tireBody), new ControlledComponent(ig), new HealthComponent(10));
             fixture.setUserData(tireEntity);
@@ -142,8 +143,8 @@ public class CarFactory {
 
 
 
-
-        Game.removeEntity(e);
+        //remove shitty old car from world
+        Game.removeEntityTree(e);
 
         //root check was done in the spawn system
         //could also do that here
@@ -169,7 +170,7 @@ public class CarFactory {
 
 
         Random random = new Random();
-        bdef.position.set(new Vector2(random.nextInt(128), random.nextInt(128))); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        bdef.position.set(new Vector2(random.nextInt(128) + 64, random.nextInt(128) + 64)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body carbody = Game.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();
@@ -227,10 +228,6 @@ public class CarFactory {
             jointEntity.addComponent(new ChildEntityComponent(tireEntity));
 
             cec.childList.add(jointEntity);
-
         }
-
     }
-
-
 }

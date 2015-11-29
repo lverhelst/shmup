@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 
 import ecs.Component;
+import verberg.com.shmup.Game;
 
 /**
  * Created by Orion on 11/23/2015.
@@ -27,6 +28,13 @@ public class JointComponent extends Component {
         jointDef.localAnchorA.set(location);
 
         joint  = (RevoluteJoint)bodyA.getWorld().createJoint(jointDef);
+    }
+
+    @Override
+    public void dispose()
+    {
+        if(joint != null)
+            Game.getWorld().destroyJoint(joint);
     }
 
 }

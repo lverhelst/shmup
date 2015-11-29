@@ -3,6 +3,7 @@ package ecs.components;
 import com.badlogic.gdx.physics.box2d.Body;
 
 import ecs.Component;
+import verberg.com.shmup.Game;
 
 
 /**
@@ -22,6 +23,11 @@ public class PhysicalComponent extends Component {
 
     public Body getBody(){
         return box2dBody;
+    }
+
+    public void dispose(){
+        if(box2dBody != null)
+            Game.getWorld().destroyBody(box2dBody);
     }
 
 }

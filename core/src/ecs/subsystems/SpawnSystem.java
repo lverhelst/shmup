@@ -25,9 +25,6 @@ public class SpawnSystem {
 
                 if(entity.recursiveHas(PhysicalComponent.class)){
                     PhysicalComponent pc = (PhysicalComponent) entity.get(PhysicalComponent.class);
-                    for(Fixture f : pc.getBody().getFixtureList()) {
-                      // f.setSensor(false);
-                    }
                     //We know only car bodies are root
                     //Car bodies are the point we want for the respawn message, cause we can traverse it's tree at that point
                     //At some point we may want a type component to determine if an entity is part of a car/bullet/someother type/boat

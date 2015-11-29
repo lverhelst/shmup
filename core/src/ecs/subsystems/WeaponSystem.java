@@ -62,7 +62,7 @@ public class WeaponSystem extends SubSystem {
                 float addx = (float)(Math.cos(direction)) * 8f;
                 float addy = (float)(Math.sin(direction)) * 8f;
 
-                Body bulletbody = Game.world.createBody(bodyDef);
+                Body bulletbody = Game.getWorld().createBody(bodyDef);
                 bulletbody.setTransform(sourceBody.getPosition().add(addx, addy), direction);
 
                 CircleShape circle = new CircleShape();

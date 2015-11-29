@@ -26,6 +26,8 @@ public class Level {
     private HashMap<String, Body> bodies;
     public World world;
 
+    private Body blade;
+
     public void create(World world) {
         this.world = world;
 
@@ -52,7 +54,7 @@ public class Level {
         }
 
         Body circle = createCircle(160, 155, 5, 1, 1, BodyType.StaticBody);
-        Body blade = createBox(165, 154.5f, 150, 2, 1, 1, BodyType.DynamicBody);
+        blade = createBox(165, 154.5f, 150, 2, 0, 1, BodyType.DynamicBody);
 
         RevoluteJointDef joint = new RevoluteJointDef();
         joint.bodyA = circle;
@@ -109,5 +111,9 @@ public class Level {
         circle.dispose();
 
         return body;
+    }
+
+    public void update(){
+        blade.setAngularVelocity((float)(Math.PI/2));
     }
 }
