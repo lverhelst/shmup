@@ -33,7 +33,7 @@ public class WeaponSystem extends SubSystem {
         ArrayList<Fixture> setUserDataForThese  = new ArrayList<Fixture>();
 
         if(entity.has(HealthComponent.class)){
-            if(((HealthComponent)entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
+            if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
                 //Ya can't shoot if your dead
                 return;
             }

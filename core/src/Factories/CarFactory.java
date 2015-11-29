@@ -74,7 +74,7 @@ public class CarFactory {
 
         Fixture f = carbody.createFixture(pShape, 0.1f);
         f.setDensity(density);
-        f.setRestitution(1.0f);
+        f.setRestitution(0.1f);
         Entity carBodyEntity = null;
         ChildEntityComponent cec = new ChildEntityComponent();
         if(!(ig instanceof AI)){
@@ -113,7 +113,7 @@ public class CarFactory {
             PolygonShape tireShape = new PolygonShape();
             tireShape.setAsBox(0.5f, 1.25f);
             Fixture fixture = tireBody.createFixture(tireShape, 1f);
-            fixture.setRestitution(1.0f);
+            fixture.setRestitution(0.1f);
             //really you just control the tires
             Entity tireEntity = new Entity(tValue.getString("name"), steering, new PhysicalComponent(tireBody), new ControlledComponent(ig), new HealthComponent(10));
             fixture.setUserData(tireEntity);

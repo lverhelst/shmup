@@ -107,7 +107,7 @@ public class Game extends ApplicationAdapter {
     }
     public static synchronized void removeEntityTree(Entity entity){
         if(entity.has(ChildEntityComponent.class)){
-            for(Entity e : ((ChildEntityComponent)entity.get(ChildEntityComponent.class)).childList ) {
+            for(Entity e : entity.get(ChildEntityComponent.class).childList ) {
                 removeEntityTree(e);
             }
         }
@@ -123,7 +123,7 @@ public class Game extends ApplicationAdapter {
         test.update();
         //update collision listener
         world.step(STEP, 6, 2);
-        System.out.println("Entities: " + entities.size() + " Box2DBodies " + world.getBodyCount());
+       // System.out.println("Entities: " + entities.size() + " Box2DBodies " + world.getBodyCount());
 
         inputSystem.update(entities);
         //steeringSystem.update(entities);

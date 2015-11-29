@@ -25,7 +25,7 @@ public class RemovalSystem extends SubSystem{
     public void update(Entity e, INTENT i){
         if(i == INTENT.REMOVE) {
             if (e.recursiveHas(PhysicalComponent.class)) {
-                Body b2dBody = ((PhysicalComponent) e.get(PhysicalComponent.class)).getBody();
+                Body b2dBody = (e.get(PhysicalComponent.class)).getBody();
                 b2dBody.getWorld().destroyBody(b2dBody);
             }
             if (e.recursiveHas(JointComponent.class)) {
@@ -36,20 +36,18 @@ public class RemovalSystem extends SubSystem{
         }
         else if (i == INTENT.DIED){
             if(e.has(PhysicalComponent.class)){
-                PhysicalComponent pc = e.get(PhysicalComponent.class);
-                if(pc.isRoot){
+                if(e.get(PhysicalComponent.class).isRoot){
                     //Destroy Joints
                     //should replace with recursive remove
 
                    if(e.has(ChildEntityComponent.class)){
-                        ChildEntityComponent cec = e.get(ChildEntityComponent.class);
-                        for(Entity child : cec.childList){
+                        for(Entity child : e.get(ChildEntityComponent.class).childList){
                             if(child.has(JointComponent.class)){
 
-                                Joint j = ((JointComponent)child.get(JointComponent.class)).joint;
+                                Joint j = (child.get(JointComponent.class)).joint;
                                 if(j != null) {
                                     Game.getWorld().destroyJoint(j);
-                                    ((JointComponent)child.get(JointComponent.class)).joint = null;
+                                    child.get(JointComponent.class).joint = null;
                                 }
                                 e.removeComponent(JointComponent.class);
                             }
@@ -60,13 +58,13 @@ public class RemovalSystem extends SubSystem{
                     //Tire
 
                     if(e.has(ParentEntityComponent.class)){
-                         Entity parent = ((ParentEntityComponent)e.get(ParentEntityComponent.class)).parent;
+                         Entity parent = (e.get(ParentEntityComponent.class)).parent;
 
                          if(parent.has(JointComponent.class)){
-                             Joint j = ((JointComponent)parent.get(JointComponent.class)).joint;
+                             Joint j = (parent.get(JointComponent.class)).joint;
                              if(j != null) {
                                  Game.getWorld().destroyJoint(j);
-                                 ((JointComponent)parent.get(JointComponent.class)).joint = null;
+                                 (parent.get(JointComponent.class)).joint = null;
                              }
 
                              e.removeComponent(JointComponent.class);
@@ -78,8 +76,8 @@ public class RemovalSystem extends SubSystem{
 
                      }
                 }
-                for(Fixture f : pc.getBody().getFixtureList()) {
-                    f.setSensor(true);
+                for(Fixture f : e.get(PhysicalComponent.class).getBody().getFixtureList()) {
+                   // f.setSensor(true);
                 }
             }
             //remove joints?

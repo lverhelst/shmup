@@ -20,6 +20,10 @@ public class AI implements IntentGenerator {
     long lastIntent = 0;
     int intentDelay = 250;
     int bozoNumber = 5;
+    boolean waitToRespawn = false;
+    long respawnStart = 0;
+    int respawnDelay = 5000;
+
     Random random;
 
     public AI(){
@@ -33,11 +37,25 @@ public class AI implements IntentGenerator {
 
 
         if(entity.has(HealthComponent.class)){
-            if(((HealthComponent)entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
-                if (entity.has(PhysicalComponent.class)) {
-                    if (((PhysicalComponent) entity.get(PhysicalComponent.class)).isRoot) {
+            if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
 
-                        MessageManager.addMessage(new SpawnMessage(entity));
+                if (entity.has(PhysicalComponent.class)) {
+                    if ((entity.get(PhysicalComponent.class)).isRoot) {
+                        long time = System.currentTimeMillis();
+                        if(!waitToRespawn){
+                            respawnStart = time + respawnDelay;
+                            waitToRespawn = true;
+                        }
+
+
+                        if((respawnStart) > time){
+                            waitToRespawn = true;
+                        }else{
+                            waitToRespawn = false;
+                            MessageManager.addMessage(new SpawnMessage(entity));
+                        }
+
+
                     }
                 }
                 return;
@@ -47,8 +65,6 @@ public class AI implements IntentGenerator {
         {
             lastIntent = System.currentTimeMillis();
             bozoNumber = random.nextInt(10);
-
-
         }
         //Add messages to message manager
         if(bozoNumber < 7){

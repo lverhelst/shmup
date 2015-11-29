@@ -81,8 +81,11 @@ public class Entity {
         return this.components.containsKey(c);
     }
 
-    public <T extends Component> T get(Class c){
-        return (T)this.components.get(c);
+    public <T extends Component> T get(Class<T> c)
+    {
+        T result = (T)this.components.get(c);
+
+        return result;
     }
 
     /**

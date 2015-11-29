@@ -15,8 +15,7 @@ public class InputSystem {
         for(Entity e : entities){
 
             if(e.has(ControlledComponent.class)){
-                ControlledComponent pc = e.get(ControlledComponent.class);
-                pc.ig.generateIntents(e);
+                e.get(ControlledComponent.class).ig.generateIntents(e);
             }
         }
     }

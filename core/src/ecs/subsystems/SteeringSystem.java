@@ -25,7 +25,7 @@ public class SteeringSystem extends SubSystem {
     public void update(Entity entity, INTENT intent){
 
         if(entity.has(HealthComponent.class)){
-            if(((HealthComponent)entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
+            if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
                 //Ya can't steer if your dead
                 return;
             }
@@ -37,7 +37,7 @@ public class SteeringSystem extends SubSystem {
             //This should be separated into a input system and should make intent messages
             //So IS = Input SubSystem
             //   SS = Steering SubSystem
-            Body body = ((PhysicalComponent) entity.get(PhysicalComponent.class)).getBody();
+            Body body = (entity.get(PhysicalComponent.class)).getBody();
             //update friction before steering
             updateFriction(body, sc);
 
