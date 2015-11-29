@@ -2,22 +2,22 @@ package Factories;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 import AI.IntentGenerator;
 import AI.AI;
 import ecs.components.ChildEntityComponent;
 import ecs.components.HealthComponent;
-import gameObjects.Car;
 import ecs.components.CameraAttachmentComponent;
 import ecs.Entity;
 import ecs.components.JointComponent;
@@ -130,7 +130,7 @@ public class CarFactory {
         }
     }
 
-    public void applyLifeTimeWarranty(Entity e){
+    public void applyLifeTimeWarranty(Entity e, Rectangle spawn){
         ControlledComponent cc = null;
         if(e.has(ControlledComponent.class)) {
             cc = e.get(ControlledComponent.class);
@@ -168,9 +168,11 @@ public class CarFactory {
         BodyDef bdef = new BodyDef();
         bdef.type = BodyDef.BodyType.DynamicBody;
 
-
+        //spawning location stuff
         Random random = new Random();
-        bdef.position.set(new Vector2(random.nextInt(128) + 64, random.nextInt(128) + 64)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+
+        //TODO: maybe make a wrapper clash for Box (body) which allows access to the height and width (store them as ints for this purpose)
+        bdef.position.set(new Vector2(random.nextInt((int)spawn.getWidth()) + spawn.getX(), random.nextInt((int)spawn.getHeight()) + spawn.getY())); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body carbody = Game.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();

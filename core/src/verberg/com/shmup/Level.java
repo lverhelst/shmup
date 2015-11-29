@@ -1,6 +1,7 @@
 package verberg.com.shmup;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -31,6 +33,8 @@ public class Level {
     public void create(World world) {
         this.world = world;
 
+        bodies = new HashMap<String, Body>();
+
         loadLevel(Gdx.files.internal("defaultLevel"));
     }
 
@@ -38,20 +42,19 @@ public class Level {
         JsonReader reader = new JsonReader();
         JsonValue json = reader.parse(level);
         JsonValue map = json.get("level");
-        JsonValue blocks = map.get("blocks");
-        Body body;
+        JsonValue groups = map.get("groups");
+        JsonValue blocks;
+        float[] offset;
 
-        for(JsonValue block : blocks){
-            //String name = block.get("name").asString();
-            float[] pos = block.get("location").asFloatArray();
-            float[] size = block.get("size").asFloatArray();
-            float friction = block.get("friction").asFloat();
-            float density = block.get("density").asFloat();
-            BodyDef.BodyType type = block.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
-
-            body = createBox(pos[0], pos[1], size[0], size[1], friction, density, type);
-            //bodies.put(name, body);
+        for(JsonValue group : groups) {
+            offset = group.get("location").asFloatArray();
+            loadShapes(group, offset[0], offset[1]);
         }
+
+        blocks = map.get("blocks");
+        loadShapes(map, 0, 0);
+
+        //TODO: add joint handling and creation from file
 
         Body circle = createCircle(160, 155, 5, 1, 1, BodyType.StaticBody);
         blade = createBox(165, 154.5f, 150, 2, 0, 1, BodyType.DynamicBody);
@@ -64,7 +67,45 @@ public class Level {
         joint.maxMotorTorque = 100000.0f;
         joint.motorSpeed = 2f;
         world.createJoint(joint);
+    }
 
+    public void loadShapes(JsonValue shapes, float x, float y) {
+        Body body;
+        JsonValue blocks = shapes.get("blocks");
+        JsonValue spawns = shapes.get("spawns");
+
+        if(blocks != null) {
+            for (JsonValue block : blocks) {
+                JsonValue jsonName = block.get("name");
+                float[] pos = block.get("location").asFloatArray();
+                float[] size = block.get("size").asFloatArray();
+                float friction = block.get("friction").asFloat();
+                float density = block.get("density").asFloat();
+                BodyDef.BodyType type = block.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
+
+                body = createBox(pos[0] + x, pos[1] + y, size[0], size[1], friction, density, type);
+
+                //Only add named blocks
+                if(jsonName != null) {
+                    String name = block.get("name").asString();
+                    bodies.put(name, body);
+                }
+            }
+        }
+
+        //TODO: add other shapes
+
+        if(spawns != null) {
+            //TODO: Make spawns into bodies again, maybe make a wrapper for boxes and stuff to allow access to width/height (Make ints for random purposes)
+            for (JsonValue block : spawns) {
+                //String name = block.get("name").asString();
+                float[] pos = block.get("location").asFloatArray();
+                float[] size = block.get("size").asFloatArray();
+
+                Rectangle spawn = createSpawn(pos[0] + x, pos[1] + y, size[0], size[1]);
+                MessageManager.addMessage(new SpawnMessage(spawn));
+            }
+        }
     }
 
     public Body createBox(float x, float y, float w, float h, float friction, float density, BodyType type) {
@@ -90,6 +131,18 @@ public class Level {
         box.dispose();
 
         return body;
+    }
+
+    /**
+     * NOTE: Rectangle used here, because Box2D bodies are bitch to get the width and height out of... figure out how to use a body eventually...
+     * @param x position
+     * @param y position
+     * @param w width
+     * @param h height
+     * @return returns a rectangle at the given location with the width and height passed in
+     */
+    public Rectangle createSpawn(float x, float y, float w, float h) {
+        return new Rectangle(x, y, w, h);
     }
 
     public Body createCircle(float x, float y, float r, float friction, float density, BodyType type) {
