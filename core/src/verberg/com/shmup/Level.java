@@ -72,6 +72,7 @@ public class Level {
     public void loadShapes(JsonValue shapes, float x, float y) {
         Body body;
         JsonValue blocks = shapes.get("blocks");
+        JsonValue circles = shapes.get("circle");
         JsonValue spawns = shapes.get("spawns");
 
         if(blocks != null) {
@@ -84,6 +85,25 @@ public class Level {
                 BodyDef.BodyType type = block.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
 
                 body = createBox(pos[0] + x, pos[1] + y, size[0], size[1], friction, density, type);
+
+                //Only add named blocks
+                if(jsonName != null) {
+                    String name = block.get("name").asString();
+                    bodies.put(name, body);
+                }
+            }
+        }
+
+        if(circles != null) {
+            for (JsonValue block : circles) {
+                JsonValue jsonName = block.get("name");
+                float[] pos = block.get("location").asFloatArray();
+                float radius = block.get("radius").asFloat();
+                float friction = block.get("friction").asFloat();
+                float density = block.get("density").asFloat();
+                BodyDef.BodyType type = block.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
+
+                body = createCircle(pos[0] + x, pos[1] + y, radius, friction, density, type);
 
                 //Only add named blocks
                 if(jsonName != null) {
