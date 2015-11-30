@@ -68,21 +68,15 @@ public class ContactSystem implements ContactListener{
             Entity aEntity = (Entity)a.getUserData();
             Entity bEntity = (Entity)b.getUserData();
 
-            if(aEntity.has(HealthComponent.class)){
-                if((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
-                    //Don't modify health if your dead
-                    return;
+            if(aEntity.has(HealthComponent.class) && bEntity.has(DamageComponent.class)){
+                if((aEntity.get(HealthComponent.class)).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
+                    //apply damage
+                    (aEntity.get(HealthComponent.class)).cur_health -= (bEntity.get(DamageComponent.class)).damage;
+                    //if the other entity is now dead, send the dead messagea
+                    if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
+                        MessageManager.addMessage(new RemoveMessage(aEntity, INTENT.DIED));
+                    }
                 }
-            }
-
-
-            if(aEntity.recursiveHas(HealthComponent.class) && bEntity.recursiveHas(DamageComponent.class)){
-                ((HealthComponent)aEntity.recursiveGet(HealthComponent.class)).cur_health -= ((DamageComponent)bEntity.recursiveGet(DamageComponent.class)).damage;
-                if(((HealthComponent)aEntity.recursiveGet(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
-                    MessageManager.addMessage(new RemoveMessage(aEntity,INTENT.DIED));
-
-                }
-
             }
         }
     }

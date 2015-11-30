@@ -26,7 +26,6 @@ public class SteeringSystem extends SubSystem {
 
         if(entity.has(HealthComponent.class)){
             if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
-                //Ya can't steer if your dead
                 return;
             }
         }
