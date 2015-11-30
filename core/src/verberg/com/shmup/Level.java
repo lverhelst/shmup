@@ -43,7 +43,6 @@ public class Level {
         JsonValue json = reader.parse(level);
         JsonValue map = json.get("level");
         JsonValue groups = map.get("groups");
-        JsonValue blocks;
         float[] offset;
 
         for(JsonValue group : groups) {
@@ -51,7 +50,6 @@ public class Level {
             loadShapes(group, offset[0], offset[1]);
         }
 
-        blocks = map.get("blocks");
         loadShapes(map, 0, 0);
 
         //TODO: add joint handling and creation from file
@@ -70,50 +68,36 @@ public class Level {
     }
 
     public void loadShapes(JsonValue shapes, float x, float y) {
-        Body body;
-        JsonValue blocks = shapes.get("blocks");
-        JsonValue circles = shapes.get("circle");
+        Body body = null;
+        JsonValue types = shapes.get("blocks");
         JsonValue spawns = shapes.get("spawns");
 
-        if(blocks != null) {
-            for (JsonValue block : blocks) {
-                JsonValue jsonName = block.get("name");
-                float[] pos = block.get("location").asFloatArray();
-                float[] size = block.get("size").asFloatArray();
-                float friction = block.get("friction").asFloat();
-                float density = block.get("density").asFloat();
-                BodyDef.BodyType type = block.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
+        if(types != null) {
+            for (JsonValue shape : types) {
+                String type = shape.get("type").asString();
+                JsonValue jsonName = shape.get("name");
+                float[] pos = shape.get("location").asFloatArray();
+                float friction = shape.get("friction").asFloat();
+                float density = shape.get("density").asFloat();
+                BodyDef.BodyType bodyType = shape.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
 
-                body = createBox(pos[0] + x, pos[1] + y, size[0], size[1], friction, density, type);
+                if(type.equals("box")) {
+                    float[] size = shape.get("size").asFloatArray();
+                    body = createBox(pos[0] + x, pos[1] + y, size[0], size[1], friction, density, bodyType);
+
+                } else if(type.equals("circle")) {
+                    float radius = shape.get("radius").asFloat();
+                    body = createCircle(pos[0] + x, pos[1] + y, radius, friction, density, bodyType);
+                }
 
                 //Only add named blocks
-                if(jsonName != null) {
-                    String name = block.get("name").asString();
+                if(jsonName != null && body != null) {
+                    String name = shape.get("name").asString();
                     bodies.put(name, body);
+                    System.out.println(name);
                 }
             }
         }
-
-        if(circles != null) {
-            for (JsonValue block : circles) {
-                JsonValue jsonName = block.get("name");
-                float[] pos = block.get("location").asFloatArray();
-                float radius = block.get("radius").asFloat();
-                float friction = block.get("friction").asFloat();
-                float density = block.get("density").asFloat();
-                BodyDef.BodyType type = block.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
-
-                body = createCircle(pos[0] + x, pos[1] + y, radius, friction, density, type);
-
-                //Only add named blocks
-                if(jsonName != null) {
-                    String name = block.get("name").asString();
-                    bodies.put(name, body);
-                }
-            }
-        }
-
-        //TODO: add other shapes
 
         if(spawns != null) {
             //TODO: Make spawns into bodies again, maybe make a wrapper for boxes and stuff to allow access to width/height (Make ints for random purposes)
