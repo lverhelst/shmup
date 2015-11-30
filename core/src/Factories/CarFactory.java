@@ -148,7 +148,7 @@ public class CarFactory {
 
 
 
-        //remove shitty old car from world
+        //remove old car from world
         Game.removeEntityTree(e);
 
         //root check was done in the spawn system
