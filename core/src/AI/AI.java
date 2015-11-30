@@ -6,7 +6,9 @@ import ecs.Entity;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 import verberg.com.shmup.INTENT;
+import verberg.com.shmup.Message;
 import verberg.com.shmup.MessageManager;
+import verberg.com.shmup.RemoveMessage;
 import verberg.com.shmup.SpawnMessage;
 import verberg.com.shmup.SteeringMessage;
 import verberg.com.shmup.WeaponMessage;
@@ -86,6 +88,18 @@ public class AI implements IntentGenerator {
         }
         if(bozoNumber == 4){
             MessageManager.addMessage(new WeaponMessage(entity));
+        }
+
+        if(random.nextInt(100000) == 0){
+            if (entity.has(PhysicalComponent.class)) {
+                if ((entity.get(PhysicalComponent.class)).isRoot) {
+                    if (entity.has(HealthComponent.class)) {
+                        ( entity.get(HealthComponent.class)).cur_health = 0;
+                        MessageManager.addMessage(new RemoveMessage(entity,INTENT.DIED));
+                    }
+                }
+                return;
+            }
         }
     }
 }

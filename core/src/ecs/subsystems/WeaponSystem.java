@@ -17,6 +17,7 @@ import ecs.components.HealthComponent;
 import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.WeaponComponent;
+import verberg.com.shmup.Constants;
 import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
 import verberg.com.shmup.MessageManager;
@@ -71,6 +72,8 @@ public class WeaponSystem extends SubSystem {
                 fixture.shape = circle;
                 fixture.density = 10f;
                 fixture.friction = 0.1f;
+                fixture.filter.categoryBits = Constants.BULLET_BIT;
+                fixture.filter.maskBits = Constants.BULLET_MASK;
 
                 Fixture bulletFixture = bulletbody.createFixture(fixture);
 

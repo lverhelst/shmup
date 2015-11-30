@@ -71,6 +71,7 @@ public class ContactSystem implements ContactListener{
             if(aEntity.has(HealthComponent.class)){
                 if((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
                     //Don't modify health if your dead
+
                     return;
                 }
             }
