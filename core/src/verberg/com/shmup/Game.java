@@ -19,6 +19,7 @@ import ecs.subsystems.InputSystem;
 import Input.MyInputAdapter;
 import ecs.subsystems.CameraSystem;
 import ecs.Entity;
+import ecs.subsystems.RenderSystem;
 import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
 import Factories.CarFactory;
@@ -48,6 +49,7 @@ public class Game extends ApplicationAdapter {
     SteeringSystem steeringSystem = new SteeringSystem();
     CameraSystem cameraSystem = new CameraSystem();
     WeaponSystem weaponSystem = new WeaponSystem();
+    RenderSystem renderSystem;
 
     //don't think we need multiple worlds am I right?
 	private static World world;
@@ -61,6 +63,7 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+
 
         world = new World(new Vector2(0f, 0f), true); //shmup bros has no downward gravity
         world.setVelocityThreshold(0.01f);
@@ -91,6 +94,7 @@ public class Game extends ApplicationAdapter {
         cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
         cam.update();
 
+        renderSystem = new RenderSystem();
 
 	}
 
@@ -139,16 +143,15 @@ public class Game extends ApplicationAdapter {
     @Override
     public void render () {
         update();
-
         Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        batch.setProjectionMatrix(cam.combined);
+        batch.begin();
+
+        renderSystem.render(entities,batch);
+        batch.end();
 
         debugRenderer.render(world, cam.combined);
 
-
-        //Gdx.gl.glClearColor(1, 0, 0, 1);
-        //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        //batch.begin();
-        //batch.draw(img, 0, 0);
-        //batch.end();
-	}
+    }
 }
