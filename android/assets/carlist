@@ -1,7 +1,7 @@
 {
   "car": {
     "name" : "TestCar",
-    "density" : 5.1,
+    "density" : 0.2,
     //vertices start in the lower left and wrap around counter clockwise
     "vertices" : [
       [-2.5,2.5,2.5,-2.5], //X vertices

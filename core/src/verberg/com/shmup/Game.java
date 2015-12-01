@@ -19,6 +19,7 @@ import ecs.subsystems.InputSystem;
 import Input.MyInputAdapter;
 import ecs.subsystems.CameraSystem;
 import ecs.Entity;
+import ecs.subsystems.PowerUpSystem;
 import ecs.subsystems.RenderSystem;
 import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
@@ -50,6 +51,7 @@ public class Game extends ApplicationAdapter {
     CameraSystem cameraSystem = new CameraSystem();
     WeaponSystem weaponSystem = new WeaponSystem();
     RenderSystem renderSystem;
+    PowerUpSystem powerUpSystem = new PowerUpSystem();
 
     //don't think we need multiple worlds am I right?
 	private static World world;
@@ -130,6 +132,7 @@ public class Game extends ApplicationAdapter {
        // System.out.println("Entities: " + entities.size() + " Box2DBodies " + world.getBodyCount());
 
         inputSystem.update(entities);
+        powerUpSystem.update();
         //steeringSystem.update(entities);
         MessageManager.update();
 
@@ -148,7 +151,7 @@ public class Game extends ApplicationAdapter {
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
 
-        renderSystem.render(entities,batch);
+        renderSystem.render(entities, batch);
         batch.end();
 
         debugRenderer.render(world, cam.combined);
