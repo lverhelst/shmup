@@ -10,6 +10,7 @@ import ecs.Entity;
 import ecs.components.DamageComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
+import gameObjects.PowerUp;
 import verberg.com.shmup.INTENT;
 import verberg.com.shmup.MessageManager;
 import verberg.com.shmup.RemoveMessage;
@@ -79,5 +80,11 @@ public class ContactSystem implements ContactListener{
                 }
             }
         }
+        //entity and powerup
+        if(a.getUserData() instanceof Entity && b.getUserData() instanceof PowerUp){
+            //this should be safe since only car bodies and powerups can collide due to their bitmasks and category masks
+            ((PowerUp)b.getUserData()).applyToEntity((Entity)a.getUserData());
+        }
+
     }
 }

@@ -6,7 +6,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
@@ -72,11 +74,13 @@ public class CarFactory {
         PolygonShape pShape = new PolygonShape();
         pShape.set(vertices);
 
-        Fixture f = carbody.createFixture(pShape, 0.1f);
-        f.setDensity(density);
-        f.setRestitution(0.1f);
-        f.getFilterData().categoryBits = Constants.CAR_BIT;
-        f.getFilterData().maskBits = Constants.CAR_MASK;
+
+        Fixture f = carbody.createFixture(pShape, density);
+        Filter filter2 = new Filter();
+        filter2.categoryBits = Constants.CAR_BIT;
+        filter2.maskBits = Constants.CAR_MASK;
+        f.setFilterData(filter2);
+
 
         Entity carBodyEntity = null;
         ChildEntityComponent cec = new ChildEntityComponent();
@@ -115,10 +119,14 @@ public class CarFactory {
 
             PolygonShape tireShape = new PolygonShape();
             tireShape.setAsBox(0.5f, 1.25f);
-            Fixture fixture = tireBody.createFixture(tireShape, 1f);
-            fixture.setRestitution(0.1f);
-            fixture.getFilterData().categoryBits = Constants.TIRE_BIT;
-            fixture.getFilterData().maskBits = Constants.TIRE_MASK;
+
+
+            Fixture fixture = tireBody.createFixture(tireShape,0.1f);
+            Filter filter = new Filter();
+            filter.categoryBits = Constants.TIRE_BIT;
+            filter.maskBits = Constants.TIRE_MASK;
+            fixture.setFilterData(filter);
+
             //really you just control the tires
             Entity tireEntity = new Entity(tValue.getString("name"), steering, new PhysicalComponent(tireBody), new ControlledComponent(ig), new HealthComponent(10));
             fixture.setUserData(tireEntity);
@@ -183,10 +191,11 @@ public class CarFactory {
         PolygonShape pShape = new PolygonShape();
         pShape.set(vertices);
 
-        Fixture f = carbody.createFixture(pShape, 0.1f);
-        f.setDensity(density);
-        f.getFilterData().categoryBits = Constants.CAR_BIT;
-        f.getFilterData().maskBits = Constants.CAR_MASK;
+        Fixture f = carbody.createFixture(pShape, density);
+        Filter filter2 = new Filter();
+        filter2.categoryBits = Constants.CAR_BIT;
+        filter2.maskBits = Constants.CAR_MASK;
+        f.setFilterData(filter2);
 
         ChildEntityComponent cec = new ChildEntityComponent();
         if(!(cc.ig instanceof AI)){
@@ -224,11 +233,12 @@ public class CarFactory {
 
             PolygonShape tireShape = new PolygonShape();
             tireShape.setAsBox(0.5f, 1.25f);
-            Fixture fixture = tireBody.createFixture(tireShape, 1f);
-            fixture.getFilterData().categoryBits = Constants.TIRE_BIT;
-            fixture.getFilterData().maskBits = Constants.TIRE_MASK;
 
-
+            Fixture fixture = tireBody.createFixture(tireShape,0.1f);
+            Filter filter = new Filter();
+            filter.categoryBits = Constants.TIRE_BIT;
+            filter.maskBits = Constants.TIRE_MASK;
+            fixture.setFilterData(filter);
 
 
             //really you just control the tires
