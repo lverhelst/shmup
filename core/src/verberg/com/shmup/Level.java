@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -52,8 +53,10 @@ public class Level {
 
         loadShapes(map, 0, 0);
 
-        //TODO: add joint handling and creation from file
+        //TODO: add ground creation in file
+        createGround(135, 130, 50, 50, 1, 1);
 
+        //TODO: add joint handling and creation from file
         Body circle = createCircle(160, 155, 5, 1, 1, BodyType.StaticBody);
         blade = createBox(165, 154.5f, 150, 2, 0, 1, BodyType.DynamicBody);
 
@@ -94,7 +97,6 @@ public class Level {
                 if(jsonName != null && body != null) {
                     String name = shape.get("name").asString();
                     bodies.put(name, body);
-                    System.out.println(name);
                 }
             }
         }
@@ -110,6 +112,35 @@ public class Level {
                 MessageManager.addMessage(new SpawnMessage(spawn));
             }
         }
+    }
+
+    public Body createGround(float x, float y, float w, float h, float friction, int type) {
+        //TODO: Make type an actually object, maybe a component, so ICE and stuff can have properties
+
+        //box2d doubles these when it creates the box... so I am undoing that so coords are consistant
+        w /= 2;
+        h /= 2;
+
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyType.StaticBody;
+        bodyDef.position.set(new Vector2(x + w, y + h));
+
+        Body body = world.createBody(bodyDef);
+
+        PolygonShape box = new PolygonShape();
+        box.setAsBox(w, h);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = box;
+        fixtureDef.friction = friction;
+        fixtureDef.isSensor = true;
+
+        Fixture fixture = body.createFixture(fixtureDef);
+        fixture.setUserData(type);
+
+        box.dispose();
+
+        return body;
     }
 
     public Body createBox(float x, float y, float w, float h, float friction, float density, BodyType type) {

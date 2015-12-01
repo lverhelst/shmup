@@ -65,26 +65,44 @@ public class ContactSystem implements ContactListener{
     }
 
     public void handleContact(Fixture a, Fixture b){
-        if(a.getUserData() instanceof Entity && b.getUserData() instanceof  Entity){
-            Entity aEntity = (Entity)a.getUserData();
-            Entity bEntity = (Entity)b.getUserData();
+        if(a.getUserData() instanceof Entity) {
+            Entity aEntity = (Entity) a.getUserData();
 
-            if(aEntity.has(HealthComponent.class) && bEntity.has(DamageComponent.class)){
-                if((aEntity.get(HealthComponent.class)).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
-                    //apply damage
-                    (aEntity.get(HealthComponent.class)).cur_health -= (bEntity.get(DamageComponent.class)).damage;
-                    //if the other entity is now dead, send the dead messagea
-                    if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
-                        MessageManager.addMessage(new RemoveMessage(aEntity, INTENT.DIED));
+            if(b.getUserData() instanceof  Entity) {
+                Entity bEntity = (Entity) b.getUserData();
+
+                if (aEntity.has(HealthComponent.class) && bEntity.has(DamageComponent.class)) {
+                    if ((aEntity.get(HealthComponent.class)).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
+                        //apply damage
+                        (aEntity.get(HealthComponent.class)).cur_health -= (bEntity.get(DamageComponent.class)).damage;
+                        //if the other entity is now dead, send the dead messagea
+                        if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
+                            MessageManager.addMessage(new RemoveMessage(aEntity, INTENT.DIED));
+                        }
+                    }
+                }
+            }
+
+            //entity and powerup
+            else if(b.getUserData() instanceof PowerUp){
+                //this should be safe since only car bodies and powerups can collide due to their bitmasks and category masks
+                ((PowerUp)b.getUserData()).applyToEntity(aEntity);
+            }
+
+            //entity and ground
+            //TODO: make proper management of ground, instead of haque-y int ground
+            else if(b.getUserData() instanceof Integer) {
+                if (aEntity.has(HealthComponent.class)) {
+                    if ((aEntity.get(HealthComponent.class)).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
+                        //apply damage
+                        (aEntity.get(HealthComponent.class)).cur_health -= 10000;
+                        //if the other entity is now dead, send the dead messagea
+                        if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
+                            MessageManager.addMessage(new RemoveMessage(aEntity, INTENT.DIED));
+                        }
                     }
                 }
             }
         }
-        //entity and powerup
-        if(a.getUserData() instanceof Entity && b.getUserData() instanceof PowerUp){
-            //this should be safe since only car bodies and powerups can collide due to their bitmasks and category masks
-            ((PowerUp)b.getUserData()).applyToEntity((Entity)a.getUserData());
-        }
-
     }
 }
