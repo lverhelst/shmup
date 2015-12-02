@@ -46,8 +46,8 @@ public class RenderSystem extends SubSystem {
         //replace 5 with PPM from static class
         float adjx = (float)(Math.cos(pc.getBody().getAngle() + Math.PI/2)) - 5f;
         float adjy = (float)(Math.sin(pc.getBody().getAngle() + Math.PI/2)) * 2 + 5f;
-        if(hc.cur_health > 0)
-            loadingBar.draw(batch, pc.getBody().getPosition().x + adjx, pc.getBody().getPosition().y + adjy, ((float)hc.cur_health / (float)hc.max_health) * 10 , 1);
+        if(hc.getCur_health() > 0)
+            loadingBar.draw(batch, pc.getBody().getPosition().x + adjx, pc.getBody().getPosition().y + adjy, ((float)hc.getCur_health() / (float)hc.max_health) * 10 , 1);
 
     }
 }

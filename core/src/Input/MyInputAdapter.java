@@ -52,10 +52,10 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
     public void generateIntents(Entity entity){
 
         if(entity.has(HealthComponent.class)){
-            if(((HealthComponent)entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
+            if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
                 //Ya can't shoot if your dead
                 if (entity.has(PhysicalComponent.class)) {
-                    if (((PhysicalComponent) entity.get(PhysicalComponent.class)).isRoot) {
+                    if ((entity.get(PhysicalComponent.class)).isRoot) {
                         if(keysdown[Input.Keys.Y]) {
                                 System.out.println("SPAWN");
                                 //is dead respawn
@@ -74,7 +74,7 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
             if (entity.has(PhysicalComponent.class)) {
                 if ((entity.get(PhysicalComponent.class)).isRoot) {
                     if (entity.has(HealthComponent.class)) {
-                        ( entity.get(HealthComponent.class)).cur_health = 0;
+                        (entity.get(HealthComponent.class)).setCur_Health(0);
                         MessageManager.addMessage(new RemoveMessage(entity,INTENT.DIED));
                     }
                 }

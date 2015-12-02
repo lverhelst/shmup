@@ -60,7 +60,6 @@ public class ContactSystem implements ContactListener{
                     MessageManager.addMessage(new RemoveMessage(ecs, INTENT.REMOVE));
                 }
             }
-
         }
     }
 
@@ -74,7 +73,7 @@ public class ContactSystem implements ContactListener{
                 if (aEntity.has(HealthComponent.class) && bEntity.has(DamageComponent.class)) {
                     if ((aEntity.get(HealthComponent.class)).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
                         //apply damage
-                        (aEntity.get(HealthComponent.class)).cur_health -= (bEntity.get(DamageComponent.class)).damage;
+                        (aEntity.get(HealthComponent.class)).reduceCur_Health((bEntity.get(DamageComponent.class)).damage);
                         //if the other entity is now dead, send the dead messagea
                         if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
                             MessageManager.addMessage(new RemoveMessage(aEntity, INTENT.DIED));
@@ -95,7 +94,7 @@ public class ContactSystem implements ContactListener{
                 if (aEntity.has(HealthComponent.class)) {
                     if ((aEntity.get(HealthComponent.class)).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
                         //apply damage
-                        (aEntity.get(HealthComponent.class)).cur_health -= 10000;
+                        (aEntity.get(HealthComponent.class)).setCur_Health(0);
                         //if the other entity is now dead, send the dead messagea
                         if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
                             MessageManager.addMessage(new RemoveMessage(aEntity, INTENT.DIED));

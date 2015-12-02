@@ -9,6 +9,7 @@ import ecs.Component;
 public class WeaponComponent extends Component {
     public long lastFire = 0;
     public int firingDelay = 100; //in ms
+    public float multiplier = 1;
 
     public WeaponComponent(){
 

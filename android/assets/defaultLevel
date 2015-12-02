@@ -59,7 +59,7 @@
     "blocks" : [
 		{ 	"name": center, "type" : notacircle, "location" : [160, 155], "radius" : 5, "friction" : 1, "density" : 1, "dynamic" : false },
 		
-        {	"type" : box, "location" : [41.5, 50], 	"size" : [2, 	96],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+        {	"type" : box, "location" : [41.5, 50], 		"size" : [2, 	96],	"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"type" : box, "location" : [35, 	146], 	"size" : [8.5, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"type" : box, "location" : [35, 	166], 	"size" : [8.5, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"type" : box, "location" : [41.5, 168], 	"size" : [2, 	96],	"friction" : 1, "density" : 1, 	"dynamic" : false },		
@@ -75,12 +75,12 @@
         {	"type" : box, "location" : [301, 	 166], 	"size" : [8.5, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"type" : box, "location" : [307.5, 168], 	"size" : [2, 	96],	"friction" : 1, "density" : 1, 	"dynamic" : false },		
 		
-        {	"type" : box, "location" : [0, 	312], 	"size" : [50, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"type" : box, "location" : [0, 	264], 	"size" : [15, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
+        {	"type" : box, "location" : [0, 		312], 	"size" : [50, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
+        {	"type" : box, "location" : [0, 		264], 	"size" : [15, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"type" : box, "location" : [35, 	264], 	"size" : [15, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"type" : box, "location" : [0, 	266], 	"size" : [2, 	46],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+        {	"type" : box, "location" : [0, 		266], 	"size" : [2, 	46],	"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"type" : box, "location" : [50, 	264], 	"size" : [2, 	15],	"friction" : 1, "density" : 1, 	"dynamic" : false },
-        {	"type" : box, "location" : [50, 	299], 	"size" : [2, 	15],	"friction" : 1, "density" : 1, 	"dynamic" : false },		
+        {	"type" : box, "location" : [50, 	299], 	"size" : [2, 	15],	"friction" : 1, "density" : 1, 	"dynamic" : false },
 		
         {	"type" : box, "location" : [266, 	312], 	"size" : [50, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"type" : box, "location" : [266, 	264], 	"size" : [15, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },

@@ -82,6 +82,7 @@ public class Level {
                 float[] pos = shape.get("location").asFloatArray();
                 float friction = shape.get("friction").asFloat();
                 float density = shape.get("density").asFloat();
+
                 BodyDef.BodyType bodyType = shape.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
 
                 if(type.equals("box")) {
@@ -134,6 +135,11 @@ public class Level {
         fixtureDef.shape = box;
         fixtureDef.friction = friction;
         fixtureDef.isSensor = true;
+        if(type == 1){
+            //Death ground is only collidable in the same manner as powerups
+            fixtureDef.filter.categoryBits = Constants.POWERUP_BIT;
+            fixtureDef.filter.maskBits = Constants.POWERUP_MASK;
+        }
 
         Fixture fixture = body.createFixture(fixtureDef);
         fixture.setUserData(type);

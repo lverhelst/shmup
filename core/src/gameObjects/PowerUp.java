@@ -1,5 +1,6 @@
 package gameObjects;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -20,7 +21,7 @@ public abstract class PowerUp {
     Body body;
 
     final int maxTimeAlive = 60000; //powerups only show up for a minute before despawning
-    final int maxTimeOnPlayer = 5000;
+    final int maxTimeOnPlayer = 15000;
     long timeSpawned;
     long timePickedUp;
     private boolean isActive = false;
@@ -40,9 +41,14 @@ public abstract class PowerUp {
 
         body = Game.getWorld().createBody(bdef);
 
-
+        Vector2[] vertices = new Vector2[5];
+        vertices[0] = new Vector2(-1,0);
+        vertices[1] = new Vector2(1,0);
+        vertices[2] = new Vector2(2,1);
+        vertices[3] = new Vector2(0,3);
+        vertices[4] = new Vector2(-2,1);
         PolygonShape pShape = new PolygonShape();
-        pShape.setAsBox(3f, 3f);
+        pShape.set(vertices);
 
         FixtureDef fd = new FixtureDef();
         fd.shape = pShape;
@@ -53,6 +59,7 @@ public abstract class PowerUp {
         fixture.setUserData(this);
 
         timeSpawned = System.currentTimeMillis();
+        timePickedUp = 0;
         isActive = true;
 
     }

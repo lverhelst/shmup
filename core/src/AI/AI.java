@@ -94,7 +94,7 @@ public class AI implements IntentGenerator {
             if (entity.has(PhysicalComponent.class)) {
                 if ((entity.get(PhysicalComponent.class)).isRoot) {
                     if (entity.has(HealthComponent.class)) {
-                        ( entity.get(HealthComponent.class)).cur_health = 0;
+                        ( entity.get(HealthComponent.class)).setCur_Health(0);
                         MessageManager.addMessage(new RemoveMessage(entity,INTENT.DIED));
                     }
                 }
