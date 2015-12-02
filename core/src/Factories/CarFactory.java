@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import AI.IntentGenerator;
@@ -31,6 +32,7 @@ import verberg.com.shmup.Constants;
 import verberg.com.shmup.Game;
 
 /**
+ *  TODO: Full scale rewrite that allows for less reparsing all the time
  * While this isn't technically a Factory class, I think it's fun to name something that reads in a list of attributes
  * and pumps out cars a "factory"
  * Created by Orion on 11/19/2015.
@@ -131,7 +133,7 @@ public class CarFactory {
             Entity tireEntity = new Entity(tValue.getString("name"), steering, new PhysicalComponent(tireBody), new ControlledComponent(ig), new HealthComponent(10));
             fixture.setUserData(tireEntity);
 
-            Entity jointEntity = new Entity("JointEntity", new JointComponent(carbody, tireBody, v2));
+            Entity jointEntity = new Entity("JointEntity", new JointComponent(carbody, tireBody, v2, tValue.getString("name")));
             tireEntity.addComponent(new ParentEntityComponent(jointEntity));
 
 
@@ -184,7 +186,7 @@ public class CarFactory {
         //spawning location stuff
         Random random = new Random();
 
-        //TODO: maybe make a wrapper clash for Box (body) which allows access to the height and width (store them as ints for this purpose)
+        //TODO: maybe make a wrapper class for Box (body) which allows access to the height and width (store them as ints for this purpose)
         bdef.position.set(new Vector2(random.nextInt((int)spawn.getWidth()) + spawn.getX(), random.nextInt((int)spawn.getHeight()) + spawn.getY())); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body carbody = Game.getWorld().createBody(bdef);
 
@@ -214,7 +216,7 @@ public class CarFactory {
         Vector2 v2;
         for(JsonValue tValue : jCar.get("tires")){
 
-            tValue.get(name);
+            String tireName = tValue.getString("name");
 
             v2 = new Vector2(tValue.get("location").asFloatArray()[0],tValue.get("location").asFloatArray()[1]);
 
@@ -229,7 +231,7 @@ public class CarFactory {
             BodyDef tireBodyDef = new BodyDef();
             tireBodyDef.type = BodyDef.BodyType.DynamicBody;
             tireBodyDef.position.set(carbody.getPosition()); //set tire location to car body location
-            Body tireBody = Game.getWorld().createBody(bdef);
+            Body tireBody = Game.getWorld().createBody(tireBodyDef);
 
             PolygonShape tireShape = new PolygonShape();
             tireShape.setAsBox(0.5f, 1.25f);
@@ -242,10 +244,10 @@ public class CarFactory {
 
 
             //really you just control the tires
-            Entity tireEntity = new Entity(tValue.getString("name"), steering, new PhysicalComponent(tireBody), new ControlledComponent(cc.ig), new HealthComponent(10));
+            Entity tireEntity = new Entity(tireName, steering, new PhysicalComponent(tireBody), new ControlledComponent(cc.ig), new HealthComponent(10));
             fixture.setUserData(tireEntity);
 
-            Entity jointEntity = new Entity("JointEntity", new JointComponent(carbody, tireBody, v2));
+            Entity jointEntity = new Entity("JointEntity", new JointComponent(carbody, tireBody, v2, tireName));
             tireEntity.addComponent(new ParentEntityComponent(jointEntity));
 
 
@@ -254,5 +256,67 @@ public class CarFactory {
 
             cec.childList.add(jointEntity);
         }
+    }
+
+
+    public static void insuranceClaimForJoint(Entity joint, Entity carbody){
+        JsonReader jr = new JsonReader();
+        JsonValue jv = jr.parse(Gdx.files.internal("carlist"));
+        JsonValue jCar = jv.get("car");
+
+
+        for(JsonValue tValue : jCar.get("tires")){
+
+
+
+            String tireName = tValue.getString("name");
+            //If not the join we're looking for, then restart
+            if(!tireName.equals(joint.get(JointComponent.class).name)){
+                continue;
+            }
+
+
+            Vector2 v2 = new Vector2(tValue.get("location").asFloatArray()[0],tValue.get("location").asFloatArray()[1]);
+
+            //Tire entity
+            SteeringComponent steering = new SteeringComponent();
+            steering.canTurn = tValue.getBoolean("canTurn");
+            steering.maxForwardSpeed = tValue.getInt("maxForwardSpeed");
+            steering.maxBackwardsSpeed = tValue.getInt("maxBackwardsSpeed");
+            steering.maxDriveForce = tValue.getInt("maxDriveForce");
+            steering.maxLateralImpulse = tValue.getFloat("maxLateralImpulse");
+            //max box2d body of tire
+            BodyDef tireBodyDef = new BodyDef();
+            tireBodyDef.type = BodyDef.BodyType.DynamicBody;
+            tireBodyDef.position.set(carbody.get(PhysicalComponent.class).getBody().getPosition()); //set tire location to car body location
+            Body tireBody = Game.getWorld().createBody(tireBodyDef);
+
+            PolygonShape tireShape = new PolygonShape();
+            tireShape.setAsBox(0.5f, 1.25f);
+
+            Fixture fixture = tireBody.createFixture(tireShape,0.1f);
+            Filter filter = new Filter();
+            filter.categoryBits = Constants.TIRE_BIT;
+            filter.maskBits = Constants.TIRE_MASK;
+            fixture.setFilterData(filter);
+
+
+            //really you just control the tires
+            Entity tireEntity = new Entity(tireName, steering, new PhysicalComponent(tireBody), new ControlledComponent(carbody.get(ControlledComponent.class).ig), new HealthComponent(10));
+            fixture.setUserData(tireEntity);
+
+
+            joint.removeAllComponents();
+
+            joint = new Entity("JointEntity", new JointComponent(carbody.get(PhysicalComponent.class).getBody(), tireBody, v2, tireName));
+            tireEntity.addComponent(new ParentEntityComponent(joint));
+
+
+            joint.addComponent(new ParentEntityComponent(carbody));
+            joint.addComponent(new ChildEntityComponent(tireEntity));
+
+        }
+
+
     }
 }

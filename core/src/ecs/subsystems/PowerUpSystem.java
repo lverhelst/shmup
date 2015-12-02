@@ -6,6 +6,7 @@ import gameObjects.DoubleDamagePowerUp;
 import gameObjects.FireRatePowerUp;
 import gameObjects.GradualHealPowerUp;
 import gameObjects.PowerUp;
+import gameObjects.RepairPowerUp;
 
 /**
  * Manages powerups
@@ -44,10 +45,11 @@ public class PowerUpSystem {
     private PowerUp randomPowerUp(){
         //increase the below integer as more powerups are added
         //can also change spawn distribution here
-        switch(rand.nextInt(3)){
+        switch(rand.nextInt(4)){
             case 0: System.out.println("spawning fire rate");    return new FireRatePowerUp();
             case 1: System.out.println("spawning double damage");return new DoubleDamagePowerUp();
             case 2: System.out.println("spawning health");       return new GradualHealPowerUp();
+            case 3: System.out.println("spawning reapir");       return new RepairPowerUp();
         }
         return null;
     }

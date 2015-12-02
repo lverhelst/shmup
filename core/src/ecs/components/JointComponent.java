@@ -14,8 +14,10 @@ import verberg.com.shmup.Game;
  */
 public class JointComponent extends Component {
     public RevoluteJoint joint;
+    public String name;
 
-    public JointComponent(Body bodyA, Body bodyB, Vector2 location){
+    public JointComponent(Body bodyA, Body bodyB, Vector2 location, String name){
+        this.name = name;
 
         RevoluteJointDef jointDef = new RevoluteJointDef();
         jointDef.bodyA = bodyA;
