@@ -26,11 +26,13 @@ public class RemovalSystem extends SubSystem{
         if(i == INTENT.REMOVE) {
             if (e.recursiveHas(PhysicalComponent.class)) {
                 Body b2dBody = (e.get(PhysicalComponent.class)).getBody();
-                b2dBody.getWorld().destroyBody(b2dBody);
+                if(b2dBody != null)
+                    b2dBody.getWorld().destroyBody(b2dBody);
             }
             if (e.recursiveHas(JointComponent.class)) {
-                Joint j = ((JointComponent) e.recursiveGet(JointComponent.class)).joint;
-                Game.getWorld().destroyJoint(j);
+                Joint j = (e.get(JointComponent.class)).joint;
+                if(j != null)
+                    Game.getWorld().destroyJoint(j);
             }
             Game.removeEntity(e);
         }
@@ -65,6 +67,7 @@ public class RemovalSystem extends SubSystem{
                              if(j != null) {
                                  Game.getWorld().destroyJoint(j);
                                  (parent.get(JointComponent.class)).joint = null;
+
                              }
 
                              e.removeComponent(JointComponent.class);
@@ -75,9 +78,6 @@ public class RemovalSystem extends SubSystem{
                          }
 
                      }
-                }
-                for(Fixture f : e.get(PhysicalComponent.class).getBody().getFixtureList()) {
-                   // f.setSensor(true);
                 }
             }
             //remove joints?

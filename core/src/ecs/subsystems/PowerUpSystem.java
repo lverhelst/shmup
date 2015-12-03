@@ -9,7 +9,7 @@ import gameObjects.PowerUp;
 import gameObjects.RepairPowerUp;
 
 /**
- * Manages powerups
+ * Manages power ups
  * Created by Orion on 11/30/2015.
  */
 public class PowerUpSystem {
