@@ -27,14 +27,16 @@ public class Level {
     final int PPM = 5;
 
     private HashMap<String, Body> bodies;
+    private ArrayList<Node> nodeList;
     public World world;
 
     private Body blade;
 
     public void create(World world) {
-        this.world = world;
-
         bodies = new HashMap<String, Body>();
+        nodeList = new ArrayList<Node>();
+
+        this.world = world;
 
         loadLevel(Gdx.files.internal("defaultLevel"));
     }
@@ -47,11 +49,13 @@ public class Level {
         float[] offset;
 
         for(JsonValue group : groups) {
+            //TODO: move offset into the loadPart method?
             offset = group.get("location").asFloatArray();
-            loadShapes(group, offset[0], offset[1]);
+            loadParts(group, offset[0], offset[1]);
         }
 
-        loadShapes(map, 0, 0);
+        loadParts(map, 0, 0);
+        processNodes(nodeList);
 
         //TODO: add ground creation in file
         createGround(135, 130, 50, 50, 1, 1);
@@ -70,10 +74,10 @@ public class Level {
         world.createJoint(joint);
     }
 
-    public void loadShapes(JsonValue shapes, float x, float y) {
+    public void loadParts(JsonValue shapes, float x, float y) {
         Body body = null;
         JsonValue types = shapes.get("blocks");
-        JsonValue spawns = shapes.get("spawns");
+        JsonValue nodes = shapes.get("nodes");
 
         if(types != null) {
             for (JsonValue shape : types) {
@@ -102,17 +106,33 @@ public class Level {
             }
         }
 
-        if(spawns != null) {
-            //TODO: Make spawns into bodies again, maybe make a wrapper for boxes and stuff to allow access to width/height (Make ints for random purposes)
-            for (JsonValue block : spawns) {
-                //String name = block.get("name").asString();
-                float[] pos = block.get("location").asFloatArray();
-                float[] size = block.get("size").asFloatArray();
-
-                Rectangle spawn = createSpawn(pos[0] + x, pos[1] + y, size[0], size[1]);
-                MessageManager.addMessage(new SpawnMessage(spawn));
+        if(nodes != null) {
+            for (JsonValue node : nodes) {
+                Node newNode = new Node();
+                newNode.create(node);
+                nodeList.add(newNode);
             }
         }
+    }
+
+    public void processNodes(ArrayList<Node> nodes) {
+        for(Node node : nodes) {
+            if(node.isNavigation()) {
+
+            }
+
+            if(node.isPowerup()) {
+
+            }
+
+            if(node.isSpawn()) {
+                MessageManager.addMessage(new SpawnMessage(node));
+            }
+        }
+    }
+
+    public void loadVariation(JsonValue shapes) {
+        //TODO: add loading for variations
     }
 
     public Body createGround(float x, float y, float w, float h, float friction, int type) {
@@ -172,18 +192,6 @@ public class Level {
         box.dispose();
 
         return body;
-    }
-
-    /**
-     * NOTE: Rectangle used here, because Box2D bodies are bitch to get the width and height out of... figure out how to use a body eventually...
-     * @param x position
-     * @param y position
-     * @param w width
-     * @param h height
-     * @return returns a rectangle at the given location with the width and height passed in
-     */
-    public Rectangle createSpawn(float x, float y, float w, float h) {
-        return new Rectangle(x, y, w, h);
     }
 
     public Body createCircle(float x, float y, float r, float friction, float density, BodyType type) {

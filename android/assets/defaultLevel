@@ -49,13 +49,6 @@
 			]
 		}
 	],
-	"spawns" : [	
-        {	"type" : box, "location" : [10, 10], 	"size" : [35, 	35] },
-        {	"type" : box, "location" : [276, 10], "size" : [35, 	35] },
-        {	"type" : box, "location" : [10, 276], "size" : [35, 	35] },
-        {	"type" : box, "location" : [276, 276], "size" : [35, 	35] },
-        {	"type" : box, "location" : [75, 75], "size" : [150, 	150] }
-	],
     "blocks" : [
 		{ 	"name": center, "type" : notacircle, "location" : [160, 155], "radius" : 5, "friction" : 1, "density" : 1, "dynamic" : false },
 		
@@ -99,6 +92,13 @@
         {	"type" : box, "location" : [150, 	299], 	"size" : [18, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"type" : box, "location" : [168, 	299], 	"size" : [2, 	8.5],	"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"type" : box, "location" : [170, 	305.5], "size" : [96, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false }
-    ]
+    ],
+	"nodes" : [	
+        {	"location" : [10, 10], 		"type" : [spawn, nav, powerup] },
+        {	"location" : [276, 10], 	"type" : [spawn, nav, powerup] },
+        {	"location" : [10, 276], 	"type" : [spawn, nav, powerup] },
+        {	"location" : [276, 276],	"type" : [spawn, nav, powerup] },
+        {	"location" : [75, 75], 		"type" : [spawn, nav, powerup] }
+	]
   }
 }

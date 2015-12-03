@@ -10,13 +10,13 @@ import ecs.subsystems.SpawnSystem;
  */
 public class SpawnMessage implements Message {
     static SpawnSystem ss = new SpawnSystem();
-    Rectangle spawn;
+    Node spawn;
     Entity e;
 
     public SpawnMessage(Entity e){
         this.e = e;
     }
-    public SpawnMessage(Rectangle spawn) { this.spawn = spawn; }
+    public SpawnMessage(Node spawn) { this.spawn = spawn; }
 
 
     @Override
