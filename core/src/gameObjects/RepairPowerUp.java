@@ -17,16 +17,20 @@ import ecs.components.JointComponent;
 public class RepairPowerUp extends PowerUp {
 
     ArrayList<Entity> jointsToRepair;
+    static CarFactory cf;
+
 
     public RepairPowerUp(){
         super(ChildEntityComponent.class);
         jointsToRepair = new ArrayList<Entity>();
+        if(cf == null)
+            cf = new CarFactory();
     }
 
     @Override
     public void update() {
         for(Entity s : jointsToRepair){
-            CarFactory.insuranceClaimForJoint(s,pickedUpEntity);
+            cf.insuranceClaimForJoint(s,pickedUpEntity);
         }
         jointsToRepair.clear();
         super.update();
