@@ -36,6 +36,7 @@ import ecs.components.SteeringComponent;
 import ecs.components.WeaponComponent;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.Game;
+import verberg.com.shmup.Node;
 
 /**
  *  TODO: Full scale rewrite that allows for less reparsing all the time
@@ -70,7 +71,7 @@ public class CarFactory {
         }
     }
 
-    public void applyLifeTimeWarranty(Entity e, Rectangle spawn){
+    public void applyLifeTimeWarranty(Entity e, Node spawn){
         ControlledComponent cc = null;
         if(e.has(ControlledComponent.class)) {
             cc = e.get(ControlledComponent.class);

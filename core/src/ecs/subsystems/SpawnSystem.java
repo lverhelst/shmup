@@ -11,12 +11,14 @@ import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 
 import AI.AI;
+import verberg.com.shmup.Node;
+
 /**
  * Created by Orion on 11/26/2015.
  */
 public class SpawnSystem {
     static CarFactory carFactory = new CarFactory();
-    static ArrayList<Rectangle> spawnPoints = new ArrayList<Rectangle>();
+    static ArrayList<Node> spawnPoints = new ArrayList<Node>();
     static int newSpawn = 0; //TODO: replace with something better
 
     public void update(Entity entity){
@@ -39,7 +41,7 @@ public class SpawnSystem {
         }
     }
 
-    public void addSpawnPoint(Rectangle spawn) {
+    public void addSpawnPoint(Node spawn) {
         spawnPoints.add(spawn);
     }
 }
