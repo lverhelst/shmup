@@ -35,8 +35,8 @@ public class Game extends ApplicationAdapter {
 
     //move to static variables class
     private static final float STEP = 1/60f;
-    public static final int V_WIDTH = 620/5;
-    public static final int V_HEIGHT = 480/5;
+    public static final int V_WIDTH = 620/Constants.PPM;
+    public static final int V_HEIGHT = 480/Constants.PPM;
 
     //move to render Component
     Box2DDebugRenderer debugRenderer;

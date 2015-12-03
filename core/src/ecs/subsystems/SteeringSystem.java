@@ -48,15 +48,15 @@ public class SteeringSystem extends SubSystem {
                 boost_multiplier = 1;
                 switch (intent) {
                     case BOOST:
-                        if(!sc.canTurn) {
+                        //if(!sc.canTurn) {
                             currentForwardNormal = body.getWorldVector(new Vector2(0, 1));
                             //strangly enough currentForwardNormal gets cleared somehow
                             //so we save current forward normal into a new vector
                             wtf = new Vector2(currentForwardNormal.x, currentForwardNormal.y);
-                            boost_multiplier = 10;
+                            boost_multiplier = (sc.canTurn ? 2: 10);
                             force = sc.maxDriveForce * boost_multiplier;
                             body.applyForce(wtf.scl(force), body.getWorldCenter(), true);
-                        }
+                       // }
                     case ACCELERATE:
                         currentForwardNormal = body.getWorldVector(new Vector2(0, 1));
                         //strangly enough currentForwardNormal gets cleared somehow

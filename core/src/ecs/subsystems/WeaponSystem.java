@@ -66,7 +66,7 @@ public class WeaponSystem extends SubSystem {
                 circle.setRadius(1f);
                 FixtureDef fixture = new FixtureDef();
                 fixture.shape = circle;
-                fixture.density = 10f;
+                fixture.density = 1f;
                 fixture.friction = 0.1f;
                 fixture.filter.categoryBits = Constants.BULLET_BIT;
                 fixture.filter.maskBits = Constants.BULLET_MASK;
