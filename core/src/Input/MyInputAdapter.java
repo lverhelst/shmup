@@ -84,6 +84,9 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
         if(keysdown[Input.Keys.UP]||keysdown[Input.Keys.W]){
             MessageManager.addMessage(new SteeringMessage(entity, INTENT.ACCELERATE));
         }
+        if(keysdown[Input.Keys.SHIFT_LEFT]){
+            MessageManager.addMessage(new SteeringMessage(entity, INTENT.BOOST));
+        }
         if(keysdown[Input.Keys.DOWN]||keysdown[Input.Keys.S]){
             MessageManager.addMessage(new SteeringMessage(entity, INTENT.DECELERATE));
         }

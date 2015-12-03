@@ -44,8 +44,6 @@ public class PowerUpSystem {
             CarFactory.getMoreCarsIntTheShopExe();
             x++;
         }
-
-
     }
 
     /***

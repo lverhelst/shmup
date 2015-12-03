@@ -21,6 +21,7 @@ public class SteeringSystem extends SubSystem {
     private Vector2 currentForwardNormal, wtf;
     private float force, currentSpeed;
     private boolean didTurn;
+    private int boost_multiplier;
 
     public void update(Entity entity, INTENT intent){
 
@@ -44,18 +45,28 @@ public class SteeringSystem extends SubSystem {
             //Should check isControlledComponent
             if (entity.has(ControlledComponent.class)) {
                 didTurn = false;
-
+                boost_multiplier = 1;
                 switch (intent) {
+                    case BOOST:
+                        if(!sc.canTurn) {
+                            currentForwardNormal = body.getWorldVector(new Vector2(0, 1));
+                            //strangly enough currentForwardNormal gets cleared somehow
+                            //so we save current forward normal into a new vector
+                            wtf = new Vector2(currentForwardNormal.x, currentForwardNormal.y);
+                            boost_multiplier = 10;
+                            force = sc.maxDriveForce * boost_multiplier;
+                            body.applyForce(wtf.scl(force), body.getWorldCenter(), true);
+                        }
                     case ACCELERATE:
                         currentForwardNormal = body.getWorldVector(new Vector2(0, 1));
-                        //strangle enough currentForwardNormal gets cleared somehow
+                        //strangly enough currentForwardNormal gets cleared somehow
                         //so we save current forward normal into a new vector
                         wtf = new Vector2(currentForwardNormal.x, currentForwardNormal.y);
                         currentSpeed = getForwardVelocity(body).dot(wtf);
 
                         //apply the forces!
                         if (sc.maxForwardSpeed > currentSpeed) {
-                            force = sc.maxDriveForce;
+                            force = sc.maxDriveForce * boost_multiplier;
                             body.applyForce(wtf.scl(force), body.getWorldCenter(), true);
                         }
                         break;

@@ -8,6 +8,7 @@ public enum INTENT {
     DECELERATE,
     LEFTTURN,
     RIGHTTURN,
+    BOOST,
     FIRE,
     DESTRUCT,
     DAMAGE,

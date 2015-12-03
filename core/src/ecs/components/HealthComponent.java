@@ -31,7 +31,7 @@ public class HealthComponent extends Component {
         if(state < 1 && state >= 0.5){
             return HEALTH_STATE.MODERATE;
         }
-        if(state < 0.5 && state >= 0.1)
+        if(state < 0.5 && state > 0)
         {
             return HEALTH_STATE.SEVERE;
         }
