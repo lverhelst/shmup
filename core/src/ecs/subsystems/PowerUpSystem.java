@@ -2,6 +2,7 @@ package ecs.subsystems;
 
 import java.util.Random;
 
+import Factories.CarFactory;
 import gameObjects.DoubleDamagePowerUp;
 import gameObjects.FireRatePowerUp;
 import gameObjects.GradualHealPowerUp;
@@ -18,6 +19,8 @@ public class PowerUpSystem {
 
     //One at a time for now
     PowerUp[] livePowerUp;
+    int x = 0;
+
 
     public PowerUpSystem(){
         rand = new Random();
@@ -37,6 +40,12 @@ public class PowerUpSystem {
             //update powerup
             livePowerUp[i].update();
         }
+        if(rand.nextInt(10) == 0 && x < 5){
+            CarFactory.getMoreCarsIntTheShopExe();
+            x++;
+        }
+
+
     }
 
     /***

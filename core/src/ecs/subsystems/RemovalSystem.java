@@ -40,8 +40,6 @@ public class RemovalSystem extends SubSystem{
             if(e.has(PhysicalComponent.class)){
                 if(e.get(PhysicalComponent.class).isRoot){
                     //Destroy Joints
-                    //should replace with recursive remove
-
                    if(e.has(ChildEntityComponent.class)){
                         for(Entity child : e.get(ChildEntityComponent.class).childList){
                             if(child.has(JointComponent.class)){

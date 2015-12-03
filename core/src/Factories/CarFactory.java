@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -19,6 +20,7 @@ import java.util.Random;
 import AI.IntentGenerator;
 import AI.AI;
 import ecs.components.ChildEntityComponent;
+import ecs.components.DamageComponent;
 import ecs.components.HealthComponent;
 import ecs.components.CameraAttachmentComponent;
 import ecs.Entity;
@@ -316,6 +318,36 @@ public class CarFactory {
             joint.addComponent(new ChildEntityComponent(tireEntity));
 
         }
+
+
+    }
+
+    /***
+     * Spawns a spiky thing
+     */
+    public static void getMoreCarsIntTheShopExe(){
+
+        //spawning location stuff
+        Random random = new Random();
+
+        BodyDef bdef = new BodyDef();
+        bdef.type = BodyDef.BodyType.DynamicBody;
+        bdef.position.set(new Vector2(random.nextInt(128) + 64, random.nextInt(128) + 64)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        Body spikyBody = Game.getWorld().createBody(bdef);
+
+        CircleShape circleShape = new CircleShape();
+        circleShape.setRadius(4f); //Make it real big
+
+        Fixture f = spikyBody.createFixture(circleShape, 10.0f);
+        Filter filter2 = new Filter();
+        filter2.categoryBits = Constants.POWERUP_BIT;
+        filter2.maskBits = Constants.POWERUP_MASK;
+        f.setFilterData(filter2);
+        PhysicalComponent pc = new PhysicalComponent(spikyBody);
+        pc.maxContacts = 1;
+        f.setUserData(new Entity(pc, new DamageComponent(86)));
+
+
 
 
     }
