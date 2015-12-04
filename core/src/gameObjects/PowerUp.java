@@ -33,7 +33,7 @@ public abstract class PowerUp {
     }
 
     //spawn at location
-    public void spawn(int x, int y) {
+    public void spawn(float x, float y) {
         BodyDef bdef = new BodyDef();
         bdef.type = BodyDef.BodyType.DynamicBody;
         bdef.position.set(x,y);
