@@ -13,8 +13,6 @@ import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
 import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
-import verberg.com.shmup.MessageManager;
-import verberg.com.shmup.Parameter;
 
 import static com.badlogic.gdx.Input.Keys.CONTROL_RIGHT;
 
@@ -48,7 +46,6 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
      */
     @Override
     public void generateIntents(Entity entity){
-        Parameter paramEntity = new Parameter(entity);
 
         if(entity.has(HealthComponent.class)){
             if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
@@ -58,7 +55,7 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
                         if(keysdown[Input.Keys.Y]) {
                                 System.out.println("SPAWN");
                                 //is dead respawn
-                                Game.slightlyWarmMail.addMessage(SpawnSystem.class, paramEntity);
+                                Game.slightlyWarmMail.addMessage(SpawnSystem.class, entity);
                                 return;
                             }
 
@@ -74,35 +71,35 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
                 if ((entity.get(PhysicalComponent.class)).isRoot) {
                     if (entity.has(HealthComponent.class)) {
                         (entity.get(HealthComponent.class)).setCur_Health(0);
-                        Game.slightlyWarmMail.addMessage(RemovalSystem.class, paramEntity, new Parameter(INTENT.DIED));
+                        Game.slightlyWarmMail.addMessage(RemovalSystem.class, entity, INTENT.DIED);
                     }
                 }
                 return;
             }
         }
         if(keysdown[Input.Keys.UP]||keysdown[Input.Keys.W]){
-            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.ACCELERATE));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, entity, INTENT.ACCELERATE);
         }
         if(keysdown[Input.Keys.SHIFT_LEFT]){
-            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.BOOST));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, entity, INTENT.BOOST);
         }
         if(keysdown[Input.Keys.DOWN]||keysdown[Input.Keys.S]){
-            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.DECELERATE));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, entity, INTENT.DECELERATE);
         }
         boolean didTurn = false;
         if(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.A]){
-            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.LEFTTURN));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, entity, INTENT.LEFTTURN);
             didTurn |= true;
         }
         if(keysdown[Input.Keys.RIGHT]||keysdown[Input.Keys.D]){
-            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.RIGHTTURN));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, entity, INTENT.RIGHTTURN);
             didTurn |= true;
         }
         if(!didTurn) {
-            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.STRAIGHT));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, entity, INTENT.STRAIGHT);
         }
         if(keysdown[Input.Keys.SPACE]||keysdown[CONTROL_RIGHT]){
-            Game.slightlyWarmMail.addMessage(WeaponSystem.class, paramEntity);
+            Game.slightlyWarmMail.addMessage(WeaponSystem.class, entity);
         }
     }
 }

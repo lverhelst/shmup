@@ -1,7 +1,6 @@
 package ecs.subsystems;
 
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Joint;
 
 import ecs.Entity;
@@ -13,7 +12,6 @@ import ecs.components.PhysicalComponent;
 import ecs.components.SteeringComponent;
 import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
-import verberg.com.shmup.Parameter;
 
 /**
  * Created by Orion on 11/26/2015.
@@ -23,10 +21,10 @@ import verberg.com.shmup.Parameter;
 
 public class RemovalSystem implements SubSystem{
 
-    public void processMessage(Parameter... list) {
-        if(list[0].getType() == Entity.class && list[1].getType() == INTENT.class) {
-            Entity e = (Entity)list[0].getValue();
-            INTENT i = (INTENT)list[1].getValue();
+    public void processMessage(Object... list) {
+        if(list[0].getClass() == Entity.class && list[1].getClass() == INTENT.class) {
+            Entity e = (Entity)list[0];
+            INTENT i = (INTENT)list[1];
 
             switch (i) {
                 case REMOVE:

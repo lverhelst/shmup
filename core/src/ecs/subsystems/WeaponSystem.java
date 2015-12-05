@@ -15,7 +15,6 @@ import ecs.components.PhysicalComponent;
 import ecs.components.WeaponComponent;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.Game;
-import verberg.com.shmup.Parameter;
 
 /**
  * Created by Orion on 11/23/2015.
@@ -23,9 +22,9 @@ import verberg.com.shmup.Parameter;
  */
 public class WeaponSystem implements SubSystem {
 
-    public void processMessage(Parameter... list) {
-        if(list[0].getType() == Entity.class) {
-            Entity e = (Entity)list[0].getValue();
+    public void processMessage(Object ... list) {
+        if(list[0].getClass() == Entity.class) {
+            Entity e = (Entity)list[0];
             fireStuff(e);
         }
     }

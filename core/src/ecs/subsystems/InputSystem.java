@@ -3,9 +3,7 @@ package ecs.subsystems;
 import java.util.ArrayList;
 
 import ecs.Entity;
-import ecs.SubSystem;
 import ecs.components.ControlledComponent;
-import verberg.com.shmup.Parameter;
 
 /**
  * Created by Orion on 11/24/2015.

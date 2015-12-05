@@ -12,7 +12,6 @@ import ecs.components.PhysicalComponent;
 import ecs.components.ControlledComponent;
 import ecs.components.SteeringComponent;
 import verberg.com.shmup.INTENT;
-import verberg.com.shmup.Parameter;
 
 /**
  * Created by Orion on 11/23/2015.
@@ -24,10 +23,10 @@ public class SteeringSystem implements SubSystem {
     private boolean didTurn;
     private int boost_multiplier;
 
-    public void processMessage(Parameter... list) {
-        if(list[0].getType() == Entity.class && list[1].getType() == INTENT.class) {
-            Entity e = (Entity)list[0].getValue();
-            INTENT i = (INTENT)list[1].getValue();
+    public void processMessage(Object ... list) {
+        if(list[0].getClass() == Entity.class && list[1].getClass() == INTENT.class) {
+            Entity e = (Entity)list[0];
+            INTENT i = (INTENT)list[1];
 
             updateSteering(e,i);
         }

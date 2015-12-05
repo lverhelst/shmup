@@ -1,7 +1,5 @@
 package ecs;
 
-import verberg.com.shmup.Parameter;
-
 /**
  * Created by Orion on 11/23/2015.
  * TODO: Make into an interface and require an update() method?
@@ -9,5 +7,5 @@ import verberg.com.shmup.Parameter;
  * TODO: Make these orderable
  */
 public interface SubSystem {
-    void processMessage(Parameter... parameters);
+    void processMessage(Object... parameters);
 }

@@ -52,6 +52,7 @@ public class Game extends ApplicationAdapter {
 
     InputSystem inputSystem = new InputSystem();
     CameraSystem cameraSystem = new CameraSystem();
+    PowerUpSystem powerupSystem = new PowerUpSystem();
     RenderSystem renderSystem;
 
     //don't think we need multiple worlds am I right?
@@ -69,7 +70,6 @@ public class Game extends ApplicationAdapter {
 
         slightlyWarmMail.addSystem(SteeringSystem.class, new SteeringSystem());
         slightlyWarmMail.addSystem(WeaponSystem.class, new WeaponSystem());
-        slightlyWarmMail.addSystem(PowerUpSystem.class, new PowerUpSystem());
         slightlyWarmMail.addSystem(RemovalSystem.class, new RemovalSystem());
         slightlyWarmMail.addSystem(SpawnSystem.class, new SpawnSystem());
 
@@ -138,7 +138,7 @@ public class Game extends ApplicationAdapter {
        // System.out.println("Entities: " + entities.size() + " Box2DBodies " + world.getBodyCount());
 
         inputSystem.update(entities);
-        //powerUpSystem.update(); TODO figure out how to re-enable this
+        powerupSystem.update();
         //steeringSystem.update(entities);
         slightlyWarmMail.update();
 

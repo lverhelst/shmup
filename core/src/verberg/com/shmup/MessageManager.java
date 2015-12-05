@@ -23,7 +23,7 @@ public class MessageManager {
             systems.put(systemType, system);
     }
 
-    public void addMessage(Class system, Parameter ... list){
+    public void addMessage(Class system, Object ... list){
         messages.add(new Message(system, list));
     }
 

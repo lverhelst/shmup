@@ -128,7 +128,7 @@ public class Level {
             }
 
             if(node.isSpawn()) {
-                Game.slightlyWarmMail.addMessage(SpawnSystem.class, new Parameter(node));
+                Game.slightlyWarmMail.addMessage(SpawnSystem.class, node);
             }
         }
     }

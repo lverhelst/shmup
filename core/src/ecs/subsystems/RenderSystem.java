@@ -5,17 +5,13 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 
 import java.util.ArrayList;
 
 import ecs.Entity;
-import ecs.SubSystem;
-import ecs.components.ControlledComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
-import verberg.com.shmup.Parameter;
 
 /**
  * Created by Orion on 11/29/2015.

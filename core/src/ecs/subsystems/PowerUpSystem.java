@@ -9,7 +9,6 @@ import gameObjects.FireRatePowerUp;
 import gameObjects.GradualHealPowerUp;
 import gameObjects.PowerUp;
 import gameObjects.RepairPowerUp;
-import verberg.com.shmup.Parameter;
 
 /**
  * Manages power ups
@@ -29,7 +28,7 @@ public class PowerUpSystem implements SubSystem{
         livePowerUp = new PowerUp[4];
     }
 
-    public void processMessage(Parameter... list) {
+    public void processMessage(Object... list) {
         //TODO make messagable
     }
 
