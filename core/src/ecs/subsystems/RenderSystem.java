@@ -15,11 +15,12 @@ import ecs.SubSystem;
 import ecs.components.ControlledComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
+import verberg.com.shmup.Parameter;
 
 /**
  * Created by Orion on 11/29/2015.
  */
-public class RenderSystem extends SubSystem {
+public class RenderSystem {
 
     private NinePatchDrawable loadingBar;
 

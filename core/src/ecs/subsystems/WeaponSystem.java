@@ -1,15 +1,11 @@
 package ecs.subsystems;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 
-import java.util.ArrayList;
-
-import Input.MyInputAdapter;
 import ecs.Entity;
 import ecs.SubSystem;
 import ecs.components.DamageComponent;
@@ -19,23 +15,28 @@ import ecs.components.PhysicalComponent;
 import ecs.components.WeaponComponent;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.Game;
-import verberg.com.shmup.INTENT;
-import verberg.com.shmup.MessageManager;
+import verberg.com.shmup.Parameter;
 
 /**
  * Created by Orion on 11/23/2015.
  * Used to fire weapons
  */
-public class WeaponSystem extends SubSystem {
+public class WeaponSystem implements SubSystem {
 
-    public void update(Entity entity){
+    public void processMessage(Parameter... list) {
+        if(list[0].getType() == Entity.class) {
+            Entity e = (Entity)list[0].getValue();
+            fireStuff(e);
+        }
+    }
+
+    public void fireStuff(Entity entity){
         if(entity.has(HealthComponent.class)){
             if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
                 //Ya can't shoot if your dead
                 return;
             }
         }
-
 
         if(entity.has(WeaponComponent.class)){
             WeaponComponent wc = entity.get(WeaponComponent.class);
@@ -85,12 +86,7 @@ public class WeaponSystem extends SubSystem {
 
                 Entity bEntity = new Entity(pc, new ParentEntityComponent(entity), new DamageComponent((int)(20 * wc.multiplier)));
                 bulletFixture.setUserData(bEntity);
-
-
-
             }
         }
-
-
     }
 }

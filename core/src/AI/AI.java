@@ -5,13 +5,12 @@ import java.util.Random;
 import ecs.Entity;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
+import ecs.subsystems.RemovalSystem;
+import ecs.subsystems.SpawnSystem;
+import ecs.subsystems.SteeringSystem;
+import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
-import verberg.com.shmup.Message;
-import verberg.com.shmup.MessageManager;
-import verberg.com.shmup.RemoveMessage;
-import verberg.com.shmup.SpawnMessage;
-import verberg.com.shmup.SteeringMessage;
-import verberg.com.shmup.WeaponMessage;
+import verberg.com.shmup.Parameter;
 
 /**
  * Roughin in AI
@@ -36,7 +35,7 @@ public class AI implements IntentGenerator {
 
     @Override
     public void generateIntents(Entity entity) {
-
+        Parameter paramEntity = new Parameter(entity);
 
         if(entity.has(HealthComponent.class)){
             if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
@@ -49,15 +48,12 @@ public class AI implements IntentGenerator {
                             waitToRespawn = true;
                         }
 
-
                         if((respawnStart) > time){
                             waitToRespawn = true;
                         }else{
                             waitToRespawn = false;
-                            MessageManager.addMessage(new SpawnMessage(entity));
+                            Game.slightlyWarmMail.addMessage(SpawnSystem.class, paramEntity);
                         }
-
-
                     }
                 }
                 return;
@@ -70,24 +66,24 @@ public class AI implements IntentGenerator {
         }
         //Add messages to message manager
         if(bozoNumber < 7){
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.ACCELERATE));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.ACCELERATE));
         }
         if(bozoNumber == 7){
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.DECELERATE));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.DECELERATE));
         }
         boolean didTurn = false;
         if(bozoNumber < 4 ){
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.LEFTTURN));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.LEFTTURN));
             didTurn |= true;
         } else if(bozoNumber < 7){
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.RIGHTTURN));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.RIGHTTURN));
             didTurn |= true;
         }
         if(!didTurn) {
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.STRAIGHT));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.STRAIGHT));
         }
         if(bozoNumber == 4){
-            MessageManager.addMessage(new WeaponMessage(entity));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.FIRE));
         }
 
         if(random.nextInt(100000) == 0){
@@ -95,7 +91,7 @@ public class AI implements IntentGenerator {
                 if ((entity.get(PhysicalComponent.class)).isRoot) {
                     if (entity.has(HealthComponent.class)) {
                         ( entity.get(HealthComponent.class)).setCur_Health(0);
-                        MessageManager.addMessage(new RemoveMessage(entity,INTENT.DIED));
+                        Game.slightlyWarmMail.addMessage(RemovalSystem.class, paramEntity, new Parameter(INTENT.DIED));
                     }
                 }
                 return;

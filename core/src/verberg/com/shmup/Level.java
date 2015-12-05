@@ -19,6 +19,8 @@ import com.badlogic.gdx.utils.JsonValue;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ecs.subsystems.SpawnSystem;
+
 /**
  * Created by Orion on 11/17/2015.
  */
@@ -126,7 +128,7 @@ public class Level {
             }
 
             if(node.isSpawn()) {
-                MessageManager.addMessage(new SpawnMessage(node));
+                Game.slightlyWarmMail.addMessage(SpawnSystem.class, new Parameter(node));
             }
         }
     }

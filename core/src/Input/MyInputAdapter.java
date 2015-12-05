@@ -3,20 +3,18 @@ package Input;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 
-import java.util.ArrayList;
-
 import AI.IntentGenerator;
 import ecs.Entity;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
+import ecs.subsystems.RemovalSystem;
+import ecs.subsystems.SpawnSystem;
+import ecs.subsystems.SteeringSystem;
+import ecs.subsystems.WeaponSystem;
 import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
-import verberg.com.shmup.Message;
 import verberg.com.shmup.MessageManager;
-import verberg.com.shmup.RemoveMessage;
-import verberg.com.shmup.SpawnMessage;
-import verberg.com.shmup.SteeringMessage;
-import verberg.com.shmup.WeaponMessage;
+import verberg.com.shmup.Parameter;
 
 import static com.badlogic.gdx.Input.Keys.CONTROL_RIGHT;
 
@@ -50,6 +48,7 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
      */
     @Override
     public void generateIntents(Entity entity){
+        Parameter paramEntity = new Parameter(entity);
 
         if(entity.has(HealthComponent.class)){
             if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
@@ -59,7 +58,7 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
                         if(keysdown[Input.Keys.Y]) {
                                 System.out.println("SPAWN");
                                 //is dead respawn
-                                MessageManager.addMessage(new SpawnMessage(entity));
+                                Game.slightlyWarmMail.addMessage(SpawnSystem.class, paramEntity);
                                 return;
                             }
 
@@ -75,35 +74,35 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
                 if ((entity.get(PhysicalComponent.class)).isRoot) {
                     if (entity.has(HealthComponent.class)) {
                         (entity.get(HealthComponent.class)).setCur_Health(0);
-                        MessageManager.addMessage(new RemoveMessage(entity,INTENT.DIED));
+                        Game.slightlyWarmMail.addMessage(RemovalSystem.class, paramEntity, new Parameter(INTENT.DIED));
                     }
                 }
                 return;
             }
         }
         if(keysdown[Input.Keys.UP]||keysdown[Input.Keys.W]){
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.ACCELERATE));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.ACCELERATE));
         }
         if(keysdown[Input.Keys.SHIFT_LEFT]){
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.BOOST));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.BOOST));
         }
         if(keysdown[Input.Keys.DOWN]||keysdown[Input.Keys.S]){
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.DECELERATE));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.DECELERATE));
         }
         boolean didTurn = false;
         if(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.A]){
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.LEFTTURN));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.LEFTTURN));
             didTurn |= true;
         }
         if(keysdown[Input.Keys.RIGHT]||keysdown[Input.Keys.D]){
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.RIGHTTURN));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.RIGHTTURN));
             didTurn |= true;
         }
         if(!didTurn) {
-            MessageManager.addMessage(new SteeringMessage(entity, INTENT.STRAIGHT));
+            Game.slightlyWarmMail.addMessage(SteeringSystem.class, paramEntity, new Parameter(INTENT.STRAIGHT));
         }
         if(keysdown[Input.Keys.SPACE]||keysdown[CONTROL_RIGHT]){
-            MessageManager.addMessage(new WeaponMessage(entity));
+            Game.slightlyWarmMail.addMessage(WeaponSystem.class, paramEntity);
         }
     }
 }

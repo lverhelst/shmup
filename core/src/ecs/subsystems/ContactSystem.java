@@ -11,9 +11,10 @@ import ecs.components.DamageComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 import gameObjects.PowerUp;
+import verberg.com.shmup.Game;
 import verberg.com.shmup.INTENT;
-import verberg.com.shmup.MessageManager;
-import verberg.com.shmup.RemoveMessage;
+import verberg.com.shmup.Message;
+import verberg.com.shmup.Parameter;
 
 /**
  * Created by Orion on 11/21/2015.
@@ -57,7 +58,7 @@ public class ContactSystem implements ContactListener{
                 pc.numberOfContact++;
                 if(pc.numberOfContact == pc.maxContacts){
                     //Flag entity for deletion
-                    MessageManager.addMessage(new RemoveMessage(ecs, INTENT.REMOVE));
+                    Game.slightlyWarmMail.addMessage(RemovalSystem.class, new Parameter(ecs), new Parameter(INTENT.REMOVE));
                 }
             }
         }
@@ -76,7 +77,7 @@ public class ContactSystem implements ContactListener{
                         (aEntity.get(HealthComponent.class)).reduceCur_Health((bEntity.get(DamageComponent.class)).damage);
                         //if the other entity is now dead, send the dead messagea
                         if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
-                            MessageManager.addMessage(new RemoveMessage(aEntity, INTENT.DIED));
+                            Game.slightlyWarmMail.addMessage(RemovalSystem.class, new Parameter(aEntity), new Parameter(INTENT.DIED));
                         }
                     }
                 }
@@ -97,7 +98,7 @@ public class ContactSystem implements ContactListener{
                         (aEntity.get(HealthComponent.class)).setCur_Health(0);
                         //if the other entity is now dead, send the dead messagea
                         if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
-                            MessageManager.addMessage(new RemoveMessage(aEntity, INTENT.DIED));
+                            Game.slightlyWarmMail.addMessage(RemovalSystem.class, new Parameter(aEntity), new Parameter(INTENT.DIED));
                         }
                     }
                 }

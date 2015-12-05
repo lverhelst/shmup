@@ -1,24 +1,40 @@
 package verberg.com.shmup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import ecs.SubSystem;
 
 /**
  * Created by Orion on 11/24/2015.
  */
 public class MessageManager {
-    static ArrayList<Message> messages = new ArrayList<Message>();
+    //TODO create a pool for messages? (lower the number of new operator)
+    private HashMap<Class, SubSystem> systems;
+    private ArrayList<Message> messages;
 
-    public static  void addMessage(Message m){
-        messages.add(m);
+    public MessageManager() {
+        systems = new HashMap<Class, SubSystem>();
+        messages = new ArrayList<Message>();
     }
 
-    public static  void clearMessages(){
+    public void addSystem(Class systemType, SubSystem system) {
+        if(!systems.containsKey(systemType))
+            systems.put(systemType, system);
+    }
+
+    public void addMessage(Class system, Parameter ... list){
+        messages.add(new Message(system, list));
+    }
+
+    public void clearMessages(){
         messages.clear();
     }
 
-    public static void update() {
+    public void update() {
         for(Message msg: messages) {
-            msg.submitMessage();
+            SubSystem system = systems.get(msg.getSystem());
+            system.processMessage(msg.getParameters());
         }
         clearMessages();
     }
