@@ -1,6 +1,7 @@
 package Editor;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 /**
  * Created by Orion on 12/6/2015.
@@ -36,11 +37,11 @@ public abstract class LevelObject {
         grabPoints = new int[0]; //remove grab points
     }
 
-    protected abstract void generateGrabPoints();
-
     public void rotate(int angle){
         this.angle = angle;
     }
 
-    public abstract boolean hit(int screenX, int screenY);
+    protected abstract void generateGrabPoints();
+    public abstract boolean contains(int screenX, int screenY);
+    public abstract void render(ShapeRenderer renderer);
 }

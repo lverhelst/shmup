@@ -61,20 +61,28 @@ public class LevelEditor extends ApplicationAdapter {
     BitmapFont bitmapFont;
     SpriteBatch sp;
     OrthographicCamera cam;
+    private int gridSize, width, height;
+    private float scale, zoom;
 
     @Override
     public void create() {
-        current_Tool = E_TOOL.WALL;
-        sp = new SpriteBatch();
-        bitmapFont = new BitmapFont();
         shapeRenderer = new ShapeRenderer();
+        bitmapFont = new BitmapFont();
+        sp = new SpriteBatch();
+
         cam = new OrthographicCamera();
         cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
         cam.update();
 
         objects = new ArrayList<LevelObject>();
-
         Gdx.input.setInputProcessor(new EditorInputAdapter());
+
+        current_Tool = E_TOOL.WALL;
+        gridSize = 20;
+        width = V_WIDTH;
+        height = V_HEIGHT;
+        scale = 1;
+        zoom = 1;
 
         loadLevel("defaultLevel");
 
@@ -90,24 +98,22 @@ public class LevelEditor extends ApplicationAdapter {
         update();
         Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-
-
-
+        shapeRenderer.setProjectionMatrix(cam.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.DARK_GRAY);
+
+        for(int x = 0; x < V_WIDTH * zoom; x += gridSize) {
+            shapeRenderer.line(x,0, x, height * zoom);
+        }
+
+        for(int y = 0; y < V_HEIGHT * zoom; y += gridSize) {
+            shapeRenderer.line(0,y, width * zoom, y);
+        }
 
         for(LevelObject lo  : objects) {
-            shapeRenderer.setColor(lo.color);
-            if(lo instanceof Node){
-                shapeRenderer.circle(lo.x, lo.y, ((Node)lo).r);
-                shapeRenderer.setColor(Color.GREEN);
-                for(Node n : ((Node)lo).outNodes) {
-                    shapeRenderer.line(lo.x, lo.y, n.x, n.y);
-                }
-
-            }else if (lo instanceof Wall){
-                shapeRenderer.rect(lo.x, lo.y, ((Wall)lo).w, ((Wall)lo).h);
-            }
+            lo.render(shapeRenderer);
         }
+
         if(current_Tool == E_TOOL.EDGE && activeObject != null && activeObject instanceof Node){
             shapeRenderer.setColor(Color.GREEN);
             shapeRenderer.line(activeObject.x,activeObject.y,x,y);
@@ -120,13 +126,12 @@ public class LevelEditor extends ApplicationAdapter {
         sp.end();
     }
 
-    int scale = 15;
     private int round(int num) {
-        int temp = num % scale;
-        if (temp < Math.floor(scale/2) - 1)
+        int temp = num % gridSize;
+        if (temp < Math.floor(gridSize/2) - 1)
             return num-temp;
         else
-            return num+ (scale - 1)-temp;
+            return num+ (gridSize - 1)-temp;
     }
 
     public void loadLevel(String levelName){
@@ -195,13 +200,10 @@ public class LevelEditor extends ApplicationAdapter {
 
 
     class EditorInputAdapter extends InputAdapter {
-
         @Override
         public boolean keyUp(int keycode) {
-            System.out.println(keycode + " " + Input.Keys.toString(keycode));
             switch(keycode){
                 case Input.Keys.FORWARD_DEL:
-
                     activeObject.delete();
                     objects.remove(activeObject);
                     activeObject = null;
@@ -212,7 +214,6 @@ public class LevelEditor extends ApplicationAdapter {
 
         @Override
         public boolean keyTyped(char character) {
-            System.out.println(character);
             switch(character){
                 case '1' : current_Tool = E_TOOL.SELECT;
                     break;
@@ -222,8 +223,25 @@ public class LevelEditor extends ApplicationAdapter {
                     break;
                 case '4' : current_Tool = E_TOOL.EDGE;
                     break;
-
+                case '[':
+                    zoom -= 0.05;
+                    break;
+                case ']':
+                    zoom += 0.05;
+                    break;
+                case '=':
+                case '+':
+                    gridSize += 1;
+                    break;
+                case '-':
+                    gridSize -= 1;
+                    break;
             }
+
+            zoom = Math.min(Math.max(zoom, 0.1f), 5f);
+            gridSize = Math.min(Math.max(gridSize, 1), 10);
+            cam.zoom = zoom;
+
             return false;
         }
 
@@ -232,7 +250,7 @@ public class LevelEditor extends ApplicationAdapter {
            switch (current_Tool){
                 case SELECT:
                     for (LevelObject n : objects) {
-                        if(n.hit(screenX, V_HEIGHT - screenY)){
+                        if(n.contains(screenX, V_HEIGHT - screenY)){
                             setActiveObject(n);
                         }
                     }
@@ -257,7 +275,7 @@ public class LevelEditor extends ApplicationAdapter {
                         setActiveObject(n);
                     }
                     //if(button == 1)
-                        //right click deletes a node?
+                    //right click deletes a node?
                 break;
                case EDGE:
                     x = screenX ;
@@ -268,7 +286,7 @@ public class LevelEditor extends ApplicationAdapter {
                         if(activeObject == null || activeObject instanceof Node) {
                             for (LevelObject n : objects) {
                                 if(n instanceof  Node) {
-                                    if (n.hit(x, y)) {
+                                    if (n.contains(x, y)) {
                                         System.out.println(activeObject + "  " + n);
                                         if (activeObject == null) {
                                             setActiveObject(n);
@@ -292,9 +310,9 @@ public class LevelEditor extends ApplicationAdapter {
         public boolean touchUp(int screenX, int screenY, int pointer, int button) {
             x = round(screenX) ;
             y = round(V_HEIGHT - screenY);
-            if(current_Tool == E_TOOL.WALL){
 
-                activeObject.resize(screenX - activeObject.x , (V_HEIGHT - screenY) - activeObject.y);
+            if(current_Tool == E_TOOL.WALL){
+                activeObject.resize(round(screenX - activeObject.x), round((V_HEIGHT - screenY) - activeObject.y));
             }
 
 
@@ -303,12 +321,13 @@ public class LevelEditor extends ApplicationAdapter {
 
         @Override
         public boolean touchDragged(int screenX, int screenY, int pointer) {
-
-            if(current_Tool == E_TOOL.WALL){
-                activeObject.resize(screenX - activeObject.x , (V_HEIGHT - screenY) - activeObject.y);
-            }
             x = round(screenX) ;
             y = round(V_HEIGHT - screenY);
+
+            if(current_Tool == E_TOOL.WALL){
+                activeObject.resize(round(screenX - activeObject.x), round((V_HEIGHT - screenY) - activeObject.y));
+            }
+
             return false;
         }
 

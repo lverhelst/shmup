@@ -1,6 +1,7 @@
 package Editor;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.ArrayList;
 
@@ -45,8 +46,17 @@ public class Node extends LevelObject {
     }
 
     @Override
-    public boolean hit(int screenX, int screenY) {
+    public boolean contains(int screenX, int screenY) {
         return screenX > x - r && screenX < x + r  && screenY > y - r && screenY < y + r;
+    }
+
+    @Override
+    public void render(ShapeRenderer renderer) {
+        renderer.circle(x, y, r);
+        renderer.setColor(color);
+        for(Node n : outNodes) {
+            renderer.line(x, y, n.x, n.y);
+        }
     }
 
 }

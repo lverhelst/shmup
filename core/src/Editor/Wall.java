@@ -1,6 +1,7 @@
 package Editor;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 /**
  * Created by Orion on 12/6/2015.
@@ -35,8 +36,7 @@ public class Wall extends LevelObject {
     }
 
     @Override
-    public boolean hit(int screenX, int screenY) {
-
+    public boolean contains(int screenX, int screenY) {
        int posx,posy,posw,posh;
         posx = x;
         posw = w;
@@ -53,5 +53,11 @@ public class Wall extends LevelObject {
         }
 
         return screenX > posx && screenX < posx + posw && screenY > posy && screenY < posy + posh;
+    }
+
+    @Override
+    public void render(ShapeRenderer renderer) {
+        renderer.setColor(color);
+        renderer.rect(x, y, w, h);
     }
 }
