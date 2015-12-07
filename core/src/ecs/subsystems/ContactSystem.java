@@ -17,9 +17,6 @@ import verberg.com.shmup.RemoveMessage;
 
 /**
  * Created by Orion on 11/21/2015.
- * TODO: Make it check entity components
- * TODO: Rename to Contact System -- This is world.step
- * TODO: Make it send messages to message system
  */
 public class ContactSystem implements ContactListener{
     @Override
