@@ -17,20 +17,28 @@ import verberg.com.shmup.INTENT;
  * Created by Orion on 11/23/2015.
  * Used to steer tires
  */
-public class SteeringSystem extends SubSystem {
+public class SteeringSystem implements SubSystem {
     private Vector2 currentForwardNormal, wtf;
     private float force, currentSpeed;
     private boolean didTurn;
     private int boost_multiplier;
 
-    public void update(Entity entity, INTENT intent){
+    public void processMessage(Object ... list) {
+        if(list[0].getClass() == Entity.class && list[1].getClass() == INTENT.class) {
+            Entity e = (Entity)list[0];
+            INTENT i = (INTENT)list[1];
+
+            updateSteering(e,i);
+        }
+    }
+
+    public void updateSteering(Entity entity, INTENT intent){
 
         if(entity.has(HealthComponent.class)){
             if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
                 return;
             }
         }
-
 
         if(entity.has(SteeringComponent.class)) {
             SteeringComponent sc = entity.get(SteeringComponent.class);
@@ -110,90 +118,6 @@ public class SteeringSystem extends SubSystem {
             }
         }
     }
-/*
-    public void update(ArrayList<Entity> entities){
-
-        //Iterate entities
-        for(Entity entity : entities){
-            if(entity.has(SteeringComponent.class)){
-                SteeringComponent sc = entity.get(SteeringComponent.class);
-                //This should be separated into a input system and should make intent messages
-                //So IS = Input SubSystem
-                //   SS = Steering SubSystem
-                Body body = ((PhysicalComponent)entity.get(PhysicalComponent.class)).getBody();
-                //update friction before steering
-                updateFriction(body,sc);
-
-                //IS -- denotes that this should be in the input system
-                //Should check isControlledComponent
-                if(entity.has(ControlledComponent.class)){
-                    //IS
-                    if(MessageManager.hasMessage(entity, INTENT.ACCELERATE)){ //Should be (check messages for entity ID, CMD.UP
-
-                        //SS {
-                        //current speed
-                        Vector2 currentForwardNormal = body.getWorldVector(new Vector2(0,1));
-                        //strangle enough currentForwardNormal gets cleared somehow
-                        //so we save current forward normal into a new vector
-                        Vector2 wtf = new Vector2(currentForwardNormal.x,currentForwardNormal.y);
-                        float currentSpeed = getForwardVelocity(body).dot(wtf);
-                        //apply the forces!
-                        float force;
-                        if(sc.maxForwardSpeed > currentSpeed) {
-                            force = sc.maxDriveForce;
-                            body.applyForce(wtf.scl(force), body.getWorldCenter(), true);
-                        }
-                        //}
-                    }
-                    if(MessageManager.hasMessage(entity, INTENT.DECELERATE)){ //Should be (check messages for entity ID, CMD.UP
-                        //SS {
-                        //current speed
-                        Vector2 currentForwardNormal = body.getWorldVector(new Vector2(0,1));
-                        //strangle enough currentForwardNormal gets cleared somehow
-                        //so we save current forward normal into a new vector
-                        Vector2 wtf = new Vector2(currentForwardNormal.x,currentForwardNormal.y);
-                        float currentSpeed = getForwardVelocity(body).dot(wtf);
-                        //apply the forces!
-                        float force;
-                        if(sc.maxBackwardsSpeed < currentSpeed) {
-                            force = -sc.maxDriveForce;
-                            body.applyForce(wtf.scl(force), body.getWorldCenter(), true);
-                        }
-                        //}
-                    }
-                    boolean didTurn = false;
-                    if(MessageManager.hasMessage(entity, INTENT.LEFTTURN)){ //Should be (check messages for entity ID, CMD.UP
-                        //SS {
-                        sc.setSteeringDirection(SteeringComponent.DIRECTION.LEFT);
-                        //}
-                        didTurn |= true;
-                    }
-                    if(MessageManager.hasMessage(entity, INTENT.RIGHTTURN)){ //Should be (check messages for entity ID, CMD.UP
-
-                        //SS {
-                        sc.setSteeringDirection(SteeringComponent.DIRECTION.RIGHT);
-                        //}
-                        didTurn |= true;
-                    }
-                    if(!didTurn){ //Should be (check messages for entity ID, CMD.UP
-
-                        //SS {
-                        sc.setSteeringDirection(SteeringComponent.DIRECTION.STRAIGHT);
-                        //}
-                    }
-
-
-                    //check if entity has joint
-                    if(entity.recursiveHas(JointComponent.class)){
-                        JointComponent jc = entity.recursiveGet(JointComponent.class);
-                        jc.joint.setLimits((float)Math.toRadians(sc.steeringDirectionAngle()),(float)Math.toRadians(sc.steeringDirectionAngle()));
-                    }
-                }
-            }
-        }
-    }
-    */
-
 
     private Vector2 getLateralVelocity(Body body){
         Vector2 currentRightNormal = body.getWorldVector(new Vector2(1, 0));

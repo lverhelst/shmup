@@ -6,6 +6,6 @@ package ecs;
  * TODO: Make a SubSystem Manager
  * TODO: Make these orderable
  */
-public class SubSystem {
-
+public interface SubSystem {
+    void processMessage(Object... parameters);
 }

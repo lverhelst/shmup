@@ -20,13 +20,16 @@ import Input.MyInputAdapter;
 import ecs.subsystems.CameraSystem;
 import ecs.Entity;
 import ecs.subsystems.PowerUpSystem;
+import ecs.subsystems.RemovalSystem;
 import ecs.subsystems.RenderSystem;
+import ecs.subsystems.SpawnSystem;
 import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
 import Factories.CarFactory;
 import ecs.subsystems.ContactSystem;
 
 public class Game extends ApplicationAdapter {
+    public static MessageManager slightlyWarmMail = new MessageManager();
 	SpriteBatch batch;
 	Texture img;
 
@@ -46,12 +49,11 @@ public class Game extends ApplicationAdapter {
     public ArrayList<AI> aiList;
 
     //Initialize systems for ECS
+
     InputSystem inputSystem = new InputSystem();
-    SteeringSystem steeringSystem = new SteeringSystem();
     CameraSystem cameraSystem = new CameraSystem();
-    WeaponSystem weaponSystem = new WeaponSystem();
+    PowerUpSystem powerupSystem = new PowerUpSystem();
     RenderSystem renderSystem;
-    PowerUpSystem powerUpSystem = new PowerUpSystem();
 
     //don't think we need multiple worlds am I right?
 	private static World world;
@@ -66,6 +68,10 @@ public class Game extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 
+        slightlyWarmMail.addSystem(SteeringSystem.class, new SteeringSystem());
+        slightlyWarmMail.addSystem(WeaponSystem.class, new WeaponSystem());
+        slightlyWarmMail.addSystem(RemovalSystem.class, new RemovalSystem());
+        slightlyWarmMail.addSystem(SpawnSystem.class, new SpawnSystem());
 
         world = new World(new Vector2(0f, 0f), true); //shmup bros has no downward gravity
         world.setVelocityThreshold(0.01f);
@@ -132,9 +138,9 @@ public class Game extends ApplicationAdapter {
        // System.out.println("Entities: " + entities.size() + " Box2DBodies " + world.getBodyCount());
 
         inputSystem.update(entities);
-        powerUpSystem.update();
+        powerupSystem.update();
         //steeringSystem.update(entities);
-        MessageManager.update();
+        slightlyWarmMail.update();
 
         cameraSystem.update(entities, cam);
         //weaponSystem.update(entities);

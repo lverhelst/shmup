@@ -13,7 +13,7 @@ import ecs.components.PhysicalComponent;
  * Created by Orion on 11/23/2015.
  * Used to set the provided camera on an entity
  */
-public class CameraSystem extends SubSystem {
+public class CameraSystem {
 
         public void update(ArrayList<Entity> entities, OrthographicCamera camera){
             for(Entity e : entities){

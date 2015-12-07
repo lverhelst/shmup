@@ -3,6 +3,7 @@ package ecs.subsystems;
 import java.util.Random;
 
 import Factories.CarFactory;
+import ecs.SubSystem;
 import gameObjects.DoubleDamagePowerUp;
 import gameObjects.FireRatePowerUp;
 import gameObjects.GradualHealPowerUp;
@@ -13,7 +14,7 @@ import gameObjects.RepairPowerUp;
  * Manages power ups
  * Created by Orion on 11/30/2015.
  */
-public class PowerUpSystem {
+public class PowerUpSystem implements SubSystem{
     Random rand;
 
 
@@ -25,6 +26,10 @@ public class PowerUpSystem {
     public PowerUpSystem(){
         rand = new Random();
         livePowerUp = new PowerUp[4];
+    }
+
+    public void processMessage(Object... list) {
+        //TODO make messagable
     }
 
     /**
