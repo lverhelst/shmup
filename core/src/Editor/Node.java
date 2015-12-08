@@ -16,8 +16,8 @@ public class Node extends LevelObject {
         this.x = x;
         this.y = y;
         this.r = r;
-        color = Color.BLUE;
-        originalColor = Color.BLUE;
+        color = Color.CYAN;
+        originalColor = Color.CYAN;
         outNodes = new ArrayList<Node>();
     }
 
@@ -52,8 +52,8 @@ public class Node extends LevelObject {
 
     @Override
     public void render(ShapeRenderer renderer) {
-        renderer.circle(x, y, r);
         renderer.setColor(color);
+        renderer.circle(x, y, r);
         for(Node n : outNodes) {
             renderer.line(x, y, n.x, n.y);
         }

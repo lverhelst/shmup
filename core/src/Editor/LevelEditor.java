@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
@@ -102,12 +103,12 @@ public class LevelEditor extends ApplicationAdapter {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.DARK_GRAY);
 
-        for(int x = 0; x < V_WIDTH * zoom; x += gridSize) {
-            shapeRenderer.line(x,0, x, height * zoom);
+        for(int x = 0; x < V_WIDTH; x += gridSize) {
+            shapeRenderer.line(x,0, x, height);
         }
 
-        for(int y = 0; y < V_HEIGHT * zoom; y += gridSize) {
-            shapeRenderer.line(0,y, width * zoom, y);
+        for(int y = 0; y < V_HEIGHT; y += gridSize) {
+            shapeRenderer.line(0,y, width, y);
         }
 
         for(LevelObject lo  : objects) {
@@ -116,7 +117,10 @@ public class LevelEditor extends ApplicationAdapter {
 
         if(current_Tool == E_TOOL.EDGE && activeObject != null && activeObject instanceof Node){
             shapeRenderer.setColor(Color.GREEN);
-            shapeRenderer.line(activeObject.x,activeObject.y,x,y);
+
+            Vector3 worldCoordinates = new Vector3(x,y,0);
+            cam.unproject(worldCoordinates);
+            shapeRenderer.line(activeObject.x,activeObject.y, worldCoordinates.x, worldCoordinates.y);
         }
 
         shapeRenderer.end();
@@ -247,30 +251,43 @@ public class LevelEditor extends ApplicationAdapter {
 
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-           switch (current_Tool){
+            Vector3 worldCoordinates;
+            switch (current_Tool){
                 case SELECT:
+                    x = screenX ;
+                    y = screenY;
+                    worldCoordinates = new Vector3(x,y,0);
+                    cam.unproject(worldCoordinates);
                     for (LevelObject n : objects) {
-                        if(n.contains(screenX, V_HEIGHT - screenY)){
+                        if(n.contains((int)worldCoordinates.x, (int)worldCoordinates.y)){
                             setActiveObject(n);
                         }
                     }
                     break;
                 case WALL:
+
                     x = round(screenX) ;
-                    y = round(V_HEIGHT - screenY);
+                    y = round(screenY);
+
+                    worldCoordinates = new Vector3(x,y,0);
+                    cam.unproject(worldCoordinates);
+
                     w = 2;
                     h = 2;
 
-                    Wall wall = createBox(x,y,w,h,0,0);
+                    Wall wall = createBox(worldCoordinates.x,worldCoordinates.y,w,h,0,0);
                     objects.add(wall);
                     setActiveObject(wall);
 
                     break;
                 case NODE :
                     x = screenX ;
-                    y = V_HEIGHT - screenY;
+                    y = screenY;
+
+                    worldCoordinates = new Vector3(x,y,0);
+                    cam.unproject(worldCoordinates);
                     if(button == 0) {
-                        Node n = createCircle((int) x, (int) y, (int)4, 0,0);
+                        Node n = createCircle(round((int)worldCoordinates.x), round((int) worldCoordinates.y), (int)4, 0,0);
                         objects.add(n);
                         setActiveObject(n);
                     }
@@ -279,17 +296,24 @@ public class LevelEditor extends ApplicationAdapter {
                 break;
                case EDGE:
                     x = screenX ;
-                    y = V_HEIGHT - screenY;
+                    y = screenY;
                     if(button == 1){
                         setActiveObject(null);
                     }else {
                         if(activeObject == null || activeObject instanceof Node) {
+                            x = screenX ;
+
+                            worldCoordinates = new Vector3(x,y,0);
+                            cam.unproject(worldCoordinates);
                             for (LevelObject n : objects) {
                                 if(n instanceof  Node) {
-                                    if (n.contains(x, y)) {
-                                        System.out.println(activeObject + "  " + n);
+
+
+                                    if (n.contains((int)worldCoordinates.x, (int)worldCoordinates.y)) {
                                         if (activeObject == null) {
                                             setActiveObject(n);
+
+
                                         } else if (!n.equals(activeObject)) {
                                             ((Node)n).addEdge((Node) activeObject);
                                             ((Node) activeObject).addEdge(((Node)n));
@@ -308,11 +332,13 @@ public class LevelEditor extends ApplicationAdapter {
 
         @Override
         public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            x = round(screenX) ;
-            y = round(V_HEIGHT - screenY);
+            x = screenX ;
+            y = screenY;
+            Vector3 worldCoordinates = new Vector3(x,y,0);
+            cam.unproject(worldCoordinates);
 
             if(current_Tool == E_TOOL.WALL){
-                activeObject.resize(round(screenX - activeObject.x), round((V_HEIGHT - screenY) - activeObject.y));
+                activeObject.resize(round((int)worldCoordinates.x - activeObject.x), round((int)worldCoordinates.y - activeObject.y));
             }
 
 
@@ -322,10 +348,11 @@ public class LevelEditor extends ApplicationAdapter {
         @Override
         public boolean touchDragged(int screenX, int screenY, int pointer) {
             x = round(screenX) ;
-            y = round(V_HEIGHT - screenY);
-
+            y = round(screenY);
+            Vector3 worldCoordinates = new Vector3(x,y,0);
+            cam.unproject(worldCoordinates);
             if(current_Tool == E_TOOL.WALL){
-                activeObject.resize(round(screenX - activeObject.x), round((V_HEIGHT - screenY) - activeObject.y));
+                activeObject.resize(round((int)worldCoordinates.x - activeObject.x), round((int)worldCoordinates.y - activeObject.y));
             }
 
             return false;
@@ -335,7 +362,11 @@ public class LevelEditor extends ApplicationAdapter {
         public boolean mouseMoved(int screenX, int screenY) {
             if(current_Tool == E_TOOL.EDGE){
                 x = screenX ;
-                y = V_HEIGHT - screenY;
+                y = screenY;
+                Vector3 worldCoordinates = new Vector3(x,y,0);
+                x = (int)worldCoordinates.x;
+                y = (int)worldCoordinates.y;
+
             }
             return false;
         }
