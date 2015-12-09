@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Created by Orion on 12/6/2015.
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 public class Node extends LevelObject {
     int r;
     ArrayList<Node> outNodes;
+    UUID id;
 
     public Node(int x, int y, int r){
         this.x = x;
@@ -19,6 +21,17 @@ public class Node extends LevelObject {
         color = Color.CYAN;
         originalColor = Color.CYAN;
         outNodes = new ArrayList<Node>();
+        id = UUID.randomUUID();
+    }
+
+    public Node(int x, int y, int r, UUID uuid){
+        this.x = x;
+        this.y = y;
+        this.r = r;
+        color = Color.CYAN;
+        originalColor = Color.CYAN;
+        outNodes = new ArrayList<Node>();
+        id = uuid;
     }
 
 

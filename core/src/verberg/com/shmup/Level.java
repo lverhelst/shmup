@@ -40,7 +40,7 @@ public class Level {
 
         this.world = world;
 
-        loadLevel(Gdx.files.internal("defaultLevel"));
+        loadLevel(Gdx.files.internal("savedlevel.lvl"));
     }
 
     public void loadLevel(FileHandle level) {

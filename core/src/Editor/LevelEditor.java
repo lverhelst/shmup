@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -13,10 +14,13 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 import verberg.com.shmup.Constants;
 
@@ -85,7 +89,7 @@ public class LevelEditor extends ApplicationAdapter {
         scale = 1;
         zoom = 1;
 
-        loadLevel("defaultLevel");
+        loadLevel("savedlevel.lvl");
 
     }
 
@@ -132,7 +136,7 @@ public class LevelEditor extends ApplicationAdapter {
 
     private int round(int num) {
         int temp = num % gridSize;
-        if (temp < Math.floor(gridSize/2) - 1)
+        if (temp < Math.floor(gridSize/2))
             return num-temp;
         else
             return num+ (gridSize - 1)-temp;
@@ -152,6 +156,7 @@ public class LevelEditor extends ApplicationAdapter {
         }
 
         loadShapes(map, 0, 0);
+        loadNodes(map);
     }
 
 
@@ -185,12 +190,107 @@ public class LevelEditor extends ApplicationAdapter {
         }
     }
 
+    public void loadNodes(JsonValue maps){
+        JsonValue nodes = maps.get("nodes");
+
+        HashMap<UUID, Node> createdNodes = new HashMap<UUID, Node>();
+        HashMap<UUID, ArrayList<UUID>> edges = new HashMap<UUID, ArrayList<UUID>>();
+
+
+        for(JsonValue value : nodes){
+            float[] pos = value.get("location").asFloatArray();
+            float radius = value.get("r:").asFloat();
+            UUID uuid = UUID.fromString(value.getString("id"));
+            Node n = createCircle(pos[0], pos[1], radius, 0, 0, uuid);
+            createdNodes.put(uuid, n);
+            ArrayList<UUID> nodeIDs = new ArrayList<UUID>();
+            for(String s : value.get("outNodes").asStringArray()){
+                    nodeIDs.add(UUID.fromString(s));
+            }
+            edges.put(uuid, nodeIDs);
+            objects.add(n);
+        }
+
+        for(Node n : createdNodes.values()){
+            for(UUID uid : edges.get(n.id)){
+                n.addEdge(createdNodes.get(uid));
+            }
+
+        }
+
+    }
+
+
+    public void saveLevel(){
+
+
+        ArrayList<Wall> walls = new ArrayList<Wall>();
+        ArrayList<Node> nodes = new ArrayList<Node>();
+        for(LevelObject lo : objects){
+            if(lo instanceof  Wall){
+                walls.add((Wall)lo);
+            }
+            if(lo instanceof Node){
+                nodes.add((Node)lo);
+            }
+        }
+
+
+
+        String jsonString = "{\"level\":{";
+        jsonString += "\"name\": \"writtenLeevel\",";
+
+        //start groups
+        jsonString += "\"groups\":[],";
+
+
+        //start walls
+        jsonString += "\"blocks\":[";
+
+        // {	"type" : box, "location" : [41.5, 50], 		"size" : [2, 	96],	"friction" : 1, "density" : 1, 	"dynamic" : false },
+        for(int i = 0; i < walls.size();i++ ){
+            jsonString += "{\"type\":\"box\",\"location\":[" + walls.get(i).x +"," + walls.get(i).y +"]," +
+                     "\"size\": [" + walls.get(i).w + "," + walls.get(i).h + "],"  +
+                    "\"friction\": 1, \"density\": 1, \"dynamic\":false" +
+                     "}" + (i < walls.size() - 1 ? "," : "");
+        }
+        jsonString += "],";
+        //end walls
+
+
+
+        //start Nodes
+        jsonString += "\"nodes\":[";
+
+        for(int i = 0; i < nodes.size(); i++){
+            jsonString += "{\"id\": \"" + nodes.get(i).id +  "\", \"location\": [" + nodes.get(i).x + "," + nodes.get(i).y + "],\"r:\":" + nodes.get(i).r  + ", \"type\":[\"spawn\",\"nav\",\"powerup\"], \"outNodes\":[";
+                        for(int j = 0; j < nodes.get(i).outNodes.size(); j++){
+                            jsonString += "\"" + nodes.get(i).outNodes.get(j).id + "\"" + (j < nodes.get(i).outNodes.size() -1 ? ",":"");
+                        }
+            jsonString += "]}" + (i < nodes.size() -1 ? ",":"") + "\r\n";
+        }
+        jsonString += "]";
+        //end nodes
+        jsonString += "\r\n}\r\n}";
+
+        Json jsonPrettyPrinter = new Json();
+        System.out.println(jsonPrettyPrinter.prettyPrint(jsonString));
+
+        FileHandle file = Gdx.files.local("savedlevel.lvl");
+        file.writeString(jsonString, false);//false == overwrite
+
+    }
+
     public Wall createBox(float x, float y, float w, float h, float friction, float density) {
         return new Wall((int)x,(int)y,(int)w,(int)h);
     }
 
     public Node createCircle(float x, float y, float r, float friction, float density){
         return new Node((int)x,(int)y,(int)r);
+    }
+
+    public Node createCircle(float x, float y, float r, float friction, float density, UUID uuid){
+        return new Node((int)x,(int)y,(int)r, uuid);
     }
 
     private void setActiveObject(LevelObject o){
@@ -208,9 +308,17 @@ public class LevelEditor extends ApplicationAdapter {
         public boolean keyUp(int keycode) {
             switch(keycode){
                 case Input.Keys.FORWARD_DEL:
-                    activeObject.delete();
-                    objects.remove(activeObject);
-                    activeObject = null;
+                    if(activeObject != null) {
+                        activeObject.delete();
+                        objects.remove(activeObject);
+                        activeObject = null;
+                    }
+                    break;
+                case Input.Keys.S:
+                    if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)){
+                        //save: ctrl+S
+                        saveLevel();
+                    }
                     break;
             }
             return false;
