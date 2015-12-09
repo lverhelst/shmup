@@ -48,6 +48,7 @@ public class LevelEditor extends ApplicationAdapter {
 
     enum E_TOOL {
         SELECT,
+        TRANSLATE,
         WALL,
         NODE,
         EDGE
@@ -135,7 +136,7 @@ public class LevelEditor extends ApplicationAdapter {
     }
 
     private int round(int num) {
-        int temp = num % gridSize;
+        int temp = (int)num % gridSize;
         if (temp < Math.floor(gridSize/2))
             return num-temp;
         else
@@ -359,41 +360,33 @@ public class LevelEditor extends ApplicationAdapter {
 
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            Vector3 worldCoordinates;
+            x = screenX ;
+            y = screenY;
+            Vector3 worldCoordinates = new Vector3(x,y,0);
+            cam.unproject(worldCoordinates);
+
             switch (current_Tool){
                 case SELECT:
-                    x = screenX ;
-                    y = screenY;
-                    worldCoordinates = new Vector3(x,y,0);
-                    cam.unproject(worldCoordinates);
                     for (LevelObject n : objects) {
                         if(n.contains((int)worldCoordinates.x, (int)worldCoordinates.y)){
-                            setActiveObject(n);
+                            if(n == activeObject) {
+                                current_Tool = E_TOOL.TRANSLATE;
+                            } else {
+                                setActiveObject(n);
+                            }
                         }
                     }
                     break;
                 case WALL:
-
-                    x = round(screenX) ;
-                    y = round(screenY);
-
-                    worldCoordinates = new Vector3(x,y,0);
-                    cam.unproject(worldCoordinates);
-
                     w = 2;
                     h = 2;
 
-                    Wall wall = createBox(worldCoordinates.x,worldCoordinates.y,w,h,0,0);
+                    Wall wall = createBox(round((int)worldCoordinates.x),round((int)worldCoordinates.y),w,h,0,0);
                     objects.add(wall);
                     setActiveObject(wall);
 
                     break;
                 case NODE :
-                    x = screenX ;
-                    y = screenY;
-
-                    worldCoordinates = new Vector3(x,y,0);
-                    cam.unproject(worldCoordinates);
                     if(button == 0) {
                         Node n = createCircle(round((int)worldCoordinates.x), round((int) worldCoordinates.y), (int)4, 0,0);
                         objects.add(n);
@@ -403,16 +396,10 @@ public class LevelEditor extends ApplicationAdapter {
                     //right click deletes a node?
                 break;
                case EDGE:
-                    x = screenX ;
-                    y = screenY;
                     if(button == 1){
                         setActiveObject(null);
                     }else {
                         if(activeObject == null || activeObject instanceof Node) {
-                            x = screenX ;
-
-                            worldCoordinates = new Vector3(x,y,0);
-                            cam.unproject(worldCoordinates);
                             for (LevelObject n : objects) {
                                 if(n instanceof  Node) {
 
@@ -449,6 +436,10 @@ public class LevelEditor extends ApplicationAdapter {
                 activeObject.resize(round((int)worldCoordinates.x - activeObject.x), round((int)worldCoordinates.y - activeObject.y));
             }
 
+            if(current_Tool == E_TOOL.TRANSLATE) {
+                activeObject.move(round((int)worldCoordinates.x), round((int)worldCoordinates.y));
+                current_Tool = E_TOOL.SELECT;
+            }
 
             return false;
         }
@@ -461,6 +452,10 @@ public class LevelEditor extends ApplicationAdapter {
             cam.unproject(worldCoordinates);
             if(current_Tool == E_TOOL.WALL){
                 activeObject.resize(round((int)worldCoordinates.x - activeObject.x), round((int)worldCoordinates.y - activeObject.y));
+            }
+
+            if(current_Tool == E_TOOL.TRANSLATE) {
+                activeObject.move(round((int)worldCoordinates.x), round((int)worldCoordinates.y));
             }
 
             return false;
