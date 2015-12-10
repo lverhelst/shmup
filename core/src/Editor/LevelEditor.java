@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-import verberg.com.shmup.Constants;
-
 /**
  * Created by Orion on 12/3/2015.
  *
@@ -120,7 +118,7 @@ public class LevelEditor extends ApplicationAdapter {
             lo.render(shapeRenderer);
         }
 
-        if(current_Tool == E_TOOL.EDGE && activeObject != null && activeObject instanceof Node){
+        if(current_Tool == E_TOOL.EDGE && activeObject != null && activeObject instanceof NavigationNode){
             shapeRenderer.setColor(Color.GREEN);
 
             Vector3 worldCoordinates = new Vector3(x,y,0);
@@ -194,7 +192,7 @@ public class LevelEditor extends ApplicationAdapter {
     public void loadNodes(JsonValue maps){
         JsonValue nodes = maps.get("nodes");
 
-        HashMap<UUID, Node> createdNodes = new HashMap<UUID, Node>();
+        HashMap<UUID, NavigationNode> createdNodes = new HashMap<UUID, NavigationNode>();
         HashMap<UUID, ArrayList<UUID>> edges = new HashMap<UUID, ArrayList<UUID>>();
 
 
@@ -202,17 +200,17 @@ public class LevelEditor extends ApplicationAdapter {
             float[] pos = value.get("location").asFloatArray();
             float radius = value.get("r:").asFloat();
             UUID uuid = UUID.fromString(value.getString("id"));
-            Node n = createCircle(pos[0], pos[1], radius, 0, 0, uuid);
+            NavigationNode n = createCircle(pos[0], pos[1], radius, 0, 0, uuid);
             createdNodes.put(uuid, n);
             ArrayList<UUID> nodeIDs = new ArrayList<UUID>();
-            for(String s : value.get("outNodes").asStringArray()){
+            for(String s : value.get("outNavigationNodes").asStringArray()){
                     nodeIDs.add(UUID.fromString(s));
             }
             edges.put(uuid, nodeIDs);
             objects.add(n);
         }
 
-        for(Node n : createdNodes.values()){
+        for(NavigationNode n : createdNodes.values()){
             for(UUID uid : edges.get(n.id)){
                 n.addEdge(createdNodes.get(uid));
             }
@@ -226,13 +224,13 @@ public class LevelEditor extends ApplicationAdapter {
 
 
         ArrayList<Wall> walls = new ArrayList<Wall>();
-        ArrayList<Node> nodes = new ArrayList<Node>();
+        ArrayList<NavigationNode> navigationNodes = new ArrayList<NavigationNode>();
         for(LevelObject lo : objects){
             if(lo instanceof  Wall){
                 walls.add((Wall)lo);
             }
-            if(lo instanceof Node){
-                nodes.add((Node)lo);
+            if(lo instanceof NavigationNode){
+                navigationNodes.add((NavigationNode)lo);
             }
         }
 
@@ -261,17 +259,17 @@ public class LevelEditor extends ApplicationAdapter {
 
 
         //start Nodes
-        jsonString += "\"nodes\":[";
+        jsonString += "\"navigationNodes\":[";
 
-        for(int i = 0; i < nodes.size(); i++){
-            jsonString += "{\"id\": \"" + nodes.get(i).id +  "\", \"location\": [" + nodes.get(i).x + "," + nodes.get(i).y + "],\"r:\":" + nodes.get(i).r  + ", \"type\":[\"spawn\",\"nav\",\"powerup\"], \"outNodes\":[";
-                        for(int j = 0; j < nodes.get(i).outNodes.size(); j++){
-                            jsonString += "\"" + nodes.get(i).outNodes.get(j).id + "\"" + (j < nodes.get(i).outNodes.size() -1 ? ",":"");
+        for(int i = 0; i < navigationNodes.size(); i++){
+            jsonString += "{\"id\": \"" + navigationNodes.get(i).id +  "\", \"location\": [" + navigationNodes.get(i).x + "," + navigationNodes.get(i).y + "],\"r:\":" + navigationNodes.get(i).r  + ", \"type\":[\"spawn\",\"nav\",\"powerup\"], \"outNavigationNodes\":[";
+                        for(int j = 0; j < navigationNodes.get(i).outNavigationNodes.size(); j++){
+                            jsonString += "\"" + navigationNodes.get(i).outNavigationNodes.get(j).id + "\"" + (j < navigationNodes.get(i).outNavigationNodes.size() -1 ? ",":"");
                         }
-            jsonString += "]}" + (i < nodes.size() -1 ? ",":"") + "\r\n";
+            jsonString += "]}" + (i < navigationNodes.size() -1 ? ",":"") + "\r\n";
         }
         jsonString += "]";
-        //end nodes
+        //end navigationNodes
         jsonString += "\r\n}\r\n}";
 
         Json jsonPrettyPrinter = new Json();
@@ -286,12 +284,12 @@ public class LevelEditor extends ApplicationAdapter {
         return new Wall((int)x,(int)y,(int)w,(int)h);
     }
 
-    public Node createCircle(float x, float y, float r, float friction, float density){
-        return new Node((int)x,(int)y,(int)r);
+    public NavigationNode createCircle(float x, float y, float r, float friction, float density){
+        return new NavigationNode((int)x,(int)y,(int)r);
     }
 
-    public Node createCircle(float x, float y, float r, float friction, float density, UUID uuid){
-        return new Node((int)x,(int)y,(int)r, uuid);
+    public NavigationNode createCircle(float x, float y, float r, float friction, float density, UUID uuid){
+        return new NavigationNode((int)x,(int)y,(int)r, uuid);
     }
 
     private void setActiveObject(LevelObject o){
@@ -388,7 +386,7 @@ public class LevelEditor extends ApplicationAdapter {
                     break;
                 case NODE :
                     if(button == 0) {
-                        Node n = createCircle(round((int)worldCoordinates.x), round((int) worldCoordinates.y), (int)4, 0,0);
+                        NavigationNode n = createCircle(round((int)worldCoordinates.x), round((int) worldCoordinates.y), (int)4, 0,0);
                         objects.add(n);
                         setActiveObject(n);
                     }
@@ -399,9 +397,9 @@ public class LevelEditor extends ApplicationAdapter {
                     if(button == 1){
                         setActiveObject(null);
                     }else {
-                        if(activeObject == null || activeObject instanceof Node) {
+                        if(activeObject == null || activeObject instanceof NavigationNode) {
                             for (LevelObject n : objects) {
-                                if(n instanceof  Node) {
+                                if(n instanceof NavigationNode) {
 
 
                                     if (n.contains((int)worldCoordinates.x, (int)worldCoordinates.y)) {
@@ -410,8 +408,8 @@ public class LevelEditor extends ApplicationAdapter {
 
 
                                         } else if (!n.equals(activeObject)) {
-                                            ((Node)n).addEdge((Node) activeObject);
-                                            ((Node) activeObject).addEdge(((Node)n));
+                                            ((NavigationNode)n).addEdge((NavigationNode) activeObject);
+                                            ((NavigationNode) activeObject).addEdge(((NavigationNode)n));
                                             setActiveObject(null);
                                         }
                                     }
@@ -455,7 +453,7 @@ public class LevelEditor extends ApplicationAdapter {
             }
 
             if(current_Tool == E_TOOL.TRANSLATE) {
-                activeObject.move(round((int)worldCoordinates.x), round((int)worldCoordinates.y));
+                activeObject.move(round((int) worldCoordinates.x), round((int) worldCoordinates.y));
             }
 
             return false;

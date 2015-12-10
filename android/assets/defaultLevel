@@ -93,7 +93,7 @@
         {	"type" : box, "location" : [168, 	299], 	"size" : [2, 	8.5],	"friction" : 1, "density" : 1, 	"dynamic" : false },
         {	"type" : box, "location" : [170, 	305.5], "size" : [96, 	2],		"friction" : 1, "density" : 1, 	"dynamic" : false }
     ],
-	"nodes" : [	
+	"navigationNodes" : [
         {	"location" : [10, 10], 		"type" : [spawn, nav, powerup] },
         {	"location" : [276, 10], 	"type" : [spawn, nav, powerup] },
         {	"location" : [10, 276], 	"type" : [spawn, nav, powerup] },

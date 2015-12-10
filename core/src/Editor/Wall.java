@@ -32,7 +32,6 @@ public class Wall extends LevelObject {
         //Keep it all positive
         this.w = w;
         this.h = h;
-
     }
 
     @Override
