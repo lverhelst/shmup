@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 
 import AI.AI;
 import AI.IntentGenerator;
+import Editor.NavigationNode;
 import ecs.components.ChildEntityComponent;
 import ecs.subsystems.InputSystem;
 import Input.MyInputAdapter;
@@ -31,6 +33,7 @@ import ecs.subsystems.ContactSystem;
 public class Game extends ApplicationAdapter {
     public static MessageManager slightlyWarmMail = new MessageManager();
 	SpriteBatch batch;
+    ShapeRenderer shapeRenderer;
 	Texture img;
 
 
@@ -67,6 +70,7 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
 
         slightlyWarmMail.addSystem(SteeringSystem.class, new SteeringSystem());
         slightlyWarmMail.addSystem(WeaponSystem.class, new WeaponSystem());
@@ -158,7 +162,19 @@ public class Game extends ApplicationAdapter {
         batch.begin();
 
         renderSystem.render(entities, batch);
+
         batch.end();
+
+
+        shapeRenderer.setProjectionMatrix(cam.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        for(NavigationNode n : test.getNavNodes())
+        {
+            n.render(shapeRenderer);
+        }
+
+        shapeRenderer.end();
+
 
         debugRenderer.render(world, cam.combined);
 

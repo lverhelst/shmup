@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.Gdx;
@@ -18,7 +19,9 @@ import com.badlogic.gdx.utils.JsonValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
+import Editor.NavigationNode;
 import ecs.subsystems.SpawnSystem;
 
 /**
@@ -30,6 +33,8 @@ public class Level {
 
     private HashMap<String, Body> bodies;
     private ArrayList<Node> nodeList;
+    private Stack<NavigationNode> navNodeStack;
+    private ArrayList<NavigationNode> navNodes;
     public World world;
 
     private Body blade;
@@ -37,6 +42,8 @@ public class Level {
     public void create(World world) {
         bodies = new HashMap<String, Body>();
         nodeList = new ArrayList<Node>();
+        navNodeStack = new Stack<NavigationNode>();
+        navNodes = new ArrayList<NavigationNode>();
 
         this.world = world;
 
@@ -55,8 +62,14 @@ public class Level {
             offset = group.get("location").asFloatArray();
             loadParts(group, offset[0], offset[1]);
         }
-
+        //load groups, boxes, nodes
         loadParts(map, 0, 0);
+
+
+
+
+        //add spawn point nodes
+        //create navigation graph
         processNodes(nodeList);
 
         //TODO: add ground creation in file
@@ -79,7 +92,7 @@ public class Level {
     public void loadParts(JsonValue shapes, float x, float y) {
         Body body = null;
         JsonValue types = shapes.get("blocks");
-        JsonValue nodes = shapes.get("nodes");
+        JsonValue nodes = shapes.get("navigationNodes");
 
         if(types != null) {
             for (JsonValue shape : types) {
@@ -113,13 +126,20 @@ public class Level {
                 Node newNode = new Node();
                 newNode.create(node);
                 nodeList.add(newNode);
+                NavigationNode nNode = new NavigationNode(node);
+                navNodes.add(nNode);
+                nNode.createBox2dBody(world);
             }
         }
     }
 
     public void processNodes(ArrayList<Node> nodes) {
+
+        generateNavigationGraph();
+        System.out.println("Navigation Generation Completation");
         for(Node node : nodes) {
-            if(node.isNavigation()) {
+            if(node.isNavigation())
+            {
 
             }
 
@@ -131,6 +151,33 @@ public class Level {
                 Game.slightlyWarmMail.addMessage(SpawnSystem.class, node);
             }
         }
+    }
+
+    /**
+     * Generates the navigation graph by raycasting nodes
+     * Step 1: pick a source node, pass it an empty list
+     * Step 2: ray cast from source towards all nodes
+     * Step 3: add line of sight nodes to source node's outnodes
+     * Step 4: line of sight node generateNagivation to all nodes not in the list passed in
+     */
+    public void generateNavigationGraph(){
+        for(NavigationNode n : navNodes){
+            for(NavigationNode n1 : navNodes){
+                if(!n1.equals(n)) {
+                    RayCast rayCast = new RayCast(n, n1);
+                    world.rayCast(rayCast, n.getBody().getPosition(), n1.getBody().getPosition());
+                    if(rayCast.canSee){
+                        n.addEdge(n1);
+                        n1.addEdge(n);
+                    }
+                }
+            }
+        }
+
+    }
+
+    public ArrayList<NavigationNode> getNavNodes() {
+        return navNodes;
     }
 
     public void loadVariation(JsonValue shapes) {

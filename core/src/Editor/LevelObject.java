@@ -2,6 +2,8 @@ package Editor;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.World;
 
 /**
  * Created by Orion on 12/6/2015.
@@ -39,6 +41,10 @@ public abstract class LevelObject {
 
     public void rotate(int angle){
         this.angle = angle;
+    }
+
+    public Body createBox2dBody(World world){
+        return null;
     }
 
     protected abstract void generateGrabPoints();
