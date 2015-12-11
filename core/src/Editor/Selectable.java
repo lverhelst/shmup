@@ -32,6 +32,9 @@ public abstract class Selectable {
         this.y += y;
     }
 
+    public float getX() { return x; }
+    public float getY() { return y; }
+
     public abstract boolean contains(float x, float y);
     public abstract void render(ShapeRenderer renderer);
     public abstract String toJson();

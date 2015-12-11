@@ -1,6 +1,5 @@
 package Editor;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -15,8 +14,8 @@ import java.util.UUID;
 /**
  * Created by Orion on 12/6/2015.
  */
-public class NavigationNode extends LevelObject {
-    int r;
+public class NavigationNode {
+    int x, y, r;
     ArrayList<NavigationNode> outNavigationNodes;
     UUID id;
     Body body;
@@ -25,8 +24,6 @@ public class NavigationNode extends LevelObject {
         this.x = x;
         this.y = y;
         this.r = r;
-        color = Color.CYAN;
-        originalColor = Color.CYAN;
         outNavigationNodes = new ArrayList<NavigationNode>();
         id = UUID.randomUUID();
     }
@@ -35,8 +32,6 @@ public class NavigationNode extends LevelObject {
         this.x = x;
         this.y = y;
         this.r = r;
-        color = Color.CYAN;
-        originalColor = Color.CYAN;
         outNavigationNodes = new ArrayList<NavigationNode>();
         id = uuid;
     }
@@ -49,8 +44,6 @@ public class NavigationNode extends LevelObject {
         this.x = (int)pos[0];
         this.y = (int)pos[1];
         this.r = (int)radius;
-        color = Color.CYAN;
-        originalColor = Color.CYAN;
         outNavigationNodes = new ArrayList<NavigationNode>();
         id = uuid;
     }
@@ -66,26 +59,6 @@ public class NavigationNode extends LevelObject {
             this.outNavigationNodes.remove(targetNavigationNode);
     }
 
-
-    @Override
-    protected void generateGrabPoints() {
-        grabPoints = new int[4]; //1 grab point for each line
-        grabPoints[0] = x + r; //top
-
-    }
-
-    @Override
-    public void resize(int w, int h) {
-        r = (int)Math.tan(w/h); //check your Trig boi
-    }
-
-    @Override
-    public boolean contains(int screenX, int screenY) {
-        return screenX > x - r && screenX < x + r  && screenY > y - r && screenY < y + r;
-    }
-
-
-    @Override
     public Body createBox2dBody(World world) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(x, y);
@@ -108,13 +81,10 @@ public class NavigationNode extends LevelObject {
         return body;
     }
 
-    @Override
     public void render(ShapeRenderer renderer) {
-        renderer.setColor(color);
         renderer.circle(x, y, r);
         for(NavigationNode n : outNavigationNodes) {
             renderer.line(x, y, n.x, n.y);
         }
     }
-
 }

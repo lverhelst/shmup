@@ -5,15 +5,15 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 /**
  * Created by emery on 2015-12-09.
  */
-public class Item extends Selectable {
+public class Point extends Selectable {
     private float r;
-    private String type;
-    private String subtype;
+    private String type; //spawn point, powerup, Nav
+    private String subType; //red, blue, firerate, etc...
 
-    public Item(float x, float y, String type, String subtype) {
+    public Point(float x, float y, String type, String subType) {
         super(x, y);
         this.type = type;
-        this.subtype = subtype;
+        this.subType = subType;
         this.r = 5;
     }
 
@@ -30,6 +30,6 @@ public class Item extends Selectable {
 
     @Override
     public String toJson() {
-        return "{ \"location\" : [" + x + "," + y + "], \"type\" : [spawn, powerup], \"subtype\" : [red, blue, rapidfire] }";
+        return "{ \"location\" : [" + x + "," + y + "], \"type\" : " + type + ", \"subtype\" : " + subType + " }";
     }
 }
