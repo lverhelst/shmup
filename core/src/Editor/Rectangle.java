@@ -16,11 +16,8 @@ public class Rectangle extends Shape {
 
     @Override
     public void resize(float w2, float h2) {
-        this.w += w2;
-        this.h += h2;
-
-        this.w = Math.max(this.w, 0);
-        this.h = Math.max(this.h, 0);
+        this.w = Math.max(w2, 0);
+        this.h = Math.max(h2, 0);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -41,7 +42,7 @@ public class LevelEditor extends ApplicationAdapter {
     private static final int V_HEIGHT = 480;
 
     private ArrayList<Selectable> levelShape;
-    private ArrayList<Selectable> levelItems;
+    private ArrayList<Selectable> levelPoints;
     private Selectable selection;
 
     private ShapeRenderer shapeRenderer;
@@ -60,7 +61,7 @@ public class LevelEditor extends ApplicationAdapter {
         cam.update();
 
         levelShape = new ArrayList<Selectable>();
-        levelItems = new ArrayList<Selectable>();
+        levelPoints = new ArrayList<Selectable>();
         Gdx.input.setInputProcessor(new EditorInputAdapter());
 
         current_Tool = E_TOOL.SELECT;
@@ -98,7 +99,7 @@ public class LevelEditor extends ApplicationAdapter {
             shape.render(shapeRenderer);
         }
 
-        for(Selectable item  : levelItems) {
+        for(Selectable item  : levelPoints) {
             item.render(shapeRenderer);
         }
 
@@ -109,14 +110,6 @@ public class LevelEditor extends ApplicationAdapter {
         sp.end();
     }
 
-    private float round(float num) {
-        int temp = (int)num % gridSize;
-        if (temp < Math.floor(gridSize/2))
-            return num-temp;
-        else
-            return num+ (gridSize - 1)-temp;
-    }
-
     public void loadLevel(String levelName){
         JsonReader reader = new JsonReader();
         JsonValue json = reader.parse(Gdx.files.internal((levelName)));
@@ -125,9 +118,11 @@ public class LevelEditor extends ApplicationAdapter {
         JsonValue groups = map.get("groups");
         float[] offset;
 
-        for(JsonValue group : groups) {
-            offset = group.get("location").asFloatArray();
-            loadShapes(group, offset[0], offset[1]);
+        if(groups != null) {
+            for (JsonValue group : groups) {
+                offset = group.get("location").asFloatArray();
+                loadShapes(group, offset[0], offset[1]);
+            }
         }
 
         loadShapes(map, 0, 0);
@@ -168,9 +163,10 @@ public class LevelEditor extends ApplicationAdapter {
 
         for(JsonValue value : points){
             float[] pos = value.get("location").asFloatArray();
-
+            String type = value.get("type").asString();
+            String subtype = value.get("type").asString();
             //TODO: add node handling after making needed changes
-            levelItems.add(createCircle(pos[0], pos[1], 5, 0, 0));
+            levelPoints.add(createPoint(pos[0], pos[1], type, subtype));
         }
     }
 
@@ -187,7 +183,7 @@ public class LevelEditor extends ApplicationAdapter {
             blocks += "\t\t\t" + lo.toJson() + ",\n";
         }
 
-        for(Selectable item: levelItems) {
+        for(Selectable item: levelPoints) {
             items += "\t\t\t" + item.toJson() + ",\n";
         }
 
@@ -200,7 +196,9 @@ public class LevelEditor extends ApplicationAdapter {
         items += "\n\t\t]\n";
 
         jsonString += blocks + items + "\t}\n}";
-        System.out.println(jsonString);
+
+        FileHandle file = Gdx.files.local(filename);
+        file.writeString(jsonString, false);//false == overwrite
     }
 
     public Rectangle createBox(float x, float y, float w, float h, float friction, float density) {
@@ -209,6 +207,10 @@ public class LevelEditor extends ApplicationAdapter {
 
     public Circle createCircle(float x, float y, float r, float friction, float density){
         return new Circle(x,y,r);
+    }
+
+    public Point createPoint(float x, float y, String type, String subType){
+        return new Point(x,y,type,subType);
     }
 
     private void setSelection(Selectable o){
@@ -222,8 +224,15 @@ public class LevelEditor extends ApplicationAdapter {
     }
 
     class EditorInputAdapter implements InputProcessor {
-        Vector3 worldCoordinates = new Vector3(0,0,0);
-        float x, y, w, h;
+        private Vector3 touchDownCoords = new Vector3(0,0,0);
+        private Vector3 touchUpCoords = new Vector3(0,0,0);
+
+        private float snapToGrid(float num) {
+            int gridLocation = (int)num % (int)(gridSize);
+            gridLocation = (int)num - gridLocation;
+
+            return gridLocation;
+        }
 
         @Override
         public boolean keyDown(int keycode) {  return false; }
@@ -234,7 +243,7 @@ public class LevelEditor extends ApplicationAdapter {
                 case Input.Keys.FORWARD_DEL:
                     if(selection != null) {
                         levelShape.remove(selection);
-                        levelItems.remove(selection);
+                        levelPoints.remove(selection);
                         setSelection(null);
                     }
                     break;
@@ -283,68 +292,97 @@ public class LevelEditor extends ApplicationAdapter {
 
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            x = screenX;
-            y = screenY;
-            worldCoordinates.set(x,y,0);
-            cam.unproject(worldCoordinates);
+            touchDownCoords.set(screenX, screenY,0);
+            cam.unproject(touchDownCoords);
 
             switch (current_Tool){
                 case SELECT:
+                    boolean selected = false;
+                    touchDownCoords.set(screenX,screenY,0);
+                    cam.unproject(touchDownCoords);
+
                     for (Selectable n : levelShape) {
-                        if(n.contains(worldCoordinates.x, worldCoordinates.y)){
+                        if(n.contains(touchDownCoords.x, touchDownCoords.y)){
                             if(n == selection) {
                                 current_Tool = E_TOOL.TRANSLATE;
+                                selected = true;
                             } else {
                                 setSelection(n);
+                                selected = true;
                             }
                         }
                     }
                     //This kind of sucks... but its a side effect of breaking them apart
-                    for (Selectable n : levelItems) {
-                        if(n.contains(worldCoordinates.x, worldCoordinates.y)){
+                    for (Selectable n : levelPoints) {
+                        if(n.contains(touchDownCoords.x, touchDownCoords.y)){
                             if(n == selection) {
                                 current_Tool = E_TOOL.TRANSLATE;
+                                selected = true;
                             } else {
                                 setSelection(n);
+                                selected = true;
                             }
                         }
                     }
+
+                    if(selected == false) {
+                        setSelection(null);
+                        current_Tool = E_TOOL.PAN;
+                    }
+
                     break;
                 case RECTANGLE:
-                    w = 2;
-                    h = 2;
-
-                    Selectable rectangle = createBox(round((int)worldCoordinates.x),round((int)worldCoordinates.y),w,h,0,0);
+                    Selectable rectangle = createBox(snapToGrid(touchDownCoords.x),snapToGrid(touchDownCoords.y),2,2,0,0);
                     levelShape.add(rectangle);
                     setSelection(rectangle);
                     break;
                 case NODE :
-                    if(button == 0) {
-                        Selectable node = createCircle(round((int)worldCoordinates.x), round((int) worldCoordinates.y), 4, 0,0);
-                        levelItems.add(node);
-                        setSelection(node);
-                    }
+                    Selectable node = createCircle(snapToGrid(touchDownCoords.x), snapToGrid(touchDownCoords.y), 4, 0,0);
+                    levelPoints.add(node);
+                    setSelection(node);
                     break;
             }
+
             return false;
         }
 
         @Override
         public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            x = screenX ;
-            y = screenY;
-            worldCoordinates.set(x, y, 0);
-            cam.unproject(worldCoordinates);
+            touchUpCoords.set(screenX, screenY, 0);
+            cam.unproject(touchUpCoords);
 
             if(selection != null) {
                 if (current_Tool == E_TOOL.RECTANGLE && selection instanceof Shape) {
-                    ((Shape)selection).resize(round(worldCoordinates.x - selection.x), round(worldCoordinates.y - selection.y));
+                    float xDown = snapToGrid(touchDownCoords.x);
+                    float xUp = snapToGrid(touchUpCoords.x);
+                    float yDown = snapToGrid(touchDownCoords.y);
+                    float yUp = snapToGrid(touchUpCoords.y);
+                    float x = xUp - xDown;
+                    float y = yUp- yDown;
+
+                    if(x < 0 && y < 0) {
+                        selection.moveTo(xUp, yUp);
+                    } else if (x < 0) {
+                        selection.moveTo(xUp, yDown);
+                    } else if (y < 0) {
+                        selection.moveTo(xDown, yUp);
+                    } else {
+                        selection.moveTo(xDown, yDown);
+                    }
+
+                    ((Shape)selection).resize(Math.abs(x),Math.abs(y));
                 }
 
                 if (current_Tool == E_TOOL.TRANSLATE) {
-                    selection.translate(round(worldCoordinates.x), round(worldCoordinates.y));
+                    float x = snapToGrid(touchUpCoords.x - selection.x);
+                    float y = snapToGrid(touchUpCoords.y - selection.y);
+
+                    selection.translate(x,y);
                     current_Tool = E_TOOL.SELECT;
                 }
+            } else if (current_Tool == E_TOOL.PAN) {
+                cam.position.set(touchUpCoords.x, touchUpCoords.y, 0);
+                current_Tool = E_TOOL.SELECT;
             }
 
             return false;
@@ -352,19 +390,41 @@ public class LevelEditor extends ApplicationAdapter {
 
         @Override
         public boolean touchDragged(int screenX, int screenY, int pointer) {
-            x = round(screenX);
-            y = round(screenY);
-            worldCoordinates.set(x,y,0);
-            cam.unproject(worldCoordinates);
+            touchUpCoords.set(screenX, screenY, 0);
+            cam.unproject(touchUpCoords);
 
             if(selection != null) {
+
                 if (current_Tool == E_TOOL.RECTANGLE && selection instanceof Shape) {
-                    ((Shape)selection).resize(round(worldCoordinates.x - selection.getX()), round(worldCoordinates.y - selection.getY()));
+                    float xDown = snapToGrid(touchDownCoords.x);
+                    float xUp = snapToGrid(touchUpCoords.x);
+                    float yDown = snapToGrid(touchDownCoords.y);
+                    float yUp = snapToGrid(touchUpCoords.y);
+                    float x = xUp - xDown;
+                    float y = yUp- yDown;
+
+                    if(x < 0 && y < 0) {
+                        selection.moveTo(xUp, yUp);
+                    } else if (x < 0) {
+                        selection.moveTo(xUp, yDown);
+                    } else if (y < 0) {
+                        selection.moveTo(xDown, yUp);
+                    } else {
+                        selection.moveTo(xDown, yDown);
+                    }
+
+                    ((Shape)selection).resize(Math.abs(x),Math.abs(y));
                 }
 
                 if (current_Tool == E_TOOL.TRANSLATE) {
-                    selection.translate(round(worldCoordinates.x), round(worldCoordinates.y));
+                    float x = snapToGrid(touchUpCoords.x - selection.x);
+                    float y = snapToGrid(touchUpCoords.y - selection.y);
+
+                    selection.translate(x,y);
                 }
+            } else if (current_Tool == E_TOOL.PAN) {
+                cam.position.set(touchUpCoords.x, touchUpCoords.y, 0);
+                current_Tool = E_TOOL.SELECT;
             }
 
             return false;
@@ -374,6 +434,10 @@ public class LevelEditor extends ApplicationAdapter {
         public boolean mouseMoved(int screenX, int screenY) { return false; }
 
         @Override
-        public boolean scrolled(int amount) { return false; }
+        public boolean scrolled(int amount) {
+            zoom += 0.05 * amount;
+            cam.zoom = zoom;
+            return false;
+        }
     }
 }

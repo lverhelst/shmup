@@ -14,7 +14,7 @@ public class Point extends Selectable {
         super(x, y);
         this.type = type;
         this.subType = subType;
-        this.r = 5;
+        this.r = 4;
     }
 
     @Override
