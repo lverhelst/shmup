@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -67,9 +68,6 @@ public class Level {
         loadPoints(map);
         generateNavigationGraph();
 
-        //TODO: add ground creation in file
-        createBox("DEATH", 135, 130, 50, 50, 1, 1, BodyType.StaticBody);
-
         //TODO: add joint handling and creation from file
         Body circle = createCircle("WALL", 160, 155, 5, 1, 1, BodyType.StaticBody);
         blade = createBox("WALL", 165, 154.5f, 150, 2, 0, 1, BodyType.DynamicBody);
@@ -126,11 +124,11 @@ public class Level {
             String type = point.get("type").asString();
             String subtype = point.get("subtype").asString();
 
-            if(type.equals("NODE")) {
-                NavigationNode nNode = new NavigationNode(pos[0], pos[1], 4);
-                navNodes.add(nNode);
-                nNode.createBox2dBody(world);
-            } else {
+            NavigationNode nNode = new NavigationNode(pos[0], pos[1], 4);
+            navNodes.add(nNode);
+            nNode.createBox2dBody(world);
+
+            if(!type.equals("NODE")) {
                 Point newPoint = new Point();
                 newPoint.create(type, subtype, pos[0], pos[1]);
 
@@ -183,23 +181,26 @@ public class Level {
         PolygonShape box = new PolygonShape();
         box.setAsBox(w, h);
 
-        FixtureDef fixture = new FixtureDef();
-        fixture.shape = box;
-        fixture.density = density;
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = box;
+        fixtureDef.density = density;
 
         if(type.equals("GROUND") || type.equals("DEATH")){
-            fixture.isSensor = true;
+            fixtureDef.isSensor = true;
+            //Death ground is only collidable in the same manner as powerups
+            fixtureDef.filter.categoryBits = Constants.GROUND_BIT;
+            fixtureDef.filter.maskBits = Constants.GROUND_MASK;
 
-            if(type.equals("DEATH")) {
-                //Death ground is only collidable in the same manner as powerups
-                fixture.filter.categoryBits = Constants.POWERUP_BIT;
-                fixture.filter.maskBits = Constants.POWERUP_MASK;
-            }
         }
 
-        fixture.friction = friction;
+        fixtureDef.friction = friction;
+        Fixture fixture = body.createFixture(fixtureDef);
 
-        body.createFixture(fixture);
+        //TODO: make this better...
+        if(type.equals("DEATH")) {
+            fixture.setUserData(1);
+        }
+
         box.dispose();
 
         return body;

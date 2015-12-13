@@ -62,7 +62,7 @@
 			{ "shape" : box, "type" : WALL, "friction" : 1, "density" : 1, "dynamic" : false, "location" : [150.0,299.0], "size" : [18.0,2.0] },
 			{ "shape" : box, "type" : WALL, "friction" : 1, "density" : 1, "dynamic" : false, "location" : [168.0,299.0], "size" : [2.0,8.5] },
 			{ "shape" : box, "type" : WALL, "friction" : 1, "density" : 1, "dynamic" : false, "location" : [170.0,305.5], "size" : [96.0,2.0] },
-			{ "shape" : box, "type" : GROUND, "friction" : 1, "density" : 1, "dynamic" : false, "location" : [130.0,130.0], "size" : [50.0,50.0] }
+			{ "shape" : box, "type" : DEATH, "friction" : 1, "density" : 1, "dynamic" : false, "location" : [130.0,130.0], "size" : [50.0,50.0] }
 		],
 		"points" : [
  			{ "type" : SPAWN, "subtype" : default, "location" : [23.0,24.0] },
@@ -70,10 +70,6 @@
 			{ "type" : SPAWN, "subtype" : default, "location" : [25.0,288.0] },
 			{ "type" : SPAWN, "subtype" : default, "location" : [290.0,287.0] },
 			{ "type" : SPAWN, "subtype" : default, "location" : [78.0,231.0] },
-			{ "type" : NODE, "subtype" : default, "location" : [27.0,288.0] },
-			{ "type" : NODE, "subtype" : default, "location" : [27.0,27.0] },
-			{ "type" : NODE, "subtype" : default, "location" : [288.0,18.0] },
-			{ "type" : NODE, "subtype" : default, "location" : [288.0,288.0] },
 			{ "type" : NODE, "subtype" : default, "location" : [162.0,288.0] },
 			{ "type" : NODE, "subtype" : default, "location" : [153.0,27.0] },
 			{ "type" : NODE, "subtype" : default, "location" : [27.0,153.0] },

@@ -87,6 +87,7 @@ public class ContactSystem implements ContactListener{
             //entity and ground
             //TODO: make proper management of ground, instead of haque-y int ground
             else if(b.getUserData() instanceof Integer) {
+                //TODO: if not death ground make friction apply to car? (This way rough and slippery ground can be made)
                 if (aEntity.has(HealthComponent.class)) {
                     if ((aEntity.get(HealthComponent.class)).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
                         //apply damage
