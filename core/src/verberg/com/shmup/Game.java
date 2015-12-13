@@ -28,6 +28,8 @@ import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
 import Factories.CarFactory;
 import ecs.subsystems.ContactSystem;
+import Level.Level;
+import Level.NavigationNode;
 
 public class Game extends ApplicationAdapter {
     public static MessageManagement.MessageManager slightlyWarmMail = new MessageManagement.MessageManager();
@@ -64,7 +66,7 @@ public class Game extends ApplicationAdapter {
         return world;
     }
     static MyInputAdapter playerInput;
-    Level.Level test;
+    Level test;
 
 	@Override
 	public void create () {
@@ -80,7 +82,7 @@ public class Game extends ApplicationAdapter {
         world.setVelocityThreshold(0.01f);
         world.setContactListener(new ContactSystem());
 
-        test = new Level.Level();
+        test = new Level();
         test.create(world);
 
         Gdx.input.setInputProcessor(playerInput = new MyInputAdapter());
@@ -167,7 +169,7 @@ public class Game extends ApplicationAdapter {
 
         shapeRenderer.setProjectionMatrix(cam.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        for(Level.NavigationNode n : test.getNavNodes())
+        for(NavigationNode n : test.getNavNodes())
         {
             n.render(shapeRenderer);
         }

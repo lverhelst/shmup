@@ -30,7 +30,7 @@ import ecs.components.SteeringComponent;
 import ecs.components.WeaponComponent;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.Game;
-import Level.Node;
+import Level.Point;
 
 /**
  *  TODO: Full scale rewrite that allows for less reparsing all the time
@@ -60,8 +60,8 @@ public class CarFactory {
     public void produceCarECS(IntentGenerator ig){
         //Generate a spawn point, since this has no access to them (As its not part of the spawn system)
         Random rand = new Random();
-        Node spawn = new Node();
-        spawn.create(64 + rand.nextInt(128), 64 + rand.nextInt(128), true, true, true);
+        Point spawn = new Point();
+        spawn.create("SPAWN", "RED", 64 + rand.nextInt(128), 64f + rand.nextInt(128));
 
         Entity carBodyEntity = assembleCarBody(ig, spawn);
         for(JsonValue tValue : jTires){
@@ -69,7 +69,7 @@ public class CarFactory {
         }
     }
 
-    public void applyLifeTimeWarranty(Entity e, Node spawn){
+    public void applyLifeTimeWarranty(Entity e, Point spawn){
         ControlledComponent cc = null;
         if(e.has(ControlledComponent.class)) {
             cc = e.get(ControlledComponent.class);
@@ -144,7 +144,7 @@ public class CarFactory {
         f.setUserData(new Entity(pc, new DamageComponent(86)));
     }
 
-    private Entity assembleCarBody(IntentGenerator ig, Node spawn){
+    private Entity assembleCarBody(IntentGenerator ig, Point spawn){
 
         JsonValue jVertices  = jCar.get("vertices");
 
@@ -164,7 +164,7 @@ public class CarFactory {
         bdef.type = BodyDef.BodyType.DynamicBody;
 
         Random random = new Random();
-        bdef.position.set(new Vector2(spawn.getPosition().x, spawn.getPosition().y)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        bdef.position.set(new Vector2(spawn.position.x, spawn.position.y)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body carbody = Game.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();
