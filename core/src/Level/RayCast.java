@@ -37,7 +37,7 @@ public class RayCast implements RayCastCallback {
         //check can see after the raycase to see if we are blocked or not
 
         if(fixture.getBody().equals(targetNode.getBody())){
-            //add n1 to current Node, current node to n1
+            //add n1 to current NavNode, current Navnode to n1
             canSee = true;
             return 1;
         }
