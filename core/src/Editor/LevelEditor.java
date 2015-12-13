@@ -165,8 +165,12 @@ public class LevelEditor extends ApplicationAdapter {
             float[] pos = value.get("location").asFloatArray();
             String type = value.get("type").asString();
             String subtype = value.get("type").asString();
+
             //TODO: add node handling after making needed changes
+
             levelPoints.add(createPoint(pos[0], pos[1], type, subtype));
+
+
         }
     }
 

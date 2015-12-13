@@ -1,5 +1,7 @@
 package AI;
 
+import com.badlogic.gdx.math.Vector2;
+
 import java.util.Random;
 
 import ecs.Entity;
@@ -31,8 +33,6 @@ public class AI implements IntentGenerator {
         random = new Random();
     }
 
-
-
     @Override
     public void generateIntents(Entity entity) {
 
@@ -46,7 +46,6 @@ public class AI implements IntentGenerator {
                             respawnStart = time + respawnDelay;
                             waitToRespawn = true;
                         }
-
                         if((respawnStart) > time){
                             waitToRespawn = true;
                         }else{
