@@ -32,7 +32,7 @@ public class Level {
     private HashMap<String, Body> bodies;
     private ArrayList<Point> pointList;
     private Stack<NavigationNode> navNodeStack;
-    private ArrayList<NavigationNode> navNodes;
+    private static ArrayList<NavigationNode> navNodes;
     private String filename;
 
     public World world;
@@ -173,9 +173,13 @@ public class Level {
         }
     }
 
-    public ArrayList<NavigationNode> getNavNodes() {
+
+
+    public static ArrayList<NavigationNode> getNavNodes() {
         return navNodes;
     }
+
+
 
     public Body createBox(String type, float x, float y, float w, float h, float friction, float density, BodyType bodyType) {
         //box2d doubles these when it creates the box... so I am undoing that so coords are consistant
