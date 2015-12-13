@@ -11,7 +11,7 @@ import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.SteeringComponent;
 import verberg.com.shmup.Game;
-import verberg.com.shmup.INTENT;
+import MessageManagement.INTENT;
 
 /**
  * Created by Orion on 11/26/2015.

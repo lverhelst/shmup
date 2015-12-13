@@ -12,7 +12,7 @@ import ecs.subsystems.SpawnSystem;
 import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
 import verberg.com.shmup.Game;
-import verberg.com.shmup.INTENT;
+import MessageManagement.INTENT;
 
 import static com.badlogic.gdx.Input.Keys.CONTROL_RIGHT;
 

@@ -12,7 +12,7 @@ import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 import gameObjects.PowerUp;
 import verberg.com.shmup.Game;
-import verberg.com.shmup.INTENT;
+import MessageManagement.INTENT;
 
 /**
  * Created by Orion on 11/21/2015.

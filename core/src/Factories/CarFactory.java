@@ -2,24 +2,18 @@ package Factories;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-import javax.naming.ldap.Control;
 
 import AI.IntentGenerator;
 import AI.AI;
@@ -36,7 +30,7 @@ import ecs.components.SteeringComponent;
 import ecs.components.WeaponComponent;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.Game;
-import verberg.com.shmup.Node;
+import Level.Node;
 
 /**
  *  TODO: Full scale rewrite that allows for less reparsing all the time

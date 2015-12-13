@@ -9,8 +9,8 @@ import verberg.com.shmup.Game;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 620;
-		config.height = 480;
+		config.width = 1280;
+		config.height = 768;
 		new LwjglApplication(new Game(), config);
 		//new LwjglApplication(new LevelEditor(), config);
 	}

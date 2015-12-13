@@ -8,7 +8,7 @@ import ecs.SubSystem;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 
-import verberg.com.shmup.Node;
+import Level.Node;
 
 /**
  * Created by Orion on 11/26/2015.

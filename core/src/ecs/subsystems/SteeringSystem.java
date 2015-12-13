@@ -11,7 +11,7 @@ import ecs.components.JointComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.ControlledComponent;
 import ecs.components.SteeringComponent;
-import verberg.com.shmup.INTENT;
+import MessageManagement.INTENT;
 
 /**
  * Created by Orion on 11/23/2015.
