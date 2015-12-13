@@ -6,16 +6,16 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
  * Created by emery on 2015-12-09.
  */
 public class Circle extends Shape {
-    private float r, rot;
+    public float r, rot;
 
-    public Circle(float x, float y, float r) {
-        super(x, y);
+    public Circle(TYPE type, float x, float y, float r) {
+        super(type, x, y);
         this.r = r;
     }
 
     @Override
     public void resize(float w2, float h2) {
-        r = (int)Math.tan(w2/h2); //check your Trig boi
+        r = Math.max(Math.abs(w2), Math.abs(h2));
     }
 
     @Override
@@ -25,7 +25,7 @@ public class Circle extends Shape {
 
     @Override
     public boolean contains(float x2, float y2) {
-        return (x2 > x && x2 < x + r) && (y2 > y && y2 < y + r);
+        return (x2 > x - r && x2 < x + r) && (y2 > y - r && y2 < y + r);
     }
 
     @Override
@@ -36,6 +36,6 @@ public class Circle extends Shape {
 
     @Override
     public String toJson() {
-        return "{ \"type\" : circle, \"location\" : [" + x + "," + y +"], \"radius\" : " + r + ", \"friction\" : 1, \"density\" : 1, \"dynamic\" : false }";
+        return "{ \"shape\" : circle, \"type\" : " + type + ", \"friction\" : 1, \"density\" : 1, \"dynamic\" : false, \"location\" : [" + x + "," + y +"], \"radius\" : " + r + " }";
     }
 }

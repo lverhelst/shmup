@@ -17,7 +17,10 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+
+import sun.security.provider.SHA;
 
 /**
  * Created by Orion on 12/3/2015.
@@ -31,8 +34,10 @@ import java.util.ArrayList;
  *  Click a node, then a second node and link them (edge tool)
  */
 public class LevelEditor extends ApplicationAdapter {
-    enum E_TOOL { SELECT, TRANSLATE, PAN, RECTANGLE, NODE, CIRCLE }
+    enum E_TOOL { SELECT, PAN, TRANSLATE, SCALE, RECTANGLE, CIRCLE, POINT }
     private E_TOOL current_Tool;
+    private Point.TYPE point_Type;
+    private Shape.TYPE shape_Type;
 
     private int gridSize, width, height;
     private float zoom;
@@ -41,8 +46,7 @@ public class LevelEditor extends ApplicationAdapter {
     private static final int V_WIDTH = 620;
     private static final int V_HEIGHT = 480;
 
-    private ArrayList<Selectable> levelShape;
-    private ArrayList<Selectable> levelPoints;
+    private ArrayList<Selectable> levelObjects;
     private Selectable selection;
 
     private ShapeRenderer shapeRenderer;
@@ -60,15 +64,19 @@ public class LevelEditor extends ApplicationAdapter {
         cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
         cam.update();
 
-        levelShape = new ArrayList<Selectable>();
-        levelPoints = new ArrayList<Selectable>();
+        levelObjects = new ArrayList<Selectable>();
         Gdx.input.setInputProcessor(new EditorInputAdapter());
 
         current_Tool = E_TOOL.SELECT;
-        gridSize = 20;
+        point_Type = Point.TYPE.SPAWN;
+        shape_Type = Shape.TYPE.WALL;
+
+        gridSize = 10;
         width = V_WIDTH;
         height = V_HEIGHT;
         zoom = 1;
+
+        cam.zoom = zoom;
 
         filename = "savedlevel2.lvl";
         loadLevel(filename);
@@ -87,26 +95,38 @@ public class LevelEditor extends ApplicationAdapter {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.DARK_GRAY);
 
-        for(int x = 0; x < V_WIDTH; x += gridSize) {
-            shapeRenderer.line(x,0, x, height);
+        float factor = zoom > 1 ? zoom : 1;
+        for(int x = 0; x < V_WIDTH * factor; x += gridSize) {
+            shapeRenderer.line(x,0, x, height * factor);
         }
 
-        for(int y = 0; y < V_HEIGHT; y += gridSize) {
-            shapeRenderer.line(0, y, width, y);
+        for(int y = 0; y < V_HEIGHT * factor; y += gridSize) {
+            shapeRenderer.line(0, y, width * factor, y);
         }
 
-        for(Selectable shape  : levelShape) {
+        for(Selectable shape : levelObjects) {
             shape.render(shapeRenderer);
-        }
-
-        for(Selectable item  : levelPoints) {
-            item.render(shapeRenderer);
         }
 
         shapeRenderer.end();
 
         sp.begin();
-        bitmapFont.draw(sp, current_Tool.name(),50,3 * V_HEIGHT/4);
+        bitmapFont.draw(sp, current_Tool.name(), 20, V_HEIGHT - 20);
+
+        if(current_Tool == E_TOOL.POINT)
+            bitmapFont.draw(sp, point_Type.name(), 20, V_HEIGHT - 40);
+
+        if(current_Tool == E_TOOL.RECTANGLE || current_Tool == E_TOOL.CIRCLE)
+            bitmapFont.draw(sp, shape_Type.name(), 20, V_HEIGHT - 40);
+
+        if(current_Tool == E_TOOL.SELECT && selection != null) {
+            if(selection instanceof Shape)
+                bitmapFont.draw(sp, shape_Type.name(), 20, V_HEIGHT - 40);
+
+            if(selection instanceof Point)
+                bitmapFont.draw(sp, point_Type.name(), 20, V_HEIGHT - 40);
+        }
+
         sp.end();
     }
 
@@ -131,28 +151,39 @@ public class LevelEditor extends ApplicationAdapter {
 
     public void loadShapes(JsonValue shapes, float x, float y) {
         Body body = null;
-        JsonValue types = shapes.get("blocks");
+        JsonValue types = shapes.get("shapes");
 
         if(types != null) {
-            for (JsonValue shape : types) {
-                String type = shape.get("type").asString();
-                JsonValue jsonName = shape.get("name");
-                float[] pos = shape.get("location").asFloatArray();
-                float friction = shape.get("friction").asFloat();
-                float density = shape.get("density").asFloat();
+            for (JsonValue shapeVal : types) {
+                String shape = shapeVal.get("shape").asString();
+                String type = shapeVal.get("type").asString();
 
-                if(type.equals("box")) {
-                    float[] size = shape.get("size").asFloatArray();
-                    levelShape.add(createBox(pos[0] + x, pos[1] + y, size[0], size[1], friction, density));
+                float[] pos = shapeVal.get("location").asFloatArray();
+                float friction = shapeVal.get("friction").asFloat();
+                float density = shapeVal.get("density").asFloat();
 
-                } else if(type.equals("circle")) {
-                    float radius = shape.get("radius").asFloat();
-                    levelShape.add(createCircle(x,y,radius,0,0));
+                JsonValue jsonName = shapeVal.get("name");
+                Shape.TYPE typeLookup = Shape.TYPE.WALL;
+
+                //looking up enum type
+                if(type.equals("GROUND")) {
+                    typeLookup = Shape.TYPE.GROUND;
+                } else if(type.equals("DEATH")) {
+                    typeLookup = Shape.TYPE.DEATH;
+                }
+
+                if(shape.equals("box")) {
+                    float[] size = shapeVal.get("size").asFloatArray();
+                    levelObjects.add(createBox(typeLookup, pos[0] + x, pos[1] + y, size[0], size[1], friction, density));
+
+                } else if(shape.equals("circle")) {
+                    float radius = shapeVal.get("radius").asFloat();
+                    levelObjects.add(createCircle(typeLookup, pos[0] + x, pos[1] + y, radius, 0, 0));
                 }
 
                 //Only add named blocks
                 if(jsonName != null && body != null) {
-                    String name = shape.get("name").asString();
+                    String name = shapeVal.get("name").asString();
                 }
             }
         }
@@ -164,9 +195,16 @@ public class LevelEditor extends ApplicationAdapter {
         for(JsonValue value : points){
             float[] pos = value.get("location").asFloatArray();
             String type = value.get("type").asString();
-            String subtype = value.get("type").asString();
-            //TODO: add node handling after making needed changes
-            levelPoints.add(createPoint(pos[0], pos[1], type, subtype));
+            String subtype = value.get("subtype").asString();
+            Point.TYPE typeLookup = Point.TYPE.SPAWN;
+
+            //looking up enum type
+            if(type.equals("NODE")) {
+                typeLookup = Point.TYPE.NODE;
+            } else if(type.equals("PICKUP")) {
+                typeLookup = Point.TYPE.PICKUP;
+            }
+            levelObjects.add(createPoint(typeLookup, subtype, pos[0], pos[1]));
         }
     }
 
@@ -175,48 +213,52 @@ public class LevelEditor extends ApplicationAdapter {
         jsonString += "\t\t\"name\": \"testLevel\",\n";
 
         //print to separate sections
-        String blocks = "\t\t\"blocks\" : [\n ";
-        String items = "\t\t\"points\" : [\n ";
+        String blocks = "\t\t\"shapes\" : [\n ";
+        String points = "\t\t\"points\" : [\n ";
 
         //add to appropriate sections
-        for(Selectable lo: levelShape) {
-            blocks += "\t\t\t" + lo.toJson() + ",\n";
-        }
-
-        for(Selectable item: levelPoints) {
-            items += "\t\t\t" + item.toJson() + ",\n";
+        for(Selectable lo: levelObjects) {
+            if(lo instanceof Shape)
+                blocks += "\t\t\t" + lo.toJson() + ",\n";
+            else if(lo instanceof Point)
+                points += "\t\t\t" + lo.toJson() + ",\n";
         }
 
         //remove last comma
         blocks = blocks.substring(0, blocks.length() - 2);
-        items = items.substring(0, items.length() - 2);
+        points = points.substring(0, points.length() - 2);
 
         //finish sections
         blocks += "\n\t\t],\n";
-        items += "\n\t\t]\n";
+        points += "\n\t\t]\n";
 
-        jsonString += blocks + items + "\t}\n}";
+        jsonString += blocks + points + "\t}\n}";
 
         FileHandle file = Gdx.files.local(filename);
         file.writeString(jsonString, false);//false == overwrite
     }
 
-    public Rectangle createBox(float x, float y, float w, float h, float friction, float density) {
-        return new Rectangle(x,y,w,h);
+    public Rectangle createBox(Shape.TYPE type, float x, float y, float w, float h, float friction, float density) {
+        return new Rectangle(type,x,y,w,h);
     }
 
-    public Circle createCircle(float x, float y, float r, float friction, float density){
-        return new Circle(x,y,r);
+    public Circle createCircle(Shape.TYPE type, float x, float y, float r, float friction, float density){
+        return new Circle(type,x,y,r);
     }
 
-    public Point createPoint(float x, float y, String type, String subType){
-        return new Point(x,y,type,subType);
+    public Point createPoint(Point.TYPE type, String subType, float x, float y){
+        return new Point(type,subType,x,y);
     }
 
     private void setSelection(Selectable o){
-        if(o != null && !o.isSelected()) {
-            if(selection != null)
-                selection.toggleSelect();
+        if(selection == null && o != null) {
+            o.toggleSelect();
+        }
+        if(selection != null && o == null) {
+            selection.toggleSelect();
+        }
+        if(selection != null && o != null && o != selection) {
+            selection.toggleSelect();
             o.toggleSelect();
         }
 
@@ -224,11 +266,14 @@ public class LevelEditor extends ApplicationAdapter {
     }
 
     class EditorInputAdapter implements InputProcessor {
-        private Vector3 touchDownCoords = new Vector3(0,0,0);
-        private Vector3 touchUpCoords = new Vector3(0,0,0);
+        private Vector3 touchDown = new Vector3(0,0,0);
+        private Vector3 touchUp = new Vector3(0,0,0);
+        private Vector3 camDown = new Vector3(0,0,0);
+        private float mouseX, mouseY;
+        private boolean toolLock = false;
 
         private float snapToGrid(float num) {
-            int gridLocation = (int)num % (int)(gridSize);
+            int gridLocation = (int)num % gridSize;
             gridLocation = (int)num - gridLocation;
 
             return gridLocation;
@@ -239,11 +284,11 @@ public class LevelEditor extends ApplicationAdapter {
 
         @Override
         public boolean keyUp(int keycode) {
+
             switch(keycode){
                 case Input.Keys.FORWARD_DEL:
                     if(selection != null) {
-                        levelShape.remove(selection);
-                        levelPoints.remove(selection);
+                        levelObjects.remove(selection);
                         setSelection(null);
                     }
                     break;
@@ -253,6 +298,40 @@ public class LevelEditor extends ApplicationAdapter {
                         saveLevel();
                     }
                     break;
+                case Input.Keys.LEFT:
+                    if(current_Tool == E_TOOL.RECTANGLE || current_Tool == E_TOOL.CIRCLE) {
+                        cycleShape(true);
+                    } else if(current_Tool == E_TOOL.POINT) {
+                        cyclePoint(true);
+                    } else if(current_Tool == E_TOOL.SELECT && selection != null) {
+                        if(selection instanceof Shape) {
+                            shape_Type = ((Shape) selection).type;
+                            cycleShape(true);
+                            ((Shape) selection).setType(shape_Type);
+                        } else if(selection instanceof Point) {
+                            point_Type = ((Point) selection).type;
+                            cyclePoint(true);
+                            ((Point) selection).setType(point_Type);
+                        }
+                    }
+                    break;
+                case Input.Keys.RIGHT:
+                    if(current_Tool == E_TOOL.RECTANGLE || current_Tool == E_TOOL.CIRCLE) {
+                        cycleShape(false);
+                    } else if(current_Tool == E_TOOL.POINT) {
+                        cyclePoint(false);
+                    } else if(current_Tool == E_TOOL.SELECT && selection != null) {
+                        if(selection instanceof Shape) {
+                            shape_Type = ((Shape) selection).type;
+                            cycleShape(false);
+                            ((Shape) selection).setType(shape_Type);
+                        } else if(selection instanceof Point) {
+                            point_Type = ((Point) selection).type;
+                            cyclePoint(false);
+                            ((Point) selection).setType(point_Type);
+                        }
+                    }
+                    break;
             }
             return false;
         }
@@ -260,19 +339,31 @@ public class LevelEditor extends ApplicationAdapter {
         @Override
         public boolean keyTyped(char character) {
             switch(character){
-                case '1' : current_Tool = E_TOOL.SELECT;
+                case '1' :
+                    if(!toolLock)
+                        current_Tool = E_TOOL.SELECT;
                     break;
-                case '2' : current_Tool = E_TOOL.RECTANGLE;
+                case '2' :
+                    if(!toolLock)
+                        current_Tool = E_TOOL.SCALE;
                     break;
-                case '3' : current_Tool = E_TOOL.NODE;
+                case '3' :
+                    if(!toolLock)
+                        current_Tool = E_TOOL.RECTANGLE;
                     break;
-                case '4' : current_Tool = E_TOOL.CIRCLE;
+                case '4' :
+                    if(!toolLock)
+                        current_Tool = E_TOOL.CIRCLE;
+                    break;
+                case '5' :
+                    if(!toolLock)
+                        current_Tool = E_TOOL.POINT;
                     break;
                 case '[':
-                    zoom -= 0.05;
+                    zoom(cam, -0.1f);
                     break;
                 case ']':
-                    zoom += 0.05;
+                    zoom(cam, 0.1f);
                     break;
                 case '=':
                 case '+':
@@ -283,38 +374,26 @@ public class LevelEditor extends ApplicationAdapter {
                     break;
             }
 
-            zoom = Math.min(Math.max(zoom, 0.1f), 5f);
-            gridSize = Math.min(Math.max(gridSize, 1), 10);
-            cam.zoom = zoom;
-
             return false;
         }
 
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            touchDownCoords.set(screenX, screenY,0);
-            cam.unproject(touchDownCoords);
+            touchDown.set(screenX, screenY, 0);
+            cam.unproject(touchDown);
+            toolLock = true;
+
+            camDown.set(cam.position.x, cam.position.y, 0);
+            cam.unproject(camDown);
 
             switch (current_Tool){
                 case SELECT:
                     boolean selected = false;
-                    touchDownCoords.set(screenX,screenY,0);
-                    cam.unproject(touchDownCoords);
+                    touchDown.set(screenX,screenY,0);
+                    cam.unproject(touchDown);
 
-                    for (Selectable n : levelShape) {
-                        if(n.contains(touchDownCoords.x, touchDownCoords.y)){
-                            if(n == selection) {
-                                current_Tool = E_TOOL.TRANSLATE;
-                                selected = true;
-                            } else {
-                                setSelection(n);
-                                selected = true;
-                            }
-                        }
-                    }
-                    //This kind of sucks... but its a side effect of breaking them apart
-                    for (Selectable n : levelPoints) {
-                        if(n.contains(touchDownCoords.x, touchDownCoords.y)){
+                    for (Selectable n : levelObjects) {
+                        if(n.contains(touchDown.x, touchDown.y)){
                             if(n == selection) {
                                 current_Tool = E_TOOL.TRANSLATE;
                                 selected = true;
@@ -328,17 +407,27 @@ public class LevelEditor extends ApplicationAdapter {
                     if(selected == false) {
                         setSelection(null);
                         current_Tool = E_TOOL.PAN;
+                    } else {
+                        if(selection instanceof Shape) {
+                            shape_Type = ((Shape) selection).type;
+                        } else if(selection instanceof Point) {
+                            point_Type = ((Point) selection).type;
+                        }
                     }
-
                     break;
                 case RECTANGLE:
-                    Selectable rectangle = createBox(snapToGrid(touchDownCoords.x),snapToGrid(touchDownCoords.y),2,2,0,0);
-                    levelShape.add(rectangle);
+                    Selectable rectangle = createBox(shape_Type, snapToGrid(touchDown.x), snapToGrid(touchDown.y), 2, 2, 0, 0);
+                    levelObjects.add(rectangle);
                     setSelection(rectangle);
                     break;
-                case NODE :
-                    Selectable node = createCircle(snapToGrid(touchDownCoords.x), snapToGrid(touchDownCoords.y), 4, 0,0);
-                    levelPoints.add(node);
+                case CIRCLE:
+                    Selectable circle = createCircle(shape_Type, snapToGrid(touchDown.x), snapToGrid(touchDown.y), 2, 0, 0);
+                    levelObjects.add(circle);
+                    setSelection(circle);
+                    break;
+                case POINT :
+                    Selectable node = createPoint(point_Type, "default", snapToGrid(touchUp.x), snapToGrid(touchUp.y));
+                    levelObjects.add(node);
                     setSelection(node);
                     break;
             }
@@ -348,41 +437,36 @@ public class LevelEditor extends ApplicationAdapter {
 
         @Override
         public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            touchUpCoords.set(screenX, screenY, 0);
-            cam.unproject(touchUpCoords);
+            touchUp.set(screenX, screenY, 0);
+            cam.unproject(touchUp);
+            toolLock = false;
 
-            if(selection != null) {
-                if (current_Tool == E_TOOL.RECTANGLE && selection instanceof Shape) {
-                    float xDown = snapToGrid(touchDownCoords.x);
-                    float xUp = snapToGrid(touchUpCoords.x);
-                    float yDown = snapToGrid(touchDownCoords.y);
-                    float yUp = snapToGrid(touchUpCoords.y);
-                    float x = xUp - xDown;
-                    float y = yUp- yDown;
-
-                    if(x < 0 && y < 0) {
-                        selection.moveTo(xUp, yUp);
-                    } else if (x < 0) {
-                        selection.moveTo(xUp, yDown);
-                    } else if (y < 0) {
-                        selection.moveTo(xDown, yUp);
-                    } else {
-                        selection.moveTo(xDown, yDown);
+            switch (current_Tool) {
+                case SCALE:
+                case RECTANGLE:
+                case CIRCLE:
+                    if(selection != null && selection instanceof Shape)
+                        resize(selection, touchDown, touchUp);
+                    break;
+                case POINT :
+                    translate(selection, touchUp);
+                    break;
+                case TRANSLATE:
+                    if(selection != null) {
+                        translate(selection, touchUp);
+                        current_Tool = E_TOOL.SELECT;
                     }
-
-                    ((Shape)selection).resize(Math.abs(x),Math.abs(y));
-                }
-
-                if (current_Tool == E_TOOL.TRANSLATE) {
-                    float x = snapToGrid(touchUpCoords.x - selection.x);
-                    float y = snapToGrid(touchUpCoords.y - selection.y);
-
-                    selection.translate(x,y);
-                    current_Tool = E_TOOL.SELECT;
-                }
-            } else if (current_Tool == E_TOOL.PAN) {
-                cam.position.set(touchUpCoords.x, touchUpCoords.y, 0);
-                current_Tool = E_TOOL.SELECT;
+                    break;
+                case PAN:
+                    if(selection == null) {
+                       // pan(cam, touchUp);
+                        current_Tool = E_TOOL.SELECT;
+                    }
+                    break;
+                default:
+                    if(selection != null)
+                        printFeilds(selection);
+                    break;
             }
 
             return false;
@@ -390,54 +474,166 @@ public class LevelEditor extends ApplicationAdapter {
 
         @Override
         public boolean touchDragged(int screenX, int screenY, int pointer) {
-            touchUpCoords.set(screenX, screenY, 0);
-            cam.unproject(touchUpCoords);
+            touchUp.set(screenX, screenY, 0);
+            cam.unproject(touchUp);
 
-            if(selection != null) {
-
-                if (current_Tool == E_TOOL.RECTANGLE && selection instanceof Shape) {
-                    float xDown = snapToGrid(touchDownCoords.x);
-                    float xUp = snapToGrid(touchUpCoords.x);
-                    float yDown = snapToGrid(touchDownCoords.y);
-                    float yUp = snapToGrid(touchUpCoords.y);
-                    float x = xUp - xDown;
-                    float y = yUp- yDown;
-
-                    if(x < 0 && y < 0) {
-                        selection.moveTo(xUp, yUp);
-                    } else if (x < 0) {
-                        selection.moveTo(xUp, yDown);
-                    } else if (y < 0) {
-                        selection.moveTo(xDown, yUp);
-                    } else {
-                        selection.moveTo(xDown, yDown);
-                    }
-
-                    ((Shape)selection).resize(Math.abs(x),Math.abs(y));
-                }
-
-                if (current_Tool == E_TOOL.TRANSLATE) {
-                    float x = snapToGrid(touchUpCoords.x - selection.x);
-                    float y = snapToGrid(touchUpCoords.y - selection.y);
-
-                    selection.translate(x,y);
-                }
-            } else if (current_Tool == E_TOOL.PAN) {
-                cam.position.set(touchUpCoords.x, touchUpCoords.y, 0);
-                current_Tool = E_TOOL.SELECT;
+            switch (current_Tool) {
+                case SCALE:
+                case RECTANGLE:
+                case CIRCLE:
+                    if(selection != null && selection instanceof Shape)
+                        resize(selection, touchDown, touchUp);
+                    break;
+                case POINT :
+                    translate(selection, touchUp);
+                    break;
+                case TRANSLATE:
+                    if(selection != null)
+                        translate(selection, touchUp);
+                    break;
+                case PAN:
+                    if(selection == null)
+                        pan(cam, touchUp, touchDown, camDown);
+                    break;
             }
 
             return false;
         }
 
         @Override
-        public boolean mouseMoved(int screenX, int screenY) { return false; }
+        public boolean mouseMoved(int screenX, int screenY) {
+            mouseX = screenX;
+            mouseY = screenY;
+
+            return false;
+        }
 
         @Override
         public boolean scrolled(int amount) {
-            zoom += 0.05 * amount;
-            cam.zoom = zoom;
+            //TODO: this is hard to make zoom based on pointer....
+            //touchUp.set(mouseX, mouseY, 0);
+            //cam.unproject(touchUp);
+
+            //pan(cam, touchUp.x - cam.position.x, touchUp.y - cam.position.y);
+
+            zoom(cam, 0.1f * amount);
             return false;
+        }
+
+        public void cycleShape(boolean reverse) {
+            if(reverse) {
+                switch (shape_Type) {
+                    case WALL:
+                        shape_Type = Shape.TYPE.DEATH;
+                        break;
+                    case GROUND:
+                        shape_Type = Shape.TYPE.WALL;
+                        break;
+                    case DEATH:
+                        shape_Type = Shape.TYPE.GROUND;
+                        break;
+                }
+            } else {
+                switch (shape_Type) {
+                    case WALL:
+                        shape_Type = Shape.TYPE.GROUND;
+                        break;
+                    case GROUND:
+                        shape_Type = Shape.TYPE.DEATH;
+                        break;
+                    case DEATH:
+                        shape_Type = Shape.TYPE.WALL;
+                        break;
+                }
+            }
+        }
+
+        public void cyclePoint(boolean reverse) {
+            if(reverse) {
+                switch (point_Type) {
+                    case SPAWN:
+                        point_Type = Point.TYPE.NODE;
+                        break;
+                    case PICKUP:
+                        point_Type = Point.TYPE.SPAWN;
+                        break;
+                    case NODE:
+                        point_Type = Point.TYPE.PICKUP;
+                        break;
+                }
+            } else {
+                switch (point_Type) {
+                    case SPAWN:
+                        point_Type = Point.TYPE.PICKUP;
+                        break;
+                    case PICKUP:
+                        point_Type = Point.TYPE.NODE;
+                        break;
+                    case NODE:
+                        point_Type = Point.TYPE.SPAWN;
+                        break;
+                }
+            }
+        }
+
+        public void resize(Selectable selectable, Vector3 touchDown, Vector3 touchUp) {
+            float xDown = snapToGrid(touchDown.x);
+            float xUp = snapToGrid(touchUp.x);
+            float yDown = snapToGrid(touchDown.y);
+            float yUp = snapToGrid(touchUp.y);
+            float x = xUp - xDown;
+            float y = yUp - yDown;
+
+            if(selectable instanceof Rectangle) {
+                if (x < 0 && y < 0) {
+                    selection.moveTo(xUp, yUp);
+                } else if (x < 0) {
+                    selection.moveTo(xUp, yDown);
+                } else if (y < 0) {
+                    selection.moveTo(xDown, yUp);
+                } else {
+                    selection.moveTo(xDown, yDown);
+                }
+            }
+
+            ((Shape)selectable).resize(x, y);
+        }
+
+        public void translate(Selectable selectable, Vector3 touchUp) {
+            float x = snapToGrid(touchUp.x - selectable.x);
+            float y = snapToGrid(touchUp.y - selectable.y);
+
+            selectable.translate(x, y);
+        }
+
+        public void pan(OrthographicCamera cam, Vector3 touchUp) {
+            float x = ((touchUp.x - touchDown.x) - cam.position.x)/100;
+            float y = ((touchUp.y - touchDown.y) - cam.position.y)/100;
+            cam.translate(x, y);
+        }
+        public void pan(OrthographicCamera cam, Vector3 touchUp, Vector3 touchDown, Vector3 camDown) {
+            float x = touchUp.x - touchDown.x;
+            float y = touchUp.y - touchDown.y;
+            float x2 = cam.position.x - camDown.x;
+            float y2 = cam.position.y - camDown.y;
+            cam.translate(x - x2, y - y2);
+        }
+
+        public void zoom(OrthographicCamera cam, float amount) {
+            zoom += amount;
+            zoom = Math.min(Math.max(zoom, 0.1f), 5f);
+            cam.zoom = zoom;
+        }
+
+        public void printFeilds(Selectable selectable) {
+            Field[] fields = selectable.getClass().getFields();
+            for(Field field : fields) {
+                try {
+                    System.out.println(field + " " + field.get(selectable));
+                } catch(Exception e) {
+                    System.err.println("Issues getting fields for properties");
+                }
+            }
         }
     }
 }

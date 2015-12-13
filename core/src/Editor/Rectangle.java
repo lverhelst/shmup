@@ -6,18 +6,18 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
  * Created by emery on 2015-12-09.
  */
 public class Rectangle extends Shape {
-    private float w, h, rot;
+    public float w, h, rot;
 
-    public Rectangle(float x, float y, float w, float h) {
-        super(x, y);
+    public Rectangle(TYPE type, float x, float y, float w, float h) {
+        super(type, x, y);
         this.w = w;
         this.h = h;
     }
 
     @Override
     public void resize(float w2, float h2) {
-        this.w = Math.max(w2, 0);
-        this.h = Math.max(h2, 0);
+        this.w = Math.abs(w2);
+        this.h = Math.abs(h2);
     }
 
     @Override
@@ -38,6 +38,6 @@ public class Rectangle extends Shape {
 
     @Override
     public String toJson() {
-        return "{ \"type\" : box, \"location\" : [" + x + "," + y +"], \"size\" : [" + w + "," + h + "], \"friction\" : 1, \"density\" : 1, \"dynamic\" : false }";
+        return "{ \"shape\" : box, \"type\" : " + type + ", \"friction\" : 1, \"density\" : 1, \"dynamic\" : false, \"location\" : [" + x + "," + y +"], \"size\" : [" + w + "," + h + "] }";
     }
 }

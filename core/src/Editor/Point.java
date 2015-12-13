@@ -1,20 +1,43 @@
 package Editor;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 /**
  * Created by emery on 2015-12-09.
  */
 public class Point extends Selectable {
+    public enum TYPE { SPAWN, PICKUP, NODE }
+    public TYPE type; //spawn point, powerup, Nav
+    public String subType; //red, blue, firerate, etc...
     private float r;
-    private String type; //spawn point, powerup, Nav
-    private String subType; //red, blue, firerate, etc...
 
-    public Point(float x, float y, String type, String subType) {
+    public Point(TYPE type, String subType, float x, float y) {
         super(x, y);
-        this.type = type;
+        setType(type);
         this.subType = subType;
         this.r = 4;
+    }
+
+    public void setType(TYPE type) {
+        this.type = type;
+
+        switch (type) {
+            case SPAWN:
+                setColor(Color.BLUE);
+                break;
+            case PICKUP:
+                setColor(Color.YELLOW);
+                break;
+            case NODE:
+                setColor(Color.BROWN);
+                break;
+        }
+    }
+
+    public void setColor(Color color) {
+        defaultColor = color;
+        currentColor = color;
     }
 
     @Override
@@ -30,6 +53,6 @@ public class Point extends Selectable {
 
     @Override
     public String toJson() {
-        return "{ \"location\" : [" + x + "," + y + "], \"type\" : " + type + ", \"subtype\" : " + subType + " }";
+        return "{ \"type\" : " + type + ", \"subtype\" : " + subType + ", \"location\" : [" + x + "," + y + "] }";
     }
 }

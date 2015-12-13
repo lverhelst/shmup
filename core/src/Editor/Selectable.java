@@ -10,7 +10,7 @@ public abstract class Selectable {
     protected static Color selectedColor = Color.WHITE;
     protected Color defaultColor = Color.RED;
     protected Color currentColor = defaultColor;
-    protected float x, y;
+    public float x, y;
     private boolean selected;
 
     public Selectable(float x, float y) {
