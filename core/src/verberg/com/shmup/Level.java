@@ -1,15 +1,11 @@
 package verberg.com.shmup;
 
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.Gdx;
@@ -32,52 +28,51 @@ public class Level {
     final int PPM = 5;
 
     private HashMap<String, Body> bodies;
-    private ArrayList<Node> nodeList;
+    private ArrayList<Point> pointList;
     private Stack<NavigationNode> navNodeStack;
     private ArrayList<NavigationNode> navNodes;
-    public World world;
+    private String filename;
 
+    public World world;
     private Body blade;
 
     public void create(World world) {
         bodies = new HashMap<String, Body>();
-        nodeList = new ArrayList<Node>();
+        pointList = new ArrayList<Point>();
         navNodeStack = new Stack<NavigationNode>();
         navNodes = new ArrayList<NavigationNode>();
 
         this.world = world;
 
-        loadLevel(Gdx.files.internal("savedlevel.lvl"));
+        filename = "savedlevel2.lvl";
+        loadLevel(filename);
     }
 
-    public void loadLevel(FileHandle level) {
+    public void loadLevel(String levelName){
         JsonReader reader = new JsonReader();
-        JsonValue json = reader.parse(level);
+        JsonValue json = reader.parse(Gdx.files.internal((levelName)));
+
         JsonValue map = json.get("level");
         JsonValue groups = map.get("groups");
         float[] offset;
 
-        for(JsonValue group : groups) {
-            //TODO: move offset into the loadPart method?
-            offset = group.get("location").asFloatArray();
-            loadParts(group, offset[0], offset[1]);
+        if(groups != null) {
+            for (JsonValue group : groups) {
+                offset = group.get("location").asFloatArray();
+                loadShapes(group, offset[0], offset[1]);
+            }
         }
-        //load groups, boxes, nodes
-        loadParts(map, 0, 0);
 
-
-
-
-        //add spawn point nodes
-        //create navigation graph
-        processNodes(nodeList);
+        loadShapes(map, 0, 0);
+        loadPoints(map);
+        generateNavigationGraph();
 
         //TODO: add ground creation in file
-        createGround(135, 130, 50, 50, 1, 1);
+        createBox("DEATH", 135, 130, 50, 50, 1, 1, BodyType.StaticBody);
 
         //TODO: add joint handling and creation from file
-        Body circle = createCircle(160, 155, 5, 1, 1, BodyType.StaticBody);
-        blade = createBox(165, 154.5f, 150, 2, 0, 1, BodyType.DynamicBody);
+        Body circle = createCircle("WALL", 160, 155, 5, 1, 1, BodyType.StaticBody);
+        blade = createBox("WALL", 165, 154.5f, 150, 2, 0, 1, BodyType.DynamicBody);
 
         RevoluteJointDef joint = new RevoluteJointDef();
         joint.bodyA = circle;
@@ -89,66 +84,61 @@ public class Level {
         world.createJoint(joint);
     }
 
-    public void loadParts(JsonValue shapes, float x, float y) {
+    public void loadShapes(JsonValue shapes, float x, float y) {
         Body body = null;
-        JsonValue types = shapes.get("blocks");
-        JsonValue nodes = shapes.get("navigationNodes");
+        JsonValue types = shapes.get("shapes");
 
         if(types != null) {
-            for (JsonValue shape : types) {
-                String type = shape.get("type").asString();
-                JsonValue jsonName = shape.get("name");
-                float[] pos = shape.get("location").asFloatArray();
-                float friction = shape.get("friction").asFloat();
-                float density = shape.get("density").asFloat();
+            for (JsonValue shapeVal : types) {
+                String shape = shapeVal.get("shape").asString();
+                String type = shapeVal.get("type").asString();
 
-                BodyDef.BodyType bodyType = shape.get("dynamic").asBoolean() ? BodyType.DynamicBody : BodyType.StaticBody;
+                float[] pos = shapeVal.get("location").asFloatArray();
+                float friction = shapeVal.get("friction").asFloat();
+                float density = shapeVal.get("density").asFloat();
+                boolean dynamic = shapeVal.get("dynamic").asBoolean();
+                BodyDef.BodyType bodyType =  dynamic ? BodyType.DynamicBody : BodyType.StaticBody;
 
-                if(type.equals("box")) {
-                    float[] size = shape.get("size").asFloatArray();
-                    body = createBox(pos[0] + x, pos[1] + y, size[0], size[1], friction, density, bodyType);
+                JsonValue jsonName = shapeVal.get("name");
 
-                } else if(type.equals("circle")) {
-                    float radius = shape.get("radius").asFloat();
-                    body = createCircle(pos[0] + x, pos[1] + y, radius, friction, density, bodyType);
+                if(shape.equals("box")) {
+                    float[] size = shapeVal.get("size").asFloatArray();
+                    body = createBox(type, pos[0] + x, pos[1] + y, size[0], size[1], friction, density, bodyType);
+
+                } else if(shape.equals("circle")) {
+                    float radius = shapeVal.get("radius").asFloat();
+                    body = createCircle(type, pos[0] + x, pos[1] + y, radius, friction, density, bodyType);
                 }
 
                 //Only add named blocks
                 if(jsonName != null && body != null) {
-                    String name = shape.get("name").asString();
-                    bodies.put(name, body);
+                    String name = shapeVal.get("name").asString();
                 }
-            }
-        }
-
-        if(nodes != null) {
-            for (JsonValue node : nodes) {
-                Node newNode = new Node();
-                newNode.create(node);
-                nodeList.add(newNode);
-                NavigationNode nNode = new NavigationNode(node);
-                navNodes.add(nNode);
-                nNode.createBox2dBody(world);
             }
         }
     }
 
-    public void processNodes(ArrayList<Node> nodes) {
+    public void loadPoints(JsonValue maps){
+        JsonValue points = maps.get("points");
 
-        generateNavigationGraph();
-        System.out.println("Navigation Generation Completation");
-        for(Node node : nodes) {
-            if(node.isNavigation())
-            {
+        for(JsonValue point : points){
+            float[] pos = point.get("location").asFloatArray();
+            String type = point.get("type").asString();
+            String subtype = point.get("subtype").asString();
 
-            }
+            if(type.equals("NODE")) {
+                NavigationNode nNode = new NavigationNode(pos[0], pos[1], 4);
+                navNodes.add(nNode);
+                nNode.createBox2dBody(world);
+            } else {
+                Point newPoint = new Point();
+                newPoint.create(type, subtype, pos[0], pos[1]);
 
-            if(node.isPowerup()) {
-
-            }
-
-            if(node.isSpawn()) {
-                Game.slightlyWarmMail.addMessage(SpawnSystem.class, node);
+                if(type.equals("PICKUP")) {
+                    //send pickup point???
+                } else {
+                    Game.slightlyWarmMail.addMessage(SpawnSystem.class, newPoint);
+                }
             }
         }
     }
@@ -173,58 +163,19 @@ public class Level {
                 }
             }
         }
-
     }
 
     public ArrayList<NavigationNode> getNavNodes() {
         return navNodes;
     }
 
-    public void loadVariation(JsonValue shapes) {
-        //TODO: add loading for variations
-    }
-
-    public Body createGround(float x, float y, float w, float h, float friction, int type) {
-        //TODO: Make type an actually object, maybe a component, so ICE and stuff can have properties
-
+    public Body createBox(String type, float x, float y, float w, float h, float friction, float density, BodyType bodyType) {
         //box2d doubles these when it creates the box... so I am undoing that so coords are consistant
         w /= 2;
         h /= 2;
 
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyType.StaticBody;
-        bodyDef.position.set(new Vector2(x + w, y + h));
-
-        Body body = world.createBody(bodyDef);
-
-        PolygonShape box = new PolygonShape();
-        box.setAsBox(w, h);
-
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = box;
-        fixtureDef.friction = friction;
-        fixtureDef.isSensor = true;
-        if(type == 1){
-            //Death ground is only collidable in the same manner as powerups
-            fixtureDef.filter.categoryBits = Constants.POWERUP_BIT;
-            fixtureDef.filter.maskBits = Constants.POWERUP_MASK;
-        }
-
-        Fixture fixture = body.createFixture(fixtureDef);
-        fixture.setUserData(type);
-
-        box.dispose();
-
-        return body;
-    }
-
-    public Body createBox(float x, float y, float w, float h, float friction, float density, BodyType type) {
-        //box2d doubles these when it creates the box... so I am undoing that so coords are consistant
-        w /= 2;
-        h /= 2;
-
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = type;
+        bodyDef.type = bodyType;
         bodyDef.position.set(new Vector2(x + w, y + h));
 
         Body body = world.createBody(bodyDef);
@@ -235,6 +186,17 @@ public class Level {
         FixtureDef fixture = new FixtureDef();
         fixture.shape = box;
         fixture.density = density;
+
+        if(type.equals("GROUND") || type.equals("DEATH")){
+            fixture.isSensor = true;
+
+            if(type.equals("DEATH")) {
+                //Death ground is only collidable in the same manner as powerups
+                fixture.filter.categoryBits = Constants.POWERUP_BIT;
+                fixture.filter.maskBits = Constants.POWERUP_MASK;
+            }
+        }
+
         fixture.friction = friction;
 
         body.createFixture(fixture);
@@ -243,9 +205,9 @@ public class Level {
         return body;
     }
 
-    public Body createCircle(float x, float y, float r, float friction, float density, BodyType type) {
+    public Body createCircle(String type, float x, float y, float r, float friction, float density, BodyType bodyType) {
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = type;
+        bodyDef.type = bodyType;
         bodyDef.position.set(new Vector2(x, y));
 
         Body body = world.createBody(bodyDef);
@@ -257,6 +219,16 @@ public class Level {
         fixture.shape = circle;
         fixture.density = density;
         fixture.friction = friction;
+
+        if(type.equals("GROUND") || type.equals("DEATH")){
+            fixture.isSensor = true;
+
+            if(type.equals("DEATH")) {
+                //Death ground is only collidable in the same manner as powerups
+                fixture.filter.categoryBits = Constants.POWERUP_BIT;
+                fixture.filter.maskBits = Constants.POWERUP_MASK;
+            }
+        }
 
         body.createFixture(fixture);
         circle.dispose();

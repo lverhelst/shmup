@@ -8,22 +8,22 @@ import ecs.SubSystem;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 
-import verberg.com.shmup.Node;
+import verberg.com.shmup.Point;
 
 /**
  * Created by Orion on 11/26/2015.
  */
 public class SpawnSystem implements SubSystem{
     static CarFactory carFactory = new CarFactory();
-    static ArrayList<Node> spawnPoints = new ArrayList<Node>();
+    static ArrayList<Point> spawnPoints = new ArrayList<Point>();
     static int newSpawn = 0; //TODO: replace with something better
 
     public void processMessage(Object ... list) {
         if(list[0].getClass() == Entity.class) {
             Entity e = (Entity)list[0];
             spawn(e);
-        } else if(list[0].getClass() == Node.class) {
-            Node spawn = (Node)list[0];
+        } else if(list[0].getClass() == Point.class) {
+            Point spawn = (Point)list[0];
             addSpawnPoint(spawn);
         }
     }
@@ -48,7 +48,7 @@ public class SpawnSystem implements SubSystem{
         }
     }
 
-    public void addSpawnPoint(Node spawn) {
+    public void addSpawnPoint(Point spawn) {
         spawnPoints.add(spawn);
     }
 }

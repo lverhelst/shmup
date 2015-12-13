@@ -15,39 +15,19 @@ import java.util.UUID;
  * Created by Orion on 12/6/2015.
  */
 public class NavigationNode {
-    int x, y, r;
     ArrayList<NavigationNode> outNavigationNodes;
-    UUID id;
+    static int curId = 0;
+    float x, y, r;
+    public int id;
     Body body;
 
-    public NavigationNode(int x, int y, int r){
+    public NavigationNode(float x, float y, float r){
         this.x = x;
         this.y = y;
         this.r = r;
         outNavigationNodes = new ArrayList<NavigationNode>();
-        id = UUID.randomUUID();
+        id = ++curId;
     }
-
-    public NavigationNode(int x, int y, int r, UUID uuid){
-        this.x = x;
-        this.y = y;
-        this.r = r;
-        outNavigationNodes = new ArrayList<NavigationNode>();
-        id = uuid;
-    }
-
-    public NavigationNode(JsonValue nodeDef){
-        float[] pos = nodeDef.get("location").asFloatArray();
-        float radius = nodeDef.get("r:").asFloat();
-        UUID uuid = UUID.fromString(nodeDef.getString("id"));
-        //does this work?
-        this.x = (int)pos[0];
-        this.y = (int)pos[1];
-        this.r = (int)radius;
-        outNavigationNodes = new ArrayList<NavigationNode>();
-        id = uuid;
-    }
-
 
     public void addEdge(NavigationNode targetNavigationNode){
         if(!outNavigationNodes.contains(targetNavigationNode))
@@ -81,10 +61,18 @@ public class NavigationNode {
         return body;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public void render(ShapeRenderer renderer) {
         renderer.circle(x, y, r);
         for(NavigationNode n : outNavigationNodes) {
             renderer.line(x, y, n.x, n.y);
         }
+    }
+
+    public boolean equals(NavigationNode n) {
+        return getId() == n.getId();
     }
 }
