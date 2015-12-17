@@ -32,7 +32,7 @@ public class Astar {
      * @return The list of nodes needed to traverse to get to the target point
      */
     public ArrayList<NavigationNode> findPath(Vector2 source, Vector2 target){
-
+        return null;
     }
 
 
