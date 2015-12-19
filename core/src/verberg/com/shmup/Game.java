@@ -2,12 +2,14 @@ package verberg.com.shmup;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
@@ -15,7 +17,10 @@ import java.util.ArrayList;
 
 import AI.AI;
 import AI.IntentGenerator;
+import ecs.components.CameraAttachmentComponent;
 import ecs.components.ChildEntityComponent;
+import ecs.components.ControlledComponent;
+import ecs.components.PhysicalComponent;
 import ecs.subsystems.InputSystem;
 import Input.MyInputAdapter;
 import ecs.subsystems.CameraSystem;
@@ -42,8 +47,8 @@ public class Game extends ApplicationAdapter {
 
     //move to static variables class
     private static final float STEP = 1/60f;
-    public static final int V_WIDTH = 1280/Constants.PPM;
-    public static final int V_HEIGHT = 768/Constants.PPM;
+    public static final int V_WIDTH = 5280/Constants.PPM;
+    public static final int V_HEIGHT = 1768/Constants.PPM;
 
     //move to render Component
     Box2DDebugRenderer debugRenderer;
@@ -119,9 +124,12 @@ public class Game extends ApplicationAdapter {
     public static synchronized void addEntity(Entity entity){
         entities.add(entity);
     }
+
     public static synchronized void removeEntity(Entity entity){
         entities.remove(entity);
     }
+
+
     public static synchronized void removeEntityTree(Entity entity){
         if(entity.has(ChildEntityComponent.class)){
             for(Entity e : entity.get(ChildEntityComponent.class).childList ) {
@@ -130,6 +138,16 @@ public class Game extends ApplicationAdapter {
         }
         entity.removeAllComponents();
         entities.remove(entity);
+    }
+
+    public static ArrayList<Entity> getEntitiesWithComponent(Class component){
+        ArrayList<Entity> result = new ArrayList<Entity>();
+        for(Entity e : entities){
+            if(e.has(component)){
+                result.add(e);
+            }
+        }
+        return result;
     }
 
 
@@ -168,12 +186,39 @@ public class Game extends ApplicationAdapter {
 
 
         shapeRenderer.setProjectionMatrix(cam.combined);
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE);
         for(NavigationNode n : test.getNavNodes())
         {
             n.render(shapeRenderer);
         }
 
+
+        if(Game.getEntitiesWithComponent(CameraAttachmentComponent.class).size() > 0) {
+
+            Entity debug = Game.getEntitiesWithComponent(CameraAttachmentComponent.class).get(0);
+            Body entity = debug.get(PhysicalComponent.class).getBody();
+
+            float adjustX = (float) (Math.cos(entity.getAngle() + Math.PI / 2) * 60f / Constants.PPM + entity.getPosition().x);
+
+            float adjustY = (float) (Math.sin(entity.getAngle() + Math.PI / 2) * 60f / Constants.PPM + entity.getPosition().y);
+
+            shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
+
+            shapeRenderer.setColor(Color.CYAN);
+            ArrayList<Vector2> temp = ((AI) debug.get(ControlledComponent.class).ig).path;
+            for (int i = 0; i < temp.size(); i++) {
+                if (i >= 1) {
+                    shapeRenderer.line(temp.get(i - 1).x, temp.get(i - 1).y, temp.get(i).x, temp.get(i).y);
+                    System.out.print(temp.get(i - 1) + " " + temp.get(i) + "|");
+                }
+            }
+
+            shapeRenderer.setColor(Color.FIREBRICK);
+            if (temp.size() > 1)
+                shapeRenderer.line(temp.get(0).x, temp.get(0).y, temp.get(temp.size() - 1).x, temp.get(temp.size() - 1).y);
+        }
         shapeRenderer.end();
 
 

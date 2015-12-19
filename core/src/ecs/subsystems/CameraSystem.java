@@ -20,7 +20,7 @@ public class CameraSystem {
                 if(e.has(CameraAttachmentComponent.class)){
                     if(e.has(PhysicalComponent.class)){
                         PhysicalComponent pc = e.get(PhysicalComponent.class);
-                        camera.position.set(pc.getBody().getPosition().x, pc.getBody().getPosition().y, 10);
+                        //camera.position.set(pc.getBody().getPosition().x, pc.getBody().getPosition().y, 10);
                         camera.update();
                     }
                 }

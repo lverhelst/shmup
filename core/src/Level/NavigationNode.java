@@ -19,6 +19,7 @@ import verberg.com.shmup.*;
 public class NavigationNode {
     int x, y, r;
     ArrayList<NavigationNode> outNavigationNodes;
+    NavigationNode pathFindingParent;
     UUID id;
     Body body;
 
@@ -61,6 +62,10 @@ public class NavigationNode {
             this.outNavigationNodes.remove(targetNavigationNode);
     }
 
+    public ArrayList<NavigationNode> getOutNavigationNodes(){
+        return outNavigationNodes;
+    }
+
     public Body createBox2dBody(World world) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(x, y);
@@ -87,10 +92,24 @@ public class NavigationNode {
         return body;
     }
 
+    public NavigationNode getPathFindingParent() {
+        return pathFindingParent;
+    }
+
+    public void setPathFindingParent(NavigationNode pathFindingParent) {
+        this.pathFindingParent = pathFindingParent;
+    }
+
     public void render(ShapeRenderer renderer) {
         renderer.circle(x, y, r);
         for(NavigationNode n : outNavigationNodes) {
             renderer.line(x, y, n.x, n.y);
+        }
+    }
+
+    public void dispose(){
+        if(body != null){
+            Game.getWorld().destroyBody(body);
         }
     }
 }

@@ -181,6 +181,7 @@ public class CarFactory {
         Entity carBodyEntity = null;
         ChildEntityComponent cec = new ChildEntityComponent();
         if(!(ig instanceof AI)){
+            ig = new AI();
             carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new WeaponComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
         }else{
             carBodyEntity = new Entity(new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(ig), new HealthComponent(100),cec);

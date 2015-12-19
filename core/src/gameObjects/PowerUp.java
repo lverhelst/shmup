@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 
 import ecs.Component;
 import ecs.Entity;
+import ecs.components.PhysicalComponent;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.Game;
 
@@ -57,6 +58,7 @@ public abstract class PowerUp {
 
         Fixture fixture = body.createFixture(fd);
         fixture.setUserData(this);
+        Game.addEntity(new Entity(this.getClass().toString(), new PhysicalComponent(body)));
 
         timeSpawned = System.currentTimeMillis();
         timePickedUp = 0;
