@@ -10,7 +10,7 @@ import ecs.components.JointComponent;
 import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.SteeringComponent;
-import verberg.com.shmup.Game;
+import verberg.com.shmup.ShmupGame;
 import MessageManagement.INTENT;
 
 /**
@@ -46,9 +46,9 @@ public class RemovalSystem implements SubSystem{
         if (e.recursiveHas(JointComponent.class)) {
             Joint j = (e.get(JointComponent.class)).joint;
             if(j != null)
-                Game.getWorld().destroyJoint(j);
+                ShmupGame.getWorld().destroyJoint(j);
         }
-        Game.removeEntity(e);
+        e.removeAllComponents();
     }
 
     public void madeDead(Entity e) {
@@ -61,7 +61,7 @@ public class RemovalSystem implements SubSystem{
 
                             Joint j = (child.get(JointComponent.class)).joint;
                             if (j != null) {
-                                Game.getWorld().destroyJoint(j);
+                                ShmupGame.getWorld().destroyJoint(j);
                                 child.get(JointComponent.class).joint = null;
                             }
                             e.removeComponent(JointComponent.class);
@@ -78,7 +78,7 @@ public class RemovalSystem implements SubSystem{
                     if (parent.has(JointComponent.class)) {
                         Joint j = (parent.get(JointComponent.class)).joint;
                         if (j != null) {
-                            Game.getWorld().destroyJoint(j);
+                            ShmupGame.getWorld().destroyJoint(j);
                             (parent.get(JointComponent.class)).joint = null;
 
                         }

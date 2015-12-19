@@ -2,7 +2,6 @@ package gameObjects;
 
 import ecs.Entity;
 import ecs.components.WeaponComponent;
-import verberg.com.shmup.Game;
 
 /**
  * Created by Orion on 11/30/2015.

@@ -11,7 +11,7 @@ import ecs.Component;
 import ecs.Entity;
 import ecs.components.PhysicalComponent;
 import verberg.com.shmup.Constants;
-import verberg.com.shmup.Game;
+import verberg.com.shmup.ShmupGame;
 
 /**
  * Created by Orion on 11/29/2015.
@@ -40,7 +40,7 @@ public abstract class PowerUp {
         bdef.position.set(x,y);
 
 
-        body = Game.getWorld().createBody(bdef);
+        body = ShmupGame.getWorld().createBody(bdef);
 
         Vector2[] vertices = new Vector2[5];
         vertices[0] = new Vector2(-1,0);
@@ -58,7 +58,9 @@ public abstract class PowerUp {
 
         Fixture fixture = body.createFixture(fd);
         fixture.setUserData(this);
-        Game.addEntity(new Entity(this.getClass().toString(), new PhysicalComponent(body)));
+        new Entity(this.getClass().toString(), new PhysicalComponent(body));
+
+
 
         timeSpawned = System.currentTimeMillis();
         timePickedUp = 0;
@@ -69,7 +71,7 @@ public abstract class PowerUp {
     public void update(){
         if(destroyBodyOnUpdate){
             if(body != null) {
-                Game.getWorld().destroyBody(body);
+                ShmupGame.getWorld().destroyBody(body);
                 body = null;
             }
             destroyBodyOnUpdate = false;
@@ -83,7 +85,7 @@ public abstract class PowerUp {
     //remove from world
     public void despawn() {
         if(body != null) {
-            Game.getWorld().destroyBody(body);
+            ShmupGame.getWorld().destroyBody(body);
             body = null;
         }
         isActive = false;

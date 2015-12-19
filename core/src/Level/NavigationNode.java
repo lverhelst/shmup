@@ -109,7 +109,7 @@ public class NavigationNode {
 
     public void dispose(){
         if(body != null){
-            Game.getWorld().destroyBody(body);
+            ShmupGame.getWorld().destroyBody(body);
         }
     }
 }

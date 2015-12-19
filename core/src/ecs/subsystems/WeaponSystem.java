@@ -14,7 +14,7 @@ import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.WeaponComponent;
 import verberg.com.shmup.Constants;
-import verberg.com.shmup.Game;
+import verberg.com.shmup.ShmupGame;
 
 /**
  * Created by Orion on 11/23/2015.
@@ -59,7 +59,7 @@ public class WeaponSystem implements SubSystem {
                 float addx = (float)(Math.cos(direction)) * 8f;
                 float addy = (float)(Math.sin(direction)) * 8f;
 
-                Body bulletbody = Game.getWorld().createBody(bodyDef);
+                Body bulletbody = ShmupGame.getWorld().createBody(bodyDef);
                 bulletbody.setTransform(sourceBody.getPosition().add(addx, addy), direction);
 
                 CircleShape circle = new CircleShape();

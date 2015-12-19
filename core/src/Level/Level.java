@@ -18,12 +18,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.components.DamageComponent;
 import ecs.components.PhysicalComponent;
 import ecs.subsystems.SpawnSystem;
 import verberg.com.shmup.Constants;
-import verberg.com.shmup.Game;
+import verberg.com.shmup.ShmupGame;
 
 /**
  * Created by Orion on 11/17/2015.
@@ -41,7 +42,7 @@ public class Level {
     public World world;
     private Body blade;
 
-    public void create(World world) {
+    public void create(World world, String filename) {
         bodies = new HashMap<String, Body>();
         pointList = new ArrayList<Point>();
         navNodeStack = new Stack<NavigationNode>();
@@ -49,7 +50,7 @@ public class Level {
 
         this.world = world;
 
-        filename = "savedlevel2.lvl";
+        this.filename = filename;
         loadLevel(filename);
     }
 
@@ -148,7 +149,7 @@ public class Level {
                 if(type.equals("PICKUP")) {
                     //send pickup point???
                 } else {
-                    Game.slightlyWarmMail.addMessage(SpawnSystem.class, newPoint);
+                    MessageManager.getInstance().addMessage(SpawnSystem.class, newPoint);
                 }
             }
         }

@@ -6,15 +6,13 @@ import java.util.UUID;
 
 import ecs.components.ChildEntityComponent;
 import ecs.components.ParentEntityComponent;
-import verberg.com.shmup.Game;
+import verberg.com.shmup.ShmupGame;
 
 /**
  * Created by Orion on 11/22/2015.
  * TODO: Entity Manager
  */
 public class Entity {
-    //Tried a Hashmap of <Class, ? Extends component> but it wouldn't match a steeringcomponent.class to steeringcomponent.class. No clue why.
-    HashMap<Class, ? extends Component> components = new HashMap<Class,Component>();
     String name;
     UUID uuid;
 
@@ -23,67 +21,73 @@ public class Entity {
         this.uuid = UUID.randomUUID();
         this.name = uuid.toString();
         //Add to entity list in game
-        Game.addEntity(this);
+        EntityManager.getInstance().createEntity(uuid,name);
+        EntityManager.getInstance().addEntity(this);
     }
 
     public Entity(String name){
         this.uuid = UUID.randomUUID();
         this.name = name;
         //Add to entity list in game
-        Game.addEntity(this);
+        EntityManager.getInstance().createEntity(uuid,name);
+        EntityManager.getInstance().addEntity(this);
     }
 
     public <T extends Component> Entity(String name, T ... components){
-        for(T com : components){
-            ((HashMap<Class, T>)this.components).put(com.getClass(), com);
-        }
+
         this.uuid = UUID.randomUUID();
         this.name = name;
         //Add to entity list in game
-        Game.addEntity(this);
+        EntityManager.getInstance().createEntity(uuid, name);
+        for(Component comp : components) {
+            EntityManager.getInstance().addComponent(uuid, comp);
+        }
+        EntityManager.getInstance().addEntity(this);
     }
 
 
     public <T extends Component> Entity(T ... components){
-        for(T com : components){
-            ((HashMap<Class, T>)this.components).put(com.getClass(), com);
-        }
         this.uuid = UUID.randomUUID();
         this.name = uuid.toString();
         //Add to entity list in game
-        Game.addEntity(this);
+        EntityManager.getInstance().createEntity(uuid, name);
+        for(Component comp : components) {
+            EntityManager.getInstance().addComponent(uuid, comp);
+        }
+        EntityManager.getInstance().addEntity(this);
     }
 
 
     public boolean recursiveHas(Class<? extends Component> c){
-        if(components.containsKey(c)){
+        if(has(c)){
             return true;
         }
-        if(components.containsKey(ParentEntityComponent.class)){
-            ParentEntityComponent pec = (ParentEntityComponent)components.get(ParentEntityComponent.class);
+        if(has(ParentEntityComponent.class)){
+            ParentEntityComponent pec = EntityManager.getInstance().getComponent(uuid, ParentEntityComponent.class);
             return pec.parent.recursiveHas(c);
         }
         return false;
     }
 
     public <T extends Component> T  recursiveGet(Class<? extends Component> c){
-        if(components.containsKey(c)){
-            return (T)this.components.get(c);
+        if(has(c)){
+            return (T)get(c);
         }
-        if(components.containsKey(ParentEntityComponent.class)){
-            ParentEntityComponent pec = (ParentEntityComponent)components.get(ParentEntityComponent.class);
+        if(has(ParentEntityComponent.class)){
+            ParentEntityComponent pec = get(ParentEntityComponent.class);
             return (T)pec.parent.recursiveGet(c);
         }
         return null;
     }
 
     public boolean has(Class<? extends Component> c){
-        return this.components.containsKey(c);
+
+        return EntityManager.getInstance().hasComponent(uuid,c);
     }
 
     public <T extends Component> T get(Class<T> c)
     {
-        T result = (T)this.components.get(c);
+        T result = EntityManager.getInstance().getComponent(uuid, c);
 
         return result;
     }
@@ -93,26 +97,26 @@ public class Entity {
      * @param component: The component to add to the entity
      */
     public <T extends Component> void addComponent(T component){
-        ((HashMap<Class,T>)components).put(component.getClass(), component);
+        EntityManager.getInstance().addComponent(uuid, component);
     }
 
     public void removeComponent(Class c){
         if(has(c)) {
-            this.components.get(c).dispose();
-            this.components.remove(c);
+            EntityManager.getInstance().removeComponent(uuid, c);
         }
     }
 
 
     public void removeAllComponents(){
-        ArrayList<Component> removeThis = new ArrayList<Component>();
+        /*ArrayList<Component> removeThis = new ArrayList<Component>();
         for(Component c : components.values()){
             c.dispose();
             removeThis.add(c);
         }
         for(Component rm : removeThis){
             components.remove(rm.getClass());
-        }
+        }*/
+        EntityManager.getInstance().disposeEntity(uuid);
 
     }
 

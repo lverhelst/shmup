@@ -9,14 +9,26 @@ import ecs.SubSystem;
  * Created by Orion on 11/24/2015.
  */
 public class MessageManager {
+
     //TODO create a pool for messages? (lower the number of new operator)
+
     private HashMap<Class, SubSystem> systems;
     private ArrayList<Message> messages;
+    private static MessageManager instance;
 
-    public MessageManager() {
+
+    protected MessageManager() {
         systems = new HashMap<Class, SubSystem>();
         messages = new ArrayList<Message>();
     }
+
+    public static synchronized MessageManager getInstance(){
+        if(instance == null){
+            instance = new MessageManager();
+        }
+        return instance;
+    }
+
 
     public void addSystem(Class systemType, SubSystem system) {
         if(!systems.containsKey(systemType))

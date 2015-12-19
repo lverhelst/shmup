@@ -24,6 +24,9 @@ public class ParentEntityComponent extends Component
         //reached this from the parent already
         //trying to dispose or remove the parent entity's components
         //causes an infinite loop > stack overflow
+
+        //we also use parent entity for which bullets are owned by what
+        //disposing that woulc be bad
     }
 
 }

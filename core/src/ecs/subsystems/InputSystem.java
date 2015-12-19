@@ -1,6 +1,7 @@
 package ecs.subsystems;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ecs.Entity;
 import ecs.components.ControlledComponent;
@@ -13,7 +14,6 @@ public class InputSystem {
 
     public void update(ArrayList<Entity> entities){
         for(Entity e : entities){
-
             if(e.has(ControlledComponent.class)){
                 e.get(ControlledComponent.class).ig.generateIntents(e);
             }

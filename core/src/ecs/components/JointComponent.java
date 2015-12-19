@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 
 import ecs.Component;
-import verberg.com.shmup.Game;
+import verberg.com.shmup.ShmupGame;
 
 /**
  * Created by Orion on 11/23/2015.
@@ -36,7 +36,7 @@ public class JointComponent extends Component {
     public void dispose()
     {
         if(joint != null)
-            Game.getWorld().destroyJoint(joint);
+            ShmupGame.getWorld().destroyJoint(joint);
     }
 
 }

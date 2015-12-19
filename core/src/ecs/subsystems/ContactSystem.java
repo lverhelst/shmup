@@ -6,12 +6,13 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
+import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.components.DamageComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 import gameObjects.PowerUp;
-import verberg.com.shmup.Game;
+import verberg.com.shmup.ShmupGame;
 import MessageManagement.INTENT;
 
 /**
@@ -53,7 +54,7 @@ public class ContactSystem implements ContactListener{
                 pc.numberOfContact++;
                 if(pc.numberOfContact == pc.maxContacts){
                     //Flag entity for deletion
-                    Game.slightlyWarmMail.addMessage(RemovalSystem.class, ecs, INTENT.REMOVE);
+                    MessageManager.getInstance().addMessage(RemovalSystem.class, ecs, INTENT.REMOVE);
                 }
             }
         }
@@ -72,7 +73,7 @@ public class ContactSystem implements ContactListener{
                         (aEntity.get(HealthComponent.class)).reduceCur_Health((bEntity.get(DamageComponent.class)).damage);
                         //if the other entity is now dead, send the dead messagea
                         if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
-                            Game.slightlyWarmMail.addMessage(RemovalSystem.class, aEntity, INTENT.DIED);
+                            MessageManager.getInstance().addMessage(RemovalSystem.class, aEntity, INTENT.DIED);
                         }
                     }
                 }

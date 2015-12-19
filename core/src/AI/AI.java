@@ -5,9 +5,12 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.UUID;
 
 import Level.NavigationNode;
+import MessageManagement.MessageManager;
 import ecs.Entity;
+import ecs.EntityManager;
 import ecs.components.CameraAttachmentComponent;
 
 import ecs.components.HealthComponent;
@@ -16,7 +19,7 @@ import ecs.components.WeaponComponent;
 import ecs.subsystems.SpawnSystem;
 import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
-import verberg.com.shmup.Game;
+import verberg.com.shmup.ShmupGame;
 import MessageManagement.INTENT;
 
 /**
@@ -46,8 +49,8 @@ public class AI implements IntentGenerator {
 
 
     private void selectTarget(){
-        ArrayList<Entity> targetables = Game.getEntitiesWithComponent(WeaponComponent.class);
-        Entity e = targetables.get(1);
+        ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponent(WeaponComponent.class);
+        Entity e = EntityManager.getInstance().getEntity(targetables.get(1));
         target = e;
         if(debug){
            // System.out.println("Tar " + e );
@@ -100,13 +103,13 @@ public class AI implements IntentGenerator {
         boolean didTurn = false;
         if(rotation < -0.05){
             didTurn = true;
-            Game.slightlyWarmMail.addMessage(SteeringSystem.class, controlledEntity, INTENT.LEFTTURN);
+            MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.LEFTTURN);
         }else if(rotation > 0.05){
             didTurn = true;
-            Game.slightlyWarmMail.addMessage(SteeringSystem.class, controlledEntity, INTENT.RIGHTTURN);
+            MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.RIGHTTURN);
 
         }else{
-            Game.slightlyWarmMail.addMessage(WeaponSystem.class, controlledEntity, INTENT.FIRE);
+            MessageManager.getInstance().addMessage(WeaponSystem.class, controlledEntity, INTENT.FIRE);
         }
 
         if(!didTurn) {
@@ -125,7 +128,7 @@ public class AI implements IntentGenerator {
             if(false){
                 System.out.println("forward");
             }
-            Game.slightlyWarmMail.addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
+            MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
         }
 
 
@@ -152,7 +155,7 @@ public class AI implements IntentGenerator {
                             waitToRespawn = true;
                         }else{
                             waitToRespawn = false;
-                            Game.slightlyWarmMail.addMessage(SpawnSystem.class, entity);
+                            MessageManager.getInstance().addMessage(SpawnSystem.class, entity);
                         }
                     }
                 }

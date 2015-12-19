@@ -29,7 +29,7 @@ import ecs.components.ControlledComponent;
 import ecs.components.SteeringComponent;
 import ecs.components.WeaponComponent;
 import verberg.com.shmup.Constants;
-import verberg.com.shmup.Game;
+import verberg.com.shmup.ShmupGame;
 import Level.Point;
 
 /**
@@ -81,7 +81,8 @@ public class CarFactory {
         }
 
         //remove old car from world
-        Game.removeEntityTree(e);
+        //ShmupGame.removeEntityTree(e);
+        e.removeAllComponents();
 
         Entity carBodyEntity = assembleCarBody(cc.ig, spawn);
         for(JsonValue tValue : jTires){
@@ -129,7 +130,7 @@ public class CarFactory {
         BodyDef bdef = new BodyDef();
         bdef.type = BodyDef.BodyType.DynamicBody;
         bdef.position.set(new Vector2(random.nextInt(128) + 64, random.nextInt(128) + 64)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
-        Body spikyBody = Game.getWorld().createBody(bdef);
+        Body spikyBody = ShmupGame.getWorld().createBody(bdef);
 
         CircleShape circleShape = new CircleShape();
         circleShape.setRadius(4f); //Make it real big
@@ -165,7 +166,7 @@ public class CarFactory {
 
         Random random = new Random();
         bdef.position.set(new Vector2(spawn.position.x, spawn.position.y)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
-        Body carbody = Game.getWorld().createBody(bdef);
+        Body carbody = ShmupGame.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();
         pShape.set(vertices);
@@ -181,7 +182,6 @@ public class CarFactory {
         Entity carBodyEntity = null;
         ChildEntityComponent cec = new ChildEntityComponent();
         if(!(ig instanceof AI)){
-            ig = new AI();
             carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new WeaponComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
         }else{
             carBodyEntity = new Entity(new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(ig), new HealthComponent(100),cec);
@@ -216,7 +216,7 @@ public class CarFactory {
         BodyDef tireBodyDef = new BodyDef();
         tireBodyDef.type = BodyDef.BodyType.DynamicBody;
         tireBodyDef.position.set(carBodyEntity.get(PhysicalComponent.class).getBody().getPosition()); //set tire location to car body location
-        Body tireBody = Game.getWorld().createBody(tireBodyDef);
+        Body tireBody = ShmupGame.getWorld().createBody(tireBodyDef);
 
         PolygonShape tireShape = new PolygonShape();
         tireShape.setAsBox(tValue.get("size").asFloatArray()[0],tValue.get("size").asFloatArray()[1]);

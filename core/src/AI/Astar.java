@@ -9,8 +9,7 @@ import java.util.ArrayList;
 
 import Level.Level;
 import Level.NavigationNode;
-import ecs.Entity;
-import verberg.com.shmup.Game;
+import verberg.com.shmup.ShmupGame;
 
 /**
  * Created by Orion on 12/12/2015.
@@ -48,7 +47,7 @@ public class Astar {
         AstarRayCast rayCast  = new AstarRayCast();
 
         if(!source.equals(target)) {
-            Game.getWorld().rayCast(rayCast, source, target);
+            ShmupGame.getWorld().rayCast(rayCast, source, target);
             if (rayCast.canSee) {
                 // we can see the target directly
                // System.out.println("Can see target without looking at nav nodes");
@@ -62,7 +61,7 @@ public class Astar {
         //and then startNodes to be the outnodes of start
 
         NavigationNode startNode = new NavigationNode((int)source.x, (int)source.y,1);
-        startNode.createBox2dBody(Game.getWorld());
+        startNode.createBox2dBody(ShmupGame.getWorld());
 
         //Get all visible nodes,
         //The closest node is not necessarily the start of the best path
@@ -101,7 +100,7 @@ public class Astar {
             //raycasting will fail if you try to ray cast a ray from the same source and target
             if(!currentNode.getBody().getPosition().equals(target)) {
 
-                Game.getWorld().rayCast(rayCast, currentNode.getBody().getPosition(), target);
+                ShmupGame.getWorld().rayCast(rayCast, currentNode.getBody().getPosition(), target);
 
                 if (rayCast.canSee) {
                   //  System.out.println("found path");
@@ -138,7 +137,7 @@ public class Astar {
 
 
             AstarRayCast rayCast  = new AstarRayCast();
-            Game.getWorld().rayCast(rayCast, point, n.getBody().getPosition());
+            ShmupGame.getWorld().rayCast(rayCast, point, n.getBody().getPosition());
             if(rayCast.canSee){
                 // we can see the target directly
                 visibleNodes.add(n);
@@ -176,7 +175,7 @@ public class Astar {
         if(false)
             System.out.println("Angle " + entity.getAngle() + " adjX " + adjustX + " adjy " + adjustY);
 
-        Game.getWorld().rayCast(rayCast, entity.getPosition(), new Vector2(adjustX,adjustY));
+        ShmupGame.getWorld().rayCast(rayCast, entity.getPosition(), new Vector2(adjustX,adjustY));
         return !rayCast.canSee;
     }
 

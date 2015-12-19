@@ -1,8 +1,13 @@
 package ecs;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
+
+import ecs.components.ChildEntityComponent;
+import ecs.components.ParentEntityComponent;
 
 /**
  * Created by Orion on 12/13/2015.
@@ -11,13 +16,41 @@ public class EntityManager {
 
     HashMap<UUID, String> entityNames;
     ArrayList<UUID> entityList;
+    HashMap<UUID, Entity> entitiesMap;
     HashMap<Class, HashMap<UUID, ? extends Component>> componentStores;
+    private static EntityManager instance;
 
-    public EntityManager(){
+
+    protected EntityManager(){
         entityList = new ArrayList<UUID>();
         entityNames = new HashMap<UUID, String>();
+        entitiesMap = new HashMap<UUID, Entity>();
         componentStores = new HashMap<Class, HashMap<UUID, ? extends Component>>();
     }
+
+    public static EntityManager getInstance(){
+        if(instance == null){
+            instance = new EntityManager();
+        }
+        return instance;
+    }
+
+    public void addEntity(Entity e){
+        entitiesMap.put(e.uuid, e);
+    }
+
+    public Entity getEntity(UUID uid){
+        if(entitiesMap.containsKey(uid))
+            return entitiesMap.get(uid);
+        throw new IllegalArgumentException("No entites with ID" + uid.toString() + " exist");
+    }
+
+    public ArrayList<Entity> entityList(){
+        //lets just waste all the memory here
+        return new ArrayList<Entity>(entitiesMap.values());
+    }
+
+
 
     public <T extends Component> boolean hasComponent(UUID entity, Class<T> componentClass){
 
@@ -84,7 +117,7 @@ public class EntityManager {
         HashMap<UUID, ? extends Component> store = componentStores.get(componentClass);
         if(store == null)
             return new ArrayList<UUID>();
-        return (ArrayList<UUID>)store.keySet();
+        return new ArrayList<UUID>(store.keySet());
     }
 
     /***
@@ -121,8 +154,9 @@ public class EntityManager {
         for(HashMap<UUID, ? extends Component> components : componentStores.values()){
             Component c = components.get(entity);
             if(c != null){
-                System.out.println(c.getClass() + " disposing");
+               System.out.println(c.getClass() + " disposing");
                //c.dispose();
+                //TODO: fix so that is doesnt infinite loop
             }
             components.remove(entity);
         }
@@ -145,6 +179,12 @@ public class EntityManager {
         entityList.add(uid);
         entityNames.put(uid,name);
         return uid;
+    }
+
+    public UUID createEntity(UUID uuid, String name){
+        entityList.add(uuid);
+        entityNames.put(uuid,name);
+        return uuid;
     }
 
     public <T extends Component> UUID createEntity(T ... components){
