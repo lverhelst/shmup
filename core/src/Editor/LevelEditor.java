@@ -267,8 +267,7 @@ public class LevelEditor extends ApplicationAdapter {
     class EditorInputAdapter implements InputProcessor {
         private Vector3 touchDown = new Vector3(0,0,0);
         private Vector3 touchUp = new Vector3(0,0,0);
-        private Vector3 camDown = new Vector3(0,0,0);
-        private float mouseX, mouseY;
+        private float mouseX, mouseY, camX, camY;
         private boolean toolLock = false;
 
         private float snapToGrid(float num) {
@@ -382,8 +381,8 @@ public class LevelEditor extends ApplicationAdapter {
             cam.unproject(touchDown);
             toolLock = true;
 
-            camDown.set(cam.position.x, cam.position.y, 0);
-            cam.unproject(camDown);
+            camX = cam.position.x;
+            camY = cam.position.y;
 
             switch (current_Tool){
                 case SELECT:
@@ -458,7 +457,6 @@ public class LevelEditor extends ApplicationAdapter {
                     break;
                 case PAN:
                     if(selection == null) {
-                       // pan(cam, touchUp);
                         current_Tool = E_TOOL.SELECT;
                     }
                     break;
@@ -492,7 +490,7 @@ public class LevelEditor extends ApplicationAdapter {
                     break;
                 case PAN:
                     if(selection == null)
-                        pan(cam, touchUp, touchDown, camDown);
+                        pan(cam, touchUp, touchDown, camX, camY);
                     break;
             }
 
@@ -610,12 +608,12 @@ public class LevelEditor extends ApplicationAdapter {
             float y = ((touchUp.y - touchDown.y) - cam.position.y)/100;
             cam.translate(x, y);
         }
-        public void pan(OrthographicCamera cam, Vector3 touchUp, Vector3 touchDown, Vector3 camDown) {
-            float x = touchUp.x - touchDown.x;
-            float y = touchUp.y - touchDown.y;
-            float x2 = cam.position.x - camDown.x;
-            float y2 = cam.position.y - camDown.y;
-            cam.translate(x - x2, y - y2);
+        public void pan(OrthographicCamera cam, Vector3 touchUp, Vector3 touchDown, float camX, float camY) {
+            float x = touchUp.x;
+            float y = touchUp.y;
+            float x2 = camX;
+            float y2 = camY;
+            cam.translate(x2 - x, y2 - y);
         }
 
         public void zoom(OrthographicCamera cam, float amount) {

@@ -83,22 +83,6 @@ public class ContactSystem implements ContactListener{
                 //this should be safe since only car bodies and powerups can collide due to their bitmasks and category masks
                 ((PowerUp)b.getUserData()).applyToEntity(aEntity);
             }
-
-            //entity and ground
-            //TODO: make proper management of ground, instead of haque-y int ground
-            else if(b.getUserData() instanceof Integer) {
-                //TODO: if not death ground make friction apply to car? (This way rough and slippery ground can be made)
-                if (aEntity.has(HealthComponent.class)) {
-                    if ((aEntity.get(HealthComponent.class)).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
-                        //apply damage
-                        (aEntity.get(HealthComponent.class)).setCur_Health(0);
-                        //if the other entity is now dead, send the dead messagea
-                        if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
-                            Game.slightlyWarmMail.addMessage(RemovalSystem.class, aEntity, INTENT.DIED);
-                        }
-                    }
-                }
-            }
         }
     }
 }
