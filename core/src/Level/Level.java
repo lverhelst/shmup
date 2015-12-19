@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+import ecs.Entity;
+import ecs.components.DamageComponent;
+import ecs.components.PhysicalComponent;
 import ecs.subsystems.SpawnSystem;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.Game;
@@ -210,11 +213,14 @@ public class Level {
         fixtureDef.friction = friction;
         Fixture fixture = body.createFixture(fixtureDef);
 
-        //TODO: make this better...
+        Entity entity = new Entity();
+        entity.addComponent(new PhysicalComponent(body));
+
         if(type.equals("DEATH")) {
-            fixture.setUserData(1);
+            entity.addComponent(new DamageComponent(50));
         }
 
+        fixture.setUserData(entity);
         box.dispose();
 
         return body;
