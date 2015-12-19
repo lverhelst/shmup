@@ -26,8 +26,11 @@ public class PhysicalComponent extends Component {
     }
 
     public void dispose(){
-        if(box2dBody != null)
+        if(box2dBody != null) {
             ShmupGame.getWorld().destroyBody(box2dBody);
+            box2dBody = null;
+        }
+
     }
 
 }

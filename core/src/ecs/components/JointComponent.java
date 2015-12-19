@@ -35,8 +35,11 @@ public class JointComponent extends Component {
     @Override
     public void dispose()
     {
-        if(joint != null)
+        if(joint != null) {
             ShmupGame.getWorld().destroyJoint(joint);
+            joint = null;
+        }
+
     }
 
 }

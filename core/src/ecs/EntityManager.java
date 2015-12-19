@@ -151,18 +151,25 @@ public class EntityManager {
 
     public void disposeEntity(UUID entity){
         System.out.println("Begin dispose");
+        //be sure to start with child entities
+        //this makes sure we destroy joints before bodies
+        if(hasComponent(entity, ChildEntityComponent.class)){
+           for(Entity e : getComponent(entity, ChildEntityComponent.class).childList){
+               disposeEntity(e.uuid);
+           }
+        }
+
         for(HashMap<UUID, ? extends Component> components : componentStores.values()){
-            Component c = components.get(entity);
-            if(c != null){
-               System.out.println(c.getClass() + " disposing");
-               //c.dispose();
-                //TODO: fix so that is doesnt infinite loop
+            Component  c = components.get(entity);
+            if(c != null) {
+                c.dispose();
+                components.remove(entity);
             }
-            components.remove(entity);
         }
 
         entityList.remove(entity);
         entityNames.remove(entity);
+        entitiesMap.remove(entity);
         System.out.println("End dispose");
     }
 

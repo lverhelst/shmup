@@ -38,7 +38,8 @@ public class RemovalSystem implements SubSystem{
     }
 
     public void remove(Entity e) {
-        if (e.recursiveHas(PhysicalComponent.class)) {
+        e.removeAllComponents();
+        /*if (e.recursiveHas(PhysicalComponent.class)) {
             Body b2dBody = (e.get(PhysicalComponent.class)).getBody();
             if(b2dBody != null)
                 b2dBody.getWorld().destroyBody(b2dBody);
@@ -48,7 +49,7 @@ public class RemovalSystem implements SubSystem{
             if(j != null)
                 ShmupGame.getWorld().destroyJoint(j);
         }
-        e.removeAllComponents();
+        e.removeAllComponents();*/
     }
 
     public void madeDead(Entity e) {

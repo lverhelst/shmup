@@ -31,6 +31,7 @@ public class ChildEntityComponent extends Component {
         for(Entity e : childList){
             e.removeAllComponents();
         }
+        childList.clear();
 
     }
 }
