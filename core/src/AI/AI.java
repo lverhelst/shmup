@@ -37,14 +37,14 @@ public class AI implements IntentGenerator {
     Entity target;
     Astar pathFinder;
     boolean debug;
-    public ArrayList<Vector2> path;
+    public ArrayList<NavigationNode> path;
 
     Random random;
 
     public AI(){
         random = new Random();
         pathFinder = new Astar();
-        path = new ArrayList<Vector2>();
+        path = new ArrayList<NavigationNode>();
     }
 
 
@@ -80,37 +80,24 @@ public class AI implements IntentGenerator {
             {
                 return;
             }else{
-                System.out.println(controlledEntity.getName());
+
             }
         }
 
 
-        if(target.has(HealthComponent.class) && target.has(PhysicalComponent.class)){
-            if(target.get(HealthComponent.class).getHealthState() != HealthComponent.HEALTH_STATE.DEAD && controlledEntity.get(HealthComponent.class).getHealthState() != HealthComponent.HEALTH_STATE.DEAD){
-                ArrayList<NavigationNode> n = pathFinder.findPath(controlledEntity.get(PhysicalComponent.class).getBody().getPosition(), target.get(PhysicalComponent.class).getBody().getPosition());
-                path = new ArrayList<Vector2>();
-                path.add(controlledEntity.get(PhysicalComponent.class).getBody().getPosition());
-                if(n != null && n.size() > 0){
-                    for(NavigationNode n1 : n){
-                        path.add(n1.getBody().getPosition());
-                    }
-                }
-                path.add(target.get(PhysicalComponent.class).getBody().getPosition());
+        if (target.has(PhysicalComponent.class)){
+            if(target.has(HealthComponent.class) &&  target.get(HealthComponent.class).getHealthState() != HealthComponent.HEALTH_STATE.DEAD && controlledEntity.get(HealthComponent.class).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
+                //wander
+                return;
             }
-        }else if (target.has(PhysicalComponent.class)){
+
             ArrayList<NavigationNode> n = pathFinder.findPath(controlledEntity.get(PhysicalComponent.class).getBody().getPosition(), target.get(PhysicalComponent.class).getBody().getPosition());
-            path = new ArrayList<Vector2>();
-            path.add(controlledEntity.get(PhysicalComponent.class).getBody().getPosition());
+            path = new ArrayList<NavigationNode>();
             if(n != null && n.size() > 0){
-                for(NavigationNode n1 : n){
-                    path.add(n1.getBody().getPosition());
+                 for(NavigationNode n1 : n){
+                    path.add(n1);
                 }
             }
-            path.add(target.get(PhysicalComponent.class).getBody().getPosition());
-
-
-
-
         }else{
             //wander
         }
@@ -127,6 +114,7 @@ public class AI implements IntentGenerator {
         float Bx = n.x;
         float By = n.y;
 
+
         if(controlledEntity.get(PhysicalComponent.class).isRoot) {
 
             int angleToFace = (int) Math.toDegrees(Math.atan2((By - Ay) , (Bx - Ax)));
@@ -139,7 +127,7 @@ public class AI implements IntentGenerator {
             if (Math.abs(rotation) > 180)
                 rotation += rotation > 0 ? -360 : 360;
 
-            if(debug)
+            if(debug && false)
                 System.out.println("Angle between " + angleToFace + " Car angle" + carAngle + " rotation needed " + rotation);
 
         }
@@ -174,10 +162,11 @@ public class AI implements IntentGenerator {
             } else {
                 if (false) {
                     System.out.println("forward");
-                }
-
+                    }
                 MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
             }
+
+
         }
 
 
@@ -223,7 +212,7 @@ public class AI implements IntentGenerator {
         if( entity.get(PhysicalComponent.class).isRoot)
             getPathToTarget(entity);
         if(path.size() > 1)
-            gotoPoint(path.get(1), entity);
+            gotoPoint(path.get(1).getBody().getPosition(), entity);
 
         //Add messages to message manager
         /*

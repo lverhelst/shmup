@@ -63,7 +63,7 @@ public class LevelEditorGameState extends GameState {
 
         cam.zoom = zoom;
 
-        filename = "savedlevel2.lvl";
+        filename = "blacklevel.lvl";
         loadLevel(filename);
     }
 

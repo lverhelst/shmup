@@ -1,6 +1,7 @@
 package Level;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
@@ -22,6 +23,7 @@ public class NavigationNode {
     NavigationNode pathFindingParent;
     UUID id;
     Body body;
+    float score;
 
     public NavigationNode(int x, int y, int r){
         this.x = x;
@@ -105,6 +107,18 @@ public class NavigationNode {
         for(NavigationNode n : outNavigationNodes) {
             renderer.line(x, y, n.x, n.y);
         }
+    }
+
+    public float getScore(){
+        return score;
+    }
+
+    public void setScore(float scr){
+        this.score = scr;
+    }
+
+    public float dist2(NavigationNode tar){
+        return Vector2.dst2(getBody().getPosition().x, getBody().getPosition().y, tar.getBody().getPosition().x, tar.getBody().getPosition().y);
     }
 
     public void dispose(){

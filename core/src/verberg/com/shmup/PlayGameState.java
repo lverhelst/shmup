@@ -69,7 +69,12 @@ public class PlayGameState extends GameState {
         slightlyWarmMail.addSystem(RemovalSystem.class, new RemovalSystem());
         slightlyWarmMail.addSystem(SpawnSystem.class, new SpawnSystem());
 
+
+        EntityManager.getInstance().clear();
+        slightlyWarmMail.clearMessages();
+
         this.world = gsm.game().getWorld();
+
         world.setVelocityThreshold(0.01f);
         world.setContactListener(new ContactSystem());
 

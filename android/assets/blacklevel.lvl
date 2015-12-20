@@ -2,9 +2,21 @@
 	"level":{
 		"name": "testLevel",
 		"shapes" : [
+ 			{ "shape" : box, "type" : WALL, "friction" : 1, "density" : 1, "dynamic" : false, "location" : [520.0,130.0], "size" : [0.0,0.0] },
+			{ "shape" : box, "type" : WALL, "friction" : 1, "density" : 1, "dynamic" : false, "location" : [250.0,100.0], "size" : [10.0,80.0] },
+			{ "shape" : box, "type" : WALL, "friction" : 1, "density" : 1, "dynamic" : false, "location" : [260.0,170.0], "size" : [90.0,10.0] },
+			{ "shape" : box, "type" : WALL, "friction" : 1, "density" : 1, "dynamic" : false, "location" : [260.0,110.0], "size" : [70.0,0.0] },
+			{ "shape" : box, "type" : WALL, "friction" : 1, "density" : 1, "dynamic" : false, "location" : [260.0,100.0], "size" : [70.0,10.0] }
 		],
 		"points" : [
-			{ "type" : NODE, "subtype" : default, "location" : [290.0,157.0] }
+ 			{ "type" : NODE, "subtype" : default, "location" : [290.0,157.0] },
+			{ "type" : NODE, "subtype" : default, "location" : [350.0,150.0] },
+			{ "type" : NODE, "subtype" : default, "location" : [380.0,150.0] },
+			{ "type" : NODE, "subtype" : default, "location" : [380.0,200.0] },
+			{ "type" : NODE, "subtype" : default, "location" : [380.0,80.0] },
+			{ "type" : NODE, "subtype" : default, "location" : [240.0,70.0] },
+			{ "type" : NODE, "subtype" : default, "location" : [230.0,200.0] },
+			{ "type" : NODE, "subtype" : default, "location" : [280.0,130.0] }
 		]
 	}
 }

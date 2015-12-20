@@ -228,7 +228,13 @@ public class EntityManager {
         return entityList;
     }
 
-
+    public void clear()
+    {
+        entityNames.clear();
+        entityList.clear();
+         entitiesMap.clear();
+        componentStores.clear();
+    }
 
 
 }

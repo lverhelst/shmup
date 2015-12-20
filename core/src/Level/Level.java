@@ -39,7 +39,7 @@ public class Level {
     private static ArrayList<NavigationNode> navNodes;
     private String filename;
 
-    public World world;
+    public static World world;
     private Body blade;
 
     public void create(World world, String filename) {
@@ -165,7 +165,7 @@ public class Level {
      * Step 3: add line of sight nodes to source node's outnodes
      * Step 4: line of sight node generateNagivation to all nodes not in the list passed in
      */
-    public void generateNavigationGraph(){
+    private static void generateNavigationGraph(){
         for(NavigationNode n : navNodes){
             for(NavigationNode n1 : navNodes){
                 if(!n1.equals(n)) {
@@ -178,6 +178,11 @@ public class Level {
                 }
             }
         }
+    }
+
+    public static void addNavigationNode(NavigationNode n){
+        navNodes.add(n);
+        generateNavigationGraph();
     }
 
 

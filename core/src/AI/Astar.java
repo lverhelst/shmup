@@ -6,9 +6,11 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import Level.Level;
 import Level.NavigationNode;
+import verberg.com.shmup.Constants;
 import verberg.com.shmup.ShmupGame;
 
 /**
@@ -26,6 +28,8 @@ public class Astar {
         if(graph == null){
             graph = Level.getNavNodes();
         }
+        openList = new ArrayList<NavigationNode>();
+        closedList = new ArrayList<NavigationNode>();
     }
 
     /**
@@ -37,25 +41,13 @@ public class Astar {
      */
     public ArrayList<NavigationNode> findPath(Vector2 source, Vector2 target){
 
-        openList = new ArrayList<NavigationNode>();
-        closedList = new ArrayList<NavigationNode>();
+        openList.clear();
+        closedList.clear();
         //reset the graph
         for(NavigationNode n : graph){
             n.setPathFindingParent(null);
+            n.setScore(0f);
         }
-
-        AstarRayCast rayCast  = new AstarRayCast();
-
-        if(!source.equals(target)) {
-            ShmupGame.getWorld().rayCast(rayCast, source, target);
-            if (rayCast.canSee) {
-                // we can see the target directly
-               // System.out.println("Can see target without looking at nav nodes");
-                return null;
-            }
-        }
-
-
 
         //we can consider source to be its own nodes
         //and then startNodes to be the outnodes of start
@@ -68,74 +60,71 @@ public class Astar {
         ArrayList<NavigationNode> startNodes = getVisibleNodes(source);
         if(startNodes.size() < 1){
             //no visible nodes, no path
-            //System.out.println("No visible nav nodes from starting position");
-
+            System.out.println("No visible nav nodes from starting position");
             startNode.dispose();
             return null;
         }
-        openList.add(startNode);
 
+        openList.add(startNode);
         for(NavigationNode n : startNodes){
             startNode.addEdge(n);
-            openList.add(n);
         }
-
-
-
 
         NavigationNode currentNode = startNode;
         int i = 0;
+        float tempscore = 0;
         do{
-            currentNode = getLowestScore(currentNode);
+            currentNode = getLowestScore(currentNode, i++);
             if(currentNode == null || currentNode.getBody() == null){
                 startNode.dispose();
-               // System.out.println("Current Node is null");
+                System.out.println("Current Node is null");
                 return null; //no path
             }
 
             closedList.add(currentNode);
             openList.remove(currentNode);
-            //Check if we can see the target from the current node
-            rayCast  = new AstarRayCast();
-            //raycasting will fail if you try to ray cast a ray from the same source and target
-            if(!currentNode.getBody().getPosition().equals(target)) {
 
-                ShmupGame.getWorld().rayCast(rayCast, currentNode.getBody().getPosition(), target);
-
-                if (rayCast.canSee) {
-                  //  System.out.println("found path");
-                    // A path has been found
-                    ArrayList<NavigationNode> pth = new ArrayList<NavigationNode>();
-                    while (currentNode != null) {
-                        pth.add(currentNode);
-                        currentNode = currentNode.getPathFindingParent();
-                    }
-                    startNode.dispose();
-                    return pth;
+            //Check if we are at the target
+            if(currentNode.getBody().getPosition().equals(target)) {
+                System.out.println("found path");
+                // A path has been found
+                ArrayList<NavigationNode> pth = new ArrayList<NavigationNode>();
+                while (currentNode != null) {
+                    pth.add(currentNode);
+                    currentNode = currentNode.getPathFindingParent();
                 }
+                //since we add from the last node to the original node we reverse so
+                //that the original node is first
+                Collections.reverse(pth);
+                startNode.dispose();
+                return pth;
             }
+
 
             for(NavigationNode n : currentNode.getOutNavigationNodes()){
                 if(closedList.contains(n)){
                     continue;
                 }
+                tempscore = currentNode.getScore() + currentNode.dist2(n);
                 if(!openList.contains(n)){
-                    n.setPathFindingParent(currentNode);
                     openList.add(n);
+                }else if (tempscore >= n.getScore()){
+                    continue;
                 }
+                n.setPathFindingParent(currentNode);
+                n.setScore(tempscore);
+
             }
         }while(!openList.isEmpty());
         startNode.dispose();
         //No path found
-       // System.out.println("Open list empty");
+        System.out.println("Open list empty");
         return null;
     }
 
     private ArrayList<NavigationNode> getVisibleNodes(Vector2 point){
         ArrayList<NavigationNode> visibleNodes = new ArrayList<NavigationNode>();
         for(NavigationNode n : graph){
-
-
             AstarRayCast rayCast  = new AstarRayCast();
             ShmupGame.getWorld().rayCast(rayCast, point, n.getBody().getPosition());
             if(rayCast.canSee){
@@ -143,21 +132,19 @@ public class Astar {
                 visibleNodes.add(n);
             }
         }
-
         return visibleNodes;
     }
 
 
-    private NavigationNode getLowestScore(NavigationNode source){
+
+    private NavigationNode getLowestScore(NavigationNode source, int i){
         NavigationNode lowest = null;
         double distance = Double.MAX_VALUE;
-        for(NavigationNode n : source.getOutNavigationNodes()){
-            if(openList.contains(n)) {
-                float dist = Vector2.dst2(source.getBody().getPosition().x, source.getBody().getPosition().y, n.getBody().getPosition().x, n.getBody().getPosition().y);
-                if (dist < distance) {
-                    distance = dist;
-                    lowest = n;
-                }
+        for(NavigationNode n : openList){
+            float dist = n.getScore();
+            if (dist < distance) {
+                distance = dist;
+                lowest = n;
             }
         }
         return lowest;
@@ -168,9 +155,9 @@ public class Astar {
         AstarRayCast rayCast  = new AstarRayCast();
         //project a beam 20 units long
 
-        float adjustX = (float)(Math.cos(entity.getAngle() + Math.PI/2) * 60f +  entity.getPosition().x);
+        float adjustX = (float)(Math.cos(entity.getAngle() + Math.PI/2) * 20f +  entity.getPosition().x);
 
-        float adjustY = (float)(Math.sin(entity.getAngle() + Math.PI/2) * 60f +  entity.getPosition().y);
+        float adjustY = (float)(Math.sin(entity.getAngle() + Math.PI/2) * 20f +  entity.getPosition().y);
 
         if(false)
             System.out.println("Angle " + entity.getAngle() + " adjX " + adjustX + " adjy " + adjustY);
@@ -201,11 +188,19 @@ public class Astar {
         @Override
         public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
 
-            if(++fixturesHit > 1)
-            {
+            //ignore tires
+
+            if(fixture.getFilterData().maskBits == Constants.TIRE_MASK ||fixture.getFilterData().maskBits == Constants.POWERUP_MASK){
+
+                return 1;
+            }
+
+
+            if (++fixturesHit > 0) {
                 canSee = false;
                 return 0;
             }
+
 
             return 1;
         }
