@@ -36,6 +36,7 @@ public class EntityManager {
     }
 
     public void addEntity(Entity e){
+        System.out.println(e.getName() + " " + e.uuid);
         entitiesMap.put(e.uuid, e);
     }
 
@@ -150,7 +151,7 @@ public class EntityManager {
     }
 
     public void disposeEntity(UUID entity){
-        System.out.println("Begin dispose");
+
         //be sure to start with child entities
         //this makes sure we destroy joints before bodies
         if(hasComponent(entity, ChildEntityComponent.class)){
@@ -170,7 +171,6 @@ public class EntityManager {
         entityList.remove(entity);
         entityNames.remove(entity);
         entitiesMap.remove(entity);
-        System.out.println("End dispose");
     }
 
 

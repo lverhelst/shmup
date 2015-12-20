@@ -132,4 +132,7 @@ public class Entity {
             removeComponent(c);
     }
 
+    public String getName() {
+        return name;
+    }
 }

@@ -4,7 +4,7 @@
 		"shapes" : [
 		],
 		"points" : [
-
+			{ "type" : NODE, "subtype" : default, "location" : [290.0,157.0] }
 		]
 	}
 }

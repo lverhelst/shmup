@@ -48,17 +48,43 @@ public class AI implements IntentGenerator {
     }
 
 
+    public void setTarget(Entity e){
+
+
+        System.out.println("Set target");
+        target = e;
+        debug = true;
+    }
+
     private void selectTarget(){
         ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponent(WeaponComponent.class);
-        Entity e = EntityManager.getInstance().getEntity(targetables.get(1));
-        target = e;
-        if(debug){
-           // System.out.println("Tar " + e );
+        if(targetables.size() > 1) {
+            Entity e = EntityManager.getInstance().getEntity(targetables.get(1));
+            target = e;
+            if (debug) {
+                // System.out.println("Tar " + e );
+            }
         }
 
     }
 
     private void getPathToTarget(Entity controlledEntity){
+
+
+        if(target == null)
+            return;
+
+        if(controlledEntity.has(PhysicalComponent.class)){
+
+            if(!controlledEntity.get(PhysicalComponent.class).isRoot)
+            {
+                return;
+            }else{
+                System.out.println(controlledEntity.getName());
+            }
+        }
+
+
         if(target.has(HealthComponent.class) && target.has(PhysicalComponent.class)){
             if(target.get(HealthComponent.class).getHealthState() != HealthComponent.HEALTH_STATE.DEAD && controlledEntity.get(HealthComponent.class).getHealthState() != HealthComponent.HEALTH_STATE.DEAD){
                 ArrayList<NavigationNode> n = pathFinder.findPath(controlledEntity.get(PhysicalComponent.class).getBody().getPosition(), target.get(PhysicalComponent.class).getBody().getPosition());
@@ -72,12 +98,26 @@ public class AI implements IntentGenerator {
                 path.add(target.get(PhysicalComponent.class).getBody().getPosition());
             }
         }else if (target.has(PhysicalComponent.class)){
-            System.out.println("Boring ass target");
+            ArrayList<NavigationNode> n = pathFinder.findPath(controlledEntity.get(PhysicalComponent.class).getBody().getPosition(), target.get(PhysicalComponent.class).getBody().getPosition());
+            path = new ArrayList<Vector2>();
+            path.add(controlledEntity.get(PhysicalComponent.class).getBody().getPosition());
+            if(n != null && n.size() > 0){
+                for(NavigationNode n1 : n){
+                    path.add(n1.getBody().getPosition());
+                }
+            }
+            path.add(target.get(PhysicalComponent.class).getBody().getPosition());
+
+
+
+
         }else{
             //wander
         }
     }
-
+    //This is so we only calculate the rotation based on the car body, not on the individual tires
+    //The tires still need to be used to make steering messages
+    int rotation;
     private void gotoPoint(Vector2 n, Entity controlledEntity){
         //calculate angle to see if we should turn
         //w/i 3 degrees, don't turn.
@@ -87,48 +127,57 @@ public class AI implements IntentGenerator {
         float Bx = n.x;
         float By = n.y;
 
-        double angleBetween = Math.atan((By - Ay) / (Bx - Ax));
-        double carAngle = controlledEntity.get(PhysicalComponent.class).getBody().getAngle() + Math.PI/2;
+        if(controlledEntity.get(PhysicalComponent.class).isRoot) {
 
-        if(angleBetween < 0)
-            angleBetween += (Math.PI * 2);
+            int angleToFace = (int) Math.toDegrees(Math.atan((By - Ay) / (Bx - Ax)));
 
-        double rotation = (angleBetween - carAngle) % Math.PI;
+            int carAngle = (int) Math.toDegrees(controlledEntity.get(PhysicalComponent.class).getBody().getAngle()) % 360;
+
+            rotation = (carAngle - angleToFace);
 
 
-        if(debug)
-            System.out.println("Angle between " + angleBetween + " Car angle" + carAngle + " rotation needed " + rotation);
+            if (Math.abs(rotation) > 180)
+                rotation += rotation > 0 ? -360 : 360;
+
+            if(debug)
+                System.out.println("Angle between " + angleToFace + " Car angle" + carAngle + " rotation needed " + rotation);
+
+        }
+
+
 
         //check angle for turning
         boolean didTurn = false;
-        if(rotation < -0.05){
+        if(rotation > 0){
             didTurn = true;
             MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.LEFTTURN);
-        }else if(rotation > 0.05){
+        }else if(rotation  < 0){
             didTurn = true;
             MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.RIGHTTURN);
-
         }else{
             MessageManager.getInstance().addMessage(WeaponSystem.class, controlledEntity, INTENT.FIRE);
         }
 
         if(!didTurn) {
-           // Game.slightlyWarmMail.addMessage(SteeringSystem.class, controlledEntity, INTENT.STRAIGHT);
+            MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.STRAIGHT);
         }
 
         //raycast to check if we're directly facing a wall
         //if so, reverse
-        if(pathFinder.isFacingWall(controlledEntity.get(PhysicalComponent.class).getBody(), debug)){
-            if(false) {
-                System.out.println("Facing wall, we think");
-            }
-          //  Game.slightlyWarmMail.addMessage(SteeringSystem.class, controlledEntity, INTENT.DECELERATE);
+        if(lastIntent + intentDelay/2 < System.currentTimeMillis()) {
+            if (pathFinder.isFacingWall(controlledEntity.get(PhysicalComponent.class).getBody(), debug)) {
+                if (false) {
+                    System.out.println("Facing wall, we think");
+                }
+                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.DECELERATE);
 
-        }else{
-            if(false){
-                System.out.println("forward");
+            } else {
+                if (false) {
+                    System.out.println("forward");
+                }
+
+                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
             }
-            MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
         }
 
 
@@ -162,16 +211,13 @@ public class AI implements IntentGenerator {
                 return;
             }
         }
-        if(lastIntent + intentDelay < System.currentTimeMillis())
-        {
+        if(lastIntent + intentDelay < System.currentTimeMillis() && entity.get(PhysicalComponent.class).isRoot) {
             lastIntent = System.currentTimeMillis();
             bozoNumber = random.nextInt(10);
 
             if(entity.has(CameraAttachmentComponent.class)){
                 debug = true;
             }
-            selectTarget();
-
             getPathToTarget(entity);
         }
         if(path.size() > 1)

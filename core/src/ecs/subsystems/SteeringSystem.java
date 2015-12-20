@@ -42,9 +42,6 @@ public class SteeringSystem implements SubSystem {
 
         if(entity.has(SteeringComponent.class)) {
             SteeringComponent sc = entity.get(SteeringComponent.class);
-            //This should be separated into a input system and should make intent messages
-            //So IS = Input SubSystem
-            //   SS = Steering SubSystem
             Body body = (entity.get(PhysicalComponent.class)).getBody();
             //update friction before steering
             updateFriction(body, sc);
@@ -52,6 +49,7 @@ public class SteeringSystem implements SubSystem {
             //IS -- denotes that this should be in the input system
             //Should check isControlledComponent
             if (entity.has(ControlledComponent.class)) {
+
                 didTurn = false;
                 boost_multiplier = 1;
                 switch (intent) {
@@ -93,21 +91,13 @@ public class SteeringSystem implements SubSystem {
                         break;
                     case LEFTTURN:
                         sc.setSteeringDirection(SteeringComponent.DIRECTION.LEFT);
-                        //}
-                        didTurn |= true;
                         break;
                     case RIGHTTURN:
-                        //SS {
                         sc.setSteeringDirection(SteeringComponent.DIRECTION.RIGHT);
-                        //}
-                        didTurn |= true;
                         break;
-                }
-                if (!didTurn) { //Should be (check messages for entity ID, CMD.UP
-
-                    //SS {
-                    sc.setSteeringDirection(SteeringComponent.DIRECTION.STRAIGHT);
-                    //}
+                    case STRAIGHT:
+                        sc.setSteeringDirection(SteeringComponent.DIRECTION.STRAIGHT);
+                        break;
                 }
 
                 //check if entity has joint

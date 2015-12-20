@@ -82,16 +82,19 @@ public class Level {
         generateNavigationGraph();
 
 
-        blade = createBox("WALL", 160, 154.5f, 150, 2, 0, 1, BodyType.DynamicBody);
+        if(!filename.equals("blacklevel.lvl")) {
 
-        RevoluteJointDef joint = new RevoluteJointDef();
-        joint.bodyA = circle;
-        joint.bodyB = blade;
-        joint.localAnchorB.set(0,0);
-        joint.enableMotor = true;
-        joint.maxMotorTorque = 100000.0f;
-        joint.motorSpeed = 2f;
-        world.createJoint(joint);
+            blade = createBox("WALL", 160, 154.5f, 150, 2, 0, 1, BodyType.DynamicBody);
+
+            RevoluteJointDef joint = new RevoluteJointDef();
+            joint.bodyA = circle;
+            joint.bodyB = blade;
+            joint.localAnchorB.set(0, 0);
+            joint.enableMotor = true;
+            joint.maxMotorTorque = 100000.0f;
+            joint.motorSpeed = 2f;
+            world.createJoint(joint);
+        }
 
 
     }
@@ -259,6 +262,7 @@ public class Level {
     }
 
     public void update(){
-        blade.setAngularVelocity((float)(Math.PI/2));
+        if(blade != null)
+            blade.setAngularVelocity((float)(Math.PI/2));
     }
 }

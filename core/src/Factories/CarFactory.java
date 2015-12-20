@@ -55,9 +55,7 @@ public class CarFactory {
         }
     }
 
-
-    //TODO: Move to produce predefined Entity structure class?
-    public void produceCarECS(IntentGenerator ig){
+    public Entity produceCarECS(IntentGenerator ig){
         //Generate a spawn point, since this has no access to them (As its not part of the spawn system)
         Random rand = new Random();
         Point spawn = new Point();
@@ -67,6 +65,7 @@ public class CarFactory {
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
         }
+        return carBodyEntity;
     }
 
     public void applyLifeTimeWarranty(Entity e, Point spawn){
@@ -184,10 +183,8 @@ public class CarFactory {
         if(!(ig instanceof AI)){
             carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new WeaponComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
         }else{
-            carBodyEntity = new Entity(new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(ig), new HealthComponent(100),cec);
+            carBodyEntity = new Entity("AICarTest",new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(ig), new HealthComponent(100),cec);
         }
-        if(carBodyEntity == null)
-            return null;
         (carBodyEntity.get(PhysicalComponent.class)).isRoot = true;
 
 
@@ -229,7 +226,7 @@ public class CarFactory {
 
 
         //really you just control the tires
-        Entity tireEntity = new Entity(tireName, steering, new PhysicalComponent(tireBody), new ControlledComponent(carBodyEntity.get(ControlledComponent.class).ig), new HealthComponent(10));
+        Entity tireEntity = new Entity(tireName, steering, new PhysicalComponent(tireBody), carBodyEntity.get(ControlledComponent.class), new HealthComponent(10));
         fixture.setUserData(tireEntity);
 
         boolean addTochild = false;
