@@ -129,9 +129,9 @@ public class AI implements IntentGenerator {
 
         if(controlledEntity.get(PhysicalComponent.class).isRoot) {
 
-            int angleToFace = (int) Math.toDegrees(Math.atan((By - Ay) / (Bx - Ax)));
+            int angleToFace = (int) Math.toDegrees(Math.atan2((By - Ay) , (Bx - Ax)));
 
-            int carAngle = (int) Math.toDegrees(controlledEntity.get(PhysicalComponent.class).getBody().getAngle()) % 360;
+            int carAngle = (int) (Math.toDegrees(controlledEntity.get(PhysicalComponent.class).getBody().getAngle()) % 360 + 270 ) % 360 ;
 
             rotation = (carAngle - angleToFace);
 
@@ -211,15 +211,17 @@ public class AI implements IntentGenerator {
                 return;
             }
         }
-        if(lastIntent + intentDelay < System.currentTimeMillis() && entity.get(PhysicalComponent.class).isRoot) {
+        if(lastIntent + intentDelay < System.currentTimeMillis()) {
             lastIntent = System.currentTimeMillis();
             bozoNumber = random.nextInt(10);
 
             if(entity.has(CameraAttachmentComponent.class)){
                 debug = true;
             }
-            getPathToTarget(entity);
+
         }
+        if( entity.get(PhysicalComponent.class).isRoot)
+            getPathToTarget(entity);
         if(path.size() > 1)
             gotoPoint(path.get(1), entity);
 
