@@ -37,14 +37,14 @@ public class AI implements IntentGenerator {
     Entity target;
     Astar pathFinder;
     boolean debug;
-    public ArrayList<NavigationNode> path;
+    public ArrayList<Vector2> path;
 
     Random random;
 
     public AI(){
         random = new Random();
         pathFinder = new Astar();
-        path = new ArrayList<NavigationNode>();
+        path = new ArrayList<Vector2>();
     }
 
 
@@ -62,10 +62,9 @@ public class AI implements IntentGenerator {
             Entity e = EntityManager.getInstance().getEntity(targetables.get(1));
             target = e;
             if (debug) {
-                // System.out.println("Tar " + e );
+                 System.out.println("Tar " + e );
             }
         }
-
     }
 
     private void getPathToTarget(Entity controlledEntity){
@@ -86,18 +85,13 @@ public class AI implements IntentGenerator {
 
 
         if (target.has(PhysicalComponent.class)){
-            if(target.has(HealthComponent.class) &&  target.get(HealthComponent.class).getHealthState() != HealthComponent.HEALTH_STATE.DEAD && controlledEntity.get(HealthComponent.class).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
+            if((target.has(HealthComponent.class) &&  target.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) || controlledEntity.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
                 //wander
                 return;
             }
 
-            ArrayList<NavigationNode> n = pathFinder.findPath(controlledEntity.get(PhysicalComponent.class).getBody().getPosition(), target.get(PhysicalComponent.class).getBody().getPosition());
-            path = new ArrayList<NavigationNode>();
-            if(n != null && n.size() > 0){
-                 for(NavigationNode n1 : n){
-                    path.add(n1);
-                }
-            }
+            path = pathFinder.findPath(controlledEntity.get(PhysicalComponent.class).getBody().getPosition(), target.get(PhysicalComponent.class).getBody().getPosition());
+
         }else{
             //wander
         }
@@ -208,11 +202,14 @@ public class AI implements IntentGenerator {
                 debug = true;
             }
 
+
         }
-        if( entity.get(PhysicalComponent.class).isRoot)
+        if( entity.get(PhysicalComponent.class).isRoot) {
+           // selectTarget();
             getPathToTarget(entity);
-        if(path.size() > 1)
-            gotoPoint(path.get(1).getBody().getPosition(), entity);
+        }
+        if(path != null  &&  path.size() > 1)
+            gotoPoint(path.get(1), entity);
 
         //Add messages to message manager
         /*

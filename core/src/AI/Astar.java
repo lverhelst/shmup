@@ -7,9 +7,14 @@ import com.badlogic.gdx.physics.box2d.RayCastCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.UUID;
 
 import Level.Level;
 import Level.NavigationNode;
+import ecs.Entity;
+import ecs.EntityManager;
+import ecs.components.CameraAttachmentComponent;
+import ecs.components.PhysicalComponent;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.ShmupGame;
 
@@ -39,7 +44,7 @@ public class Astar {
      * @param target The position of the target entity, usually a car or a powerup
      * @return The direction to go, in degrees. (from 0 to 360), -1 = no path found, -2 = can see directly
      */
-    public ArrayList<NavigationNode> findPath(Vector2 source, Vector2 target){
+    public ArrayList<Vector2> findPath(Vector2 source, Vector2 target){
 
         openList.clear();
         closedList.clear();
@@ -49,6 +54,22 @@ public class Astar {
             n.setScore(0f);
         }
 
+
+        if(source.equals(target))
+            return null;
+
+
+        AstarRayCast ascr = new AstarRayCast();
+        ShmupGame.getWorld().rayCast(ascr, source, target);
+
+        if(ascr.canSee) {
+            System.out.println("found path");
+            // A path has been found
+            ArrayList<Vector2> pth = new ArrayList<Vector2>();
+            pth.add(source);
+            pth.add(target);
+            return pth;
+        }
         //we can consider source to be its own nodes
         //and then startNodes to be the outnodes of start
 
@@ -65,6 +86,7 @@ public class Astar {
             return null;
         }
 
+
         openList.add(startNode);
         for(NavigationNode n : startNodes){
             startNode.addEdge(n);
@@ -73,8 +95,16 @@ public class Astar {
         NavigationNode currentNode = startNode;
         int i = 0;
         float tempscore = 0;
+
+        boolean found = false;
+
+
+
+
+
         do{
             currentNode = getLowestScore(currentNode, i++);
+
             if(currentNode == null || currentNode.getBody() == null){
                 startNode.dispose();
                 System.out.println("Current Node is null");
@@ -84,13 +114,21 @@ public class Astar {
             closedList.add(currentNode);
             openList.remove(currentNode);
 
-            //Check if we are at the target
-            if(currentNode.getBody().getPosition().equals(target)) {
+            ascr = new AstarRayCast();
+
+            if(currentNode.getBody().getPosition().equals(target)){
+                found = true;
+            }
+            if(!found)
+                ShmupGame.getWorld().rayCast(ascr, currentNode.getBody().getPosition(), target);
+
+            if(found || ascr.canSee) {
                 System.out.println("found path");
                 // A path has been found
-                ArrayList<NavigationNode> pth = new ArrayList<NavigationNode>();
+                ArrayList<Vector2> pth = new ArrayList<Vector2>();
+                pth.add(target);
                 while (currentNode != null) {
-                    pth.add(currentNode);
+                    pth.add(currentNode.getBody().getPosition());
                     currentNode = currentNode.getPathFindingParent();
                 }
                 //since we add from the last node to the original node we reverse so
@@ -127,7 +165,7 @@ public class Astar {
         for(NavigationNode n : graph){
             AstarRayCast rayCast  = new AstarRayCast();
             ShmupGame.getWorld().rayCast(rayCast, point, n.getBody().getPosition());
-            if(rayCast.canSee){
+            if (rayCast.canSee) {
                 // we can see the target directly
                 visibleNodes.add(n);
             }
@@ -190,8 +228,7 @@ public class Astar {
 
             //ignore tires
 
-            if(fixture.getFilterData().maskBits == Constants.TIRE_MASK ||fixture.getFilterData().maskBits == Constants.POWERUP_MASK){
-
+            if(fixture.getFilterData().maskBits == Constants.TIRE_MASK ||fixture.getFilterData().maskBits == Constants.POWERUP_MASK || fixture.getFilterData().maskBits == Constants.CAR_MASK){
                 return 1;
             }
 

@@ -84,14 +84,17 @@ public class PlayGameState extends GameState {
         setInputProcessor(playerInput = new MyInputAdapter());
 
         CarFactory carFactory = new CarFactory();
-        carFactory.produceCarECS(playerInput);
+        Entity playerEntity = carFactory.produceCarECS(playerInput);
 
 
 
 
         aiList = new ArrayList<AI>();
+        AI ai;
         for(int i = 0; i < 4; i++){
-            carFactory.produceCarECS(new AI());
+            ai = new AI();
+            ai.setTarget(playerEntity);
+            carFactory.produceCarECS(ai);
         }
 
         //This seems back-asswards

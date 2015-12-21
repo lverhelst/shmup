@@ -174,34 +174,23 @@ public class TestGameState extends GameState {
             shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
 
             shapeRenderer.setColor(Color.CYAN);
-            ArrayList<NavigationNode> temp = ((AI) debug.get(ControlledComponent.class).ig).path;
+            ArrayList<Vector2> temp = ((AI) debug.get(ControlledComponent.class).ig).path;
 
             float pathdist = 0;
             for (int i = 0; i < temp.size(); i++) {
                 if (i >= 1) {
-                    shapeRenderer.line(temp.get(i - 1).getBody().getPosition().x, temp.get(i - 1).getBody().getPosition().y, temp.get(i).getBody().getPosition().x, temp.get(i).getBody().getPosition().y);
+                    shapeRenderer.line(temp.get(i - 1).x, temp.get(i - 1).y, temp.get(i).x, temp.get(i).y);
                     //System.out.print(temp.get(i - 1) + " " + temp.get(i) + "|");
-                    pathdist += Vector2.dst2(temp.get(i - 1).getBody().getPosition().x, temp.get(i - 1).getBody().getPosition().y, temp.get(i).getBody().getPosition().x, temp.get(i).getBody().getPosition().y);
+                    pathdist += Vector2.dst2(temp.get(i - 1).x, temp.get(i - 1).y, temp.get(i).x, temp.get(i).y);
                 }
             }
             System.out.println("Path length" + pathdist);
 
             shapeRenderer.setColor(Color.FIREBRICK);
             if (temp.size() > 1)
-                shapeRenderer.line(temp.get(0).getBody().getPosition().x, temp.get(0).getBody().getPosition().y, temp.get(temp.size() - 1).getBody().getPosition().x, temp.get(temp.size() - 1).getBody().getPosition().y);
+                shapeRenderer.line(temp.get(0).x, temp.get(0).y, temp.get(temp.size() - 1).x, temp.get(temp.size() - 1).y);
 
         shapeRenderer.end();
-
-        sp.setProjectionMatrix(cam.combined);
-        sp.begin();
-        Vector3 unprod = new Vector3(0,0,0);
-        for(NavigationNode n : temp) {
-            unprod.set( n.getBody().getPosition().x, n.getBody().getPosition().y, 0);
-            //cam.unproject(unprod);
-            bf.draw(sp, n.getScore() + "",unprod.x, unprod.y);
-        }
-        sp.end();
-
 
 
 
