@@ -91,7 +91,7 @@ public class PlayGameState extends GameState {
 
         aiList = new ArrayList<AI>();
         AI ai;
-        for(int i = 0; i < 4; i++){
+        for(int i = 0; i < 5; i++){
             ai = new AI();
             ai.setTarget(playerEntity);
             carFactory.produceCarECS(ai);

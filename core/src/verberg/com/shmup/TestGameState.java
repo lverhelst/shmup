@@ -148,7 +148,7 @@ public class TestGameState extends GameState {
         SpriteBatch sp = this.gsm.game().getBatch();
         sp.begin();
 
-        bf.draw(sp, "TEST GAME STATE", 600, 400);
+        bf.draw(sp, "TESTBED", 50, 50);
 
         sp.end();
 
@@ -176,19 +176,37 @@ public class TestGameState extends GameState {
             shapeRenderer.setColor(Color.CYAN);
             ArrayList<Vector2> temp = ((AI) debug.get(ControlledComponent.class).ig).path;
 
-            float pathdist = 0;
-            for (int i = 0; i < temp.size(); i++) {
-                if (i >= 1) {
-                    shapeRenderer.line(temp.get(i - 1).x, temp.get(i - 1).y, temp.get(i).x, temp.get(i).y);
-                    //System.out.print(temp.get(i - 1) + " " + temp.get(i) + "|");
-                    pathdist += Vector2.dst2(temp.get(i - 1).x, temp.get(i - 1).y, temp.get(i).x, temp.get(i).y);
+            if(temp != null) {
+                float pathdist = 0;
+                for (int i = 0; i < temp.size(); i++) {
+                    if (i >= 1) {
+                        shapeRenderer.line(temp.get(i - 1).x, temp.get(i - 1).y, temp.get(i).x, temp.get(i).y);
+                        //System.out.print(temp.get(i - 1) + " " + temp.get(i) + "|");
+                        pathdist += Vector2.dst2(temp.get(i - 1).x, temp.get(i - 1).y, temp.get(i).x, temp.get(i).y);
+                    }
                 }
-            }
-            System.out.println("Path length" + pathdist);
 
-            shapeRenderer.setColor(Color.FIREBRICK);
-            if (temp.size() > 1)
-                shapeRenderer.line(temp.get(0).x, temp.get(0).y, temp.get(temp.size() - 1).x, temp.get(temp.size() - 1).y);
+                //  System.out.println("Path length" + pathdist);
+
+                shapeRenderer.setColor(Color.FIREBRICK);
+                if (temp.size() > 1)
+                    shapeRenderer.line(temp.get(0).x, temp.get(0).y, temp.get(temp.size() - 1).x, temp.get(temp.size() - 1).y);
+            }
+        //right
+        shapeRenderer.setColor(Color.YELLOW);
+        adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(-1 * 15) + Math.PI/2) * 10f +  entity.getPosition().x);
+        adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(-1 * 15) + Math.PI/2) * 10f +  entity.getPosition().y);
+
+        shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
+
+        //left
+        shapeRenderer.setColor(Color.LIME);
+        adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(1 * 15) + Math.PI/2) * 10f +  entity.getPosition().x);
+        adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(1 * 15) + Math.PI/2) * 10f +  entity.getPosition().y);
+
+        shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
+
+
 
         shapeRenderer.end();
 

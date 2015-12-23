@@ -22,11 +22,15 @@ public class SteeringSystem implements SubSystem {
     private float force, currentSpeed;
     private boolean didTurn;
     private int boost_multiplier;
+    private int steering_angle_deg;
 
     public void processMessage(Object ... list) {
         if(list[0].getClass() == Entity.class && list[1].getClass() == INTENT.class) {
             Entity e = (Entity)list[0];
             INTENT i = (INTENT)list[1];
+            if(i == INTENT.LEFTTURN || i == INTENT.RIGHTTURN || i == INTENT.STRAIGHT){
+                steering_angle_deg = (Integer)list[2];
+            }
 
             updateSteering(e,i);
         }
@@ -90,20 +94,20 @@ public class SteeringSystem implements SubSystem {
                         }
                         break;
                     case LEFTTURN:
-                        sc.setSteeringDirection(SteeringComponent.DIRECTION.LEFT);
-                        break;
+                        //sc.setSteeringDirection(SteeringComponent.DIRECTION.LEFT);
                     case RIGHTTURN:
-                        sc.setSteeringDirection(SteeringComponent.DIRECTION.RIGHT);
-                        break;
+                       // sc.setSteeringDirection(SteeringComponent.DIRECTION.RIGHT);
                     case STRAIGHT:
-                        sc.setSteeringDirection(SteeringComponent.DIRECTION.STRAIGHT);
+                        sc.setSteering_angle(steering_angle_deg);
+                        //sc.setSteeringDirection(SteeringComponent.DIRECTION.STRAIGHT);
                         break;
                 }
 
                 //check if entity has joint
                 if (entity.recursiveHas(JointComponent.class)) {
                     JointComponent jc = entity.recursiveGet(JointComponent.class);
-                    jc.joint.setLimits((float) Math.toRadians(sc.steeringDirectionAngle()), (float) Math.toRadians(sc.steeringDirectionAngle()));
+
+                    jc.joint.setLimits((float) Math.toRadians(sc.getSteering_angle()), (float) Math.toRadians(sc.getSteering_angle()));
                 }
             }
         }

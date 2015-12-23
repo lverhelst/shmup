@@ -88,15 +88,15 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
         }
         boolean didTurn = false;
         if(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.A]){
-            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.LEFTTURN);
+            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.LEFTTURN, 35);
             didTurn |= true;
         }
         if(keysdown[Input.Keys.RIGHT]||keysdown[Input.Keys.D]){
-            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.RIGHTTURN);
+            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.RIGHTTURN, -35);
             didTurn |= true;
         }
         if(!didTurn) {
-            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.STRAIGHT);
+            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.STRAIGHT, 0);
         }
         if(keysdown[Input.Keys.SPACE]||keysdown[CONTROL_RIGHT]){
             MessageManager.getInstance().addMessage(WeaponSystem.class, entity);

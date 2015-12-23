@@ -15,6 +15,7 @@ import ecs.components.CameraAttachmentComponent;
 
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
+import ecs.components.SteeringComponent;
 import ecs.components.WeaponComponent;
 import ecs.subsystems.SpawnSystem;
 import ecs.subsystems.SteeringSystem;
@@ -118,6 +119,9 @@ public class AI implements IntentGenerator {
             rotation = (carAngle - angleToFace);
 
 
+
+
+
             if (Math.abs(rotation) > 180)
                 rotation += rotation > 0 ? -360 : 360;
 
@@ -129,44 +133,52 @@ public class AI implements IntentGenerator {
 
 
         //check angle for turning
-        boolean didTurn = false;
-        if(rotation > 0){
-            didTurn = true;
-            MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.LEFTTURN);
-        }else if(rotation  < 0){
-            didTurn = true;
-            MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.RIGHTTURN);
-        }else{
-            MessageManager.getInstance().addMessage(WeaponSystem.class, controlledEntity, INTENT.FIRE);
-        }
 
-        if(!didTurn) {
-            MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.STRAIGHT);
-        }
 
         //raycast to check if we're directly facing a wall
         //if so, reverse
         if(lastIntent + intentDelay/2 < System.currentTimeMillis()) {
-            if (pathFinder.isFacingWall(controlledEntity.get(PhysicalComponent.class).getBody(), debug)) {
-                if (false) {
-                    System.out.println("Facing wall, we think");
-                }
+            //right side
+            boolean rightWall = pathFinder.isFacingWall(controlledEntity.get(PhysicalComponent.class).getBody(), -1);
+            boolean leftWall = pathFinder.isFacingWall(controlledEntity.get(PhysicalComponent.class).getBody(), 1);
+            System.out.println("Right " + rightWall + " Left " + leftWall);
+
+            if(rightWall && leftWall){
                 MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.DECELERATE);
-
-            } else {
-                if (false) {
-                    System.out.println("forward");
-                    }
+                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.STRAIGHT, 0);
+            }else if (rightWall){
+                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.LEFTTURN, SteeringComponent.DIRECTION.LEFT.getAngle());
                 MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
+            }else if (leftWall){
+                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.RIGHTTURN,SteeringComponent.DIRECTION.RIGHT.getAngle());
+                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
+            }else{
+                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
+                boolean didTurn = false;
+
+                System.out.println("Setting rotation" + rotation);
+                if(rotation > 0){
+                    didTurn = true;
+                    MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.LEFTTURN, (180 - rotation));
+
+
+                }else if(rotation  < 0){
+                    didTurn = true;
+                    MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.RIGHTTURN, -(180 + rotation));
+                }
+
+
+                if(Math.abs(rotation) > 172)
+                    MessageManager.getInstance().addMessage(WeaponSystem.class, controlledEntity, INTENT.FIRE);
+
+
+
+
+                if(!didTurn) {
+                    MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.STRAIGHT, 0);
+                }
             }
-
-
         }
-
-
-
-
-
     }
 
     @Override

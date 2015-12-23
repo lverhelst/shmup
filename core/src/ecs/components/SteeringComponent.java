@@ -7,6 +7,8 @@ import ecs.Component;
  * Used for Tires in the car
  */
 public class SteeringComponent extends Component {
+    private int steering_angle;
+
     public enum DIRECTION {
         LEFT(35),
         STRAIGHT(0),
@@ -40,6 +42,22 @@ public class SteeringComponent extends Component {
     public void setSteeringDirection(DIRECTION dir){
         if(canTurn){
             steeringDirection = dir;
+        }
+    }
+
+    public int getSteering_angle() {
+        return steering_angle;
+    }
+
+    public void setSteering_angle(int steering_angle) {
+        if(canTurn) {
+            if (steering_angle > DIRECTION.LEFT.angle) {
+                this.steering_angle = DIRECTION.LEFT.angle;
+            } else if (steering_angle < DIRECTION.RIGHT.angle) {
+                this.steering_angle = DIRECTION.RIGHT.angle;
+            } else {
+                this.steering_angle = steering_angle;
+            }
         }
     }
 

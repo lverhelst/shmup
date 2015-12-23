@@ -99,6 +99,10 @@ public class CarFactory {
                 System.out.println("entity null");
                 return;
             }
+            if(!joint.has(JointComponent.class)){
+                System.out.println("No Joint component");
+                return;
+            }
 
             if(joint.get(JointComponent.class) == null){
                 System.out.println("no joint component");

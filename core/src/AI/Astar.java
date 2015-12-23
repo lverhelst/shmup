@@ -63,7 +63,7 @@ public class Astar {
         ShmupGame.getWorld().rayCast(ascr, source, target);
 
         if(ascr.canSee) {
-            System.out.println("found path");
+           // System.out.println("found path");
             // A path has been found
             ArrayList<Vector2> pth = new ArrayList<Vector2>();
             pth.add(source);
@@ -123,7 +123,7 @@ public class Astar {
                 ShmupGame.getWorld().rayCast(ascr, currentNode.getBody().getPosition(), target);
 
             if(found || ascr.canSee) {
-                System.out.println("found path");
+               // System.out.println("found path");
                 // A path has been found
                 ArrayList<Vector2> pth = new ArrayList<Vector2>();
                 pth.add(target);
@@ -189,13 +189,20 @@ public class Astar {
 
     }
 
-    public boolean isFacingWall(Body entity, boolean debug){
+    /***
+     * Checks a -5, 0, 5 deg arc based on side
+     *
+     * @param entity Entity to check facing for
+     * @param side 1 = right -1 = left 0 = straight ahead
+     * @return
+     */
+    public boolean isFacingWall(Body entity, int side){
         AstarRayCast rayCast  = new AstarRayCast();
         //project a beam 20 units long
 
-        float adjustX = (float)(Math.cos(entity.getAngle() + Math.PI/2) * 20f +  entity.getPosition().x);
+        float adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(side * 15) + Math.PI/2) * 10f +  entity.getPosition().x);
 
-        float adjustY = (float)(Math.sin(entity.getAngle() + Math.PI/2) * 20f +  entity.getPosition().y);
+        float adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(side * 15) + Math.PI/2) * 10f +  entity.getPosition().y);
 
         if(false)
             System.out.println("Angle " + entity.getAngle() + " adjX " + adjustX + " adjy " + adjustY);
@@ -228,7 +235,8 @@ public class Astar {
 
             //ignore tires
 
-            if(fixture.getFilterData().maskBits == Constants.TIRE_MASK ||fixture.getFilterData().maskBits == Constants.POWERUP_MASK || fixture.getFilterData().maskBits == Constants.CAR_MASK){
+            if(fixture.getFilterData().maskBits == Constants.TIRE_MASK ||fixture.getFilterData().maskBits == Constants.POWERUP_MASK || fixture.getFilterData().maskBits == Constants.CAR_MASK
+                    || fixture.getFilterData().maskBits == Constants.BULLET_MASK){
                 return 1;
             }
 
