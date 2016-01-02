@@ -57,11 +57,13 @@ public class CarFactory {
 
     public Entity produceCarECS(IntentGenerator ig){
         //Generate a spawn point, since this has no access to them (As its not part of the spawn system)
+        //Add message for spawning
         Random rand = new Random();
         Point spawn = new Point();
-        spawn.create("SPAWN", "RED", 64 + rand.nextInt(128), 64f + rand.nextInt(128));
+        spawn.create("SPAWN", "RED", 12f + rand.nextInt(12), 12f + rand.nextInt(12));
 
         Entity carBodyEntity = assembleCarBody(ig, spawn);
+        addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
         }
@@ -84,6 +86,7 @@ public class CarFactory {
         e.removeAllComponents();
 
         Entity carBodyEntity = assembleCarBody(cc.ig, spawn);
+        addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
         }
@@ -185,9 +188,9 @@ public class CarFactory {
         Entity carBodyEntity = null;
         ChildEntityComponent cec = new ChildEntityComponent();
         if(!(ig instanceof AI)){
-            carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new WeaponComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
+            carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
         }else{
-            carBodyEntity = new Entity("AICarTest",new PhysicalComponent(carbody), new WeaponComponent(), new ControlledComponent(ig), new HealthComponent(100),cec);
+            carBodyEntity = new Entity("AICarTest",new PhysicalComponent(carbody),new DamageComponent(10), new ControlledComponent(ig), new HealthComponent(100),cec);
         }
         (carBodyEntity.get(PhysicalComponent.class)).isRoot = true;
 
@@ -196,6 +199,47 @@ public class CarFactory {
 
 
         return carBodyEntity;
+    }
+
+    public void addWeapon(Entity carBodyEntity){
+        JsonValue wValue = jCar.get("weapon");
+
+        JsonValue jVertices  = wValue.get("vertices");
+
+        float[] x_vertices = jVertices.child().asFloatArray() ;
+        float[] y_vertices = jVertices.child().next().asFloatArray();
+        Vector2[] vertices = new Vector2[x_vertices.length];
+
+        for(int x = 0; x < x_vertices.length; x++){
+            vertices[x] = new Vector2(x_vertices[x], y_vertices[x]);
+        }
+
+        //create weapon body
+        BodyDef bdef = new BodyDef();
+        bdef.type = BodyDef.BodyType.DynamicBody;
+
+        bdef.position.set(carBodyEntity.get(PhysicalComponent.class).getBody().getPosition()); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        Body weaponBody = ShmupGame.getWorld().createBody(bdef);
+
+        PolygonShape pShape = new PolygonShape();
+        pShape.set(vertices);
+
+        Fixture f = weaponBody.createFixture(pShape, 0.01f);
+        Filter filter2 = new Filter();
+        filter2.categoryBits = Constants.POWERUP_BIT;
+        filter2.maskBits = Constants.POWERUP_MASK;
+        f.setFilterData(filter2);
+
+
+        Entity weaponEntity = new Entity("BoomStick", new PhysicalComponent(weaponBody));
+
+        //create weapon joint
+        Entity joint = new Entity("WeaponJoint", new JointComponent(carBodyEntity.get(PhysicalComponent.class).getBody(), weaponBody, new Vector2(0,0), "Weapon", true));
+        joint.addComponent(new ParentEntityComponent(carBodyEntity));
+        weaponEntity.addComponent(new ParentEntityComponent(joint));
+        carBodyEntity.get(ChildEntityComponent.class).childList.add(joint);
+        carBodyEntity.addComponent(new WeaponComponent(weaponEntity));
+
     }
 
     public void assembleTire(JsonValue tire, Entity carBodyEntity, Entity joint){

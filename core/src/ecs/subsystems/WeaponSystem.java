@@ -1,5 +1,6 @@
 package ecs.subsystems;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
@@ -25,18 +26,42 @@ public class WeaponSystem implements SubSystem {
     public void processMessage(Object ... list) {
         if(list[0].getClass() == Entity.class) {
             Entity e = (Entity)list[0];
-            fireStuff(e);
+            if(e.has(HealthComponent.class)){
+                if((e.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
+                    //Ya can't shoot if your dead
+                    return;
+                }
+            }
+            if(list.length > 2 && list[1] != null && list[2] != null){
+                aimStuff(e, (Integer)list[1], (Integer)list[2]);
+            }else {
+                fireStuff(e);
+            }
+        }
+    }
+
+    public void aimStuff(Entity entity, int x, int y){
+
+        if(entity.has(WeaponComponent.class)){
+            WeaponComponent wc = entity.get(WeaponComponent.class);
+            Body bod = wc.weaponEntity.get(PhysicalComponent.class).getBody();
+
+            float desiredAngle = (float)Math.atan2(y - bod.getPosition().y , x - bod.getPosition().x );
+            desiredAngle -= Math.PI/2;
+
+            double totalRotation = Math.toDegrees( Math.toRadians((Math.toDegrees(bod.getAngle())% 360 + 270 ) % 360) -  desiredAngle);
+
+
+            if (Math.abs(totalRotation) > 180)
+                totalRotation += totalRotation > 0 ? -360 : 360;
+            //System.out.println(entity.getName() + " " + desiredAngle + " " + Math.toRadians(totalRotation) + " " + bod.getAngle());
+
+            bod.setTransform(bod.getPosition(), bod.getAngle());
+
         }
     }
 
     public void fireStuff(Entity entity){
-        if(entity.has(HealthComponent.class)){
-            if((entity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD){
-                //Ya can't shoot if your dead
-                return;
-            }
-        }
-
         if(entity.has(WeaponComponent.class)){
             WeaponComponent wc = entity.get(WeaponComponent.class);
             //Move this check to an input system
@@ -45,8 +70,7 @@ public class WeaponSystem implements SubSystem {
             if(wc.lastFire + wc.firingDelay < System.currentTimeMillis()){
                 Body sourceBody = null;
                 if(entity.has(PhysicalComponent.class)){
-                    PhysicalComponent pc = entity.get(PhysicalComponent.class);
-                    sourceBody = pc.getBody();
+                    sourceBody = wc.weaponEntity.get(PhysicalComponent.class).getBody();
                 }
                 if(sourceBody == null)
                     return;
@@ -56,14 +80,14 @@ public class WeaponSystem implements SubSystem {
 
                 //add 90 since car definition is 90 deg off 0
                 float direction = sourceBody.getAngle() + (float)Math.PI/2;
-                float addx = (float)(Math.cos(direction)) * 8f;
-                float addy = (float)(Math.sin(direction)) * 8f;
+                float addx = (float)(Math.cos(direction)) * 1f;
+                float addy = (float)(Math.sin(direction)) * 1f;
 
                 Body bulletbody = ShmupGame.getWorld().createBody(bodyDef);
                 bulletbody.setTransform(sourceBody.getPosition().add(addx, addy), direction);
 
                 CircleShape circle = new CircleShape();
-                circle.setRadius(1f);
+                circle.setRadius(0.25f);
                 FixtureDef fixture = new FixtureDef();
                 fixture.shape = circle;
                 fixture.density = 1f;
@@ -78,7 +102,7 @@ public class WeaponSystem implements SubSystem {
                 pc.maxContacts = 1; //Bullets can only hit 1 object before being destroyed
 
 
-                bulletbody.applyLinearImpulse(((float) Math.cos(direction)) * 15000f, ((float) Math.sin(direction)) * 15000f, bulletbody.getWorldCenter().x, bulletbody.getWorldCenter().y, true);
+                bulletbody.applyLinearImpulse(((float) Math.cos(direction)) * 6f, ((float) Math.sin(direction)) * 6f, bulletbody.getWorldCenter().x, bulletbody.getWorldCenter().y, true);
                 circle.dispose();
 
                 wc.lastFire = System.currentTimeMillis();

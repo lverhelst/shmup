@@ -18,14 +18,15 @@ import verberg.com.shmup.*;
  * Created by Orion on 12/6/2015.
  */
 public class NavigationNode {
-    int x, y, r;
+    int x, y;
+    float r;
     ArrayList<NavigationNode> outNavigationNodes;
     NavigationNode pathFindingParent;
     UUID id;
     Body body;
     float score;
 
-    public NavigationNode(int x, int y, int r){
+    public NavigationNode(int x, int y, float r){
         this.x = x;
         this.y = y;
         this.r = r;
@@ -33,7 +34,7 @@ public class NavigationNode {
         id = UUID.randomUUID();
     }
 
-    public NavigationNode(int x, int y, int r, UUID uuid){
+    public NavigationNode(int x, int y, float r, UUID uuid){
         this.x = x;
         this.y = y;
         this.r = r;
@@ -48,7 +49,7 @@ public class NavigationNode {
         //does this work?
         this.x = (int)pos[0];
         this.y = (int)pos[1];
-        this.r = (int)radius;
+        this.r = (float)radius;
         outNavigationNodes = new ArrayList<NavigationNode>();
         id = uuid;
     }

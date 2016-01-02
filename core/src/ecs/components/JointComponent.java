@@ -16,6 +16,22 @@ public class JointComponent extends Component {
     public RevoluteJoint joint;
     public String name;
 
+    public JointComponent(Body bodyA, Body bodyB, Vector2 location, String name, boolean enableLimit){
+        this.name = name;
+
+        RevoluteJointDef jointDef = new RevoluteJointDef();
+        jointDef.bodyA = bodyA;
+        jointDef.enableLimit = enableLimit;
+        jointDef.localAnchorB.setZero();
+
+        jointDef.bodyB = bodyB;
+        jointDef.localAnchorA.set(location);
+
+        joint  = (RevoluteJoint)bodyA.getWorld().createJoint(jointDef);
+    }
+
+
+
     public JointComponent(Body bodyA, Body bodyB, Vector2 location, String name){
         this.name = name;
 

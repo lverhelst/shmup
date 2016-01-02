@@ -2,28 +2,26 @@ package verberg.com.shmup;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
-import java.util.ArrayList;
 
+import Input.MyInputAdapter;
 import Factories.CarFactory;
 import Level.Level;
 import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.EntityManager;
 import ecs.components.CameraAttachmentComponent;
-import ecs.components.ControlledComponent;
 import ecs.components.PhysicalComponent;
 import ecs.subsystems.CameraSystem;
 import ecs.subsystems.ContactSystem;
@@ -34,9 +32,6 @@ import ecs.subsystems.RenderSystem;
 import ecs.subsystems.SpawnSystem;
 import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
-import AI.AI;
-
-import Level.NavigationNode;
 
 /**
  * Created by Orion on 12/19/2015.
@@ -66,7 +61,7 @@ public class TestGameState extends GameState {
         EntityManager.getInstance().clear();
         slightlyWarmMail.clearMessages();
 
-        this.world = gsm.game().getWorld();
+        this.world = gsm.game().recreateWorld();
         world.setVelocityThreshold(0.01f);
         world.setContactListener(new ContactSystem());
 
@@ -74,7 +69,8 @@ public class TestGameState extends GameState {
         test.create(world, "blacklevel.lvl");
 
         CarFactory carFactory = new CarFactory();
-        testCar = carFactory.produceCarECS(new AI());
+        MyInputAdapter playerInput;
+        testCar = carFactory.produceCarECS(playerInput = new MyInputAdapter());
         testCar.addComponent(new CameraAttachmentComponent());
 
 
@@ -83,7 +79,9 @@ public class TestGameState extends GameState {
         debugRenderer = new Box2DDebugRenderer();
         renderSystem = new RenderSystem();
 
+        setInputProcessor(playerInput);
 
+/*
         setInputProcessor(new InputAdapter(){
 
 
@@ -110,7 +108,7 @@ public class TestGameState extends GameState {
             }
 
 
-        });
+        });*/
 
     }
     float zoom;
@@ -151,6 +149,12 @@ public class TestGameState extends GameState {
         bf.draw(sp, "TESTBED", 50, 50);
 
         sp.end();
+        batch.setProjectionMatrix(cam.combined);
+        batch.begin();
+
+        renderSystem.render(EntityManager.getInstance().entityList(), batch);
+
+        batch.end();
 
 
 
@@ -167,14 +171,14 @@ public class TestGameState extends GameState {
             Entity debug = testCar;
             Body entity = debug.get(PhysicalComponent.class).getBody();
 
-            float adjustX = (float) (Math.cos(entity.getAngle() + Math.PI / 2) * 60f / Constants.PPM + entity.getPosition().x);
+            float adjustX = (float) (Math.cos(entity.getAngle() + Math.PI / 2) * 20f / Constants.PPM + entity.getPosition().x);
 
-            float adjustY = (float) (Math.sin(entity.getAngle() + Math.PI / 2) * 60f / Constants.PPM + entity.getPosition().y);
+            float adjustY = (float) (Math.sin(entity.getAngle() + Math.PI / 2) * 20f / Constants.PPM + entity.getPosition().y);
 
             shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
 
             shapeRenderer.setColor(Color.CYAN);
-            ArrayList<Vector2> temp = ((AI) debug.get(ControlledComponent.class).ig).path;
+        /*    ArrayList<Vector2> temp = ((AI) debug.get(ControlledComponent.class).ig).path;
 
             if(temp != null) {
                 float pathdist = 0;
@@ -191,18 +195,18 @@ public class TestGameState extends GameState {
                 shapeRenderer.setColor(Color.FIREBRICK);
                 if (temp.size() > 1)
                     shapeRenderer.line(temp.get(0).x, temp.get(0).y, temp.get(temp.size() - 1).x, temp.get(temp.size() - 1).y);
-            }
+            }*/
         //right
         shapeRenderer.setColor(Color.YELLOW);
-        adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(-1 * 15) + Math.PI/2) * 10f +  entity.getPosition().x);
-        adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(-1 * 15) + Math.PI/2) * 10f +  entity.getPosition().y);
+        adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(-1 * 15) + Math.PI/2) * 1f +  entity.getPosition().x);
+        adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(-1 * 15) + Math.PI/2) * 1f +  entity.getPosition().y);
 
         shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
 
         //left
         shapeRenderer.setColor(Color.LIME);
-        adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(1 * 15) + Math.PI/2) * 10f +  entity.getPosition().x);
-        adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(1 * 15) + Math.PI/2) * 10f +  entity.getPosition().y);
+        adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(1 * 15) + Math.PI/2) * 1f +  entity.getPosition().x);
+        adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(1 * 15) + Math.PI/2) * 1f +  entity.getPosition().y);
 
         shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
 

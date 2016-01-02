@@ -1,5 +1,6 @@
 package Level;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -14,8 +15,12 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 import java.util.Stack;
 
 import MessageManagement.MessageManager;
@@ -30,9 +35,6 @@ import verberg.com.shmup.ShmupGame;
  * Created by Orion on 11/17/2015.
  */
 public class Level {
-    //move to definitions class
-    final int PPM = 5;
-
     private HashMap<String, Body> bodies;
     private ArrayList<Point> pointList;
     private Stack<NavigationNode> navNodeStack;
@@ -43,6 +45,9 @@ public class Level {
     private Body blade;
 
     public void create(World world, String filename) {
+        //one time method
+
+
         bodies = new HashMap<String, Body>();
         pointList = new ArrayList<Point>();
         navNodeStack = new Stack<NavigationNode>();
@@ -51,7 +56,56 @@ public class Level {
         this.world = world;
 
         this.filename = filename;
+
+        fixFile("blacklevel.lvl");
+        fixFile("savedlevel.lvl");
+
+        fixFile("savedlevel2.lvl");
+
+        fixFile("defaultLevel");
+
+
+
         loadLevel(filename);
+    }
+
+    private void fixFile(String filename){
+        String line = "", input = "", output = "";
+        try {
+            FileReader fr = new FileReader("D:\\Development\\Shumpbros\\android\\assets\\" + filename);
+            BufferedReader br = new BufferedReader(fr);
+            while((line = br.readLine()) != null)  input += line + '\n';
+            fr.close();
+
+            String currentNum = "";
+            for(int i = 0; i < input.length(); i++){
+                //number state
+                if(isInt(input.charAt(i)) || (currentNum.length() > 0 && input.charAt(i) == '.')){
+                    currentNum += input.charAt(i);
+                }else if (currentNum.length() > 0){
+                    float f = Float.parseFloat(currentNum)/10f;
+                    output += f;
+                    System.out.println(currentNum + " " + f);
+                    currentNum = "";
+                    output += input.charAt(i);
+                }else{
+                    output += input.charAt(i);
+                }
+            }
+
+            FileOutputStream fOUt = new FileOutputStream("D:\\Development\\Shumpbros\\android\\assets\\2" + filename);
+            fOUt.write(output.getBytes());
+            fOUt.close();
+
+
+
+        }catch(Exception e){
+            //do nothing
+        }
+    }
+
+    public static boolean isInt(char str) {
+        return Character.isDigit(str);
     }
 
     public void loadLevel(String levelName){
@@ -141,7 +195,7 @@ public class Level {
             String type = point.get("type").asString();
             String subtype = point.get("subtype").asString();
 
-            NavigationNode nNode = new NavigationNode((int)pos[0],(int)pos[1], 4);
+            NavigationNode nNode = new NavigationNode((int)pos[0],(int)pos[1], 0.4f);
             navNodes.add(nNode);
             nNode.createBox2dBody(world);
 

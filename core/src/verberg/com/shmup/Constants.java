@@ -5,7 +5,7 @@ package verberg.com.shmup;
  */
 public class Constants {
 
-    static final int PPM = 5;
+    public static final int PPM = 16;
 
 
     //When setting bits:

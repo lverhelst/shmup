@@ -73,8 +73,7 @@ public class PlayGameState extends GameState {
         EntityManager.getInstance().clear();
         slightlyWarmMail.clearMessages();
 
-        this.world = gsm.game().getWorld();
-
+        this.world = gsm.game().recreateWorld();
         world.setVelocityThreshold(0.01f);
         world.setContactListener(new ContactSystem());
 

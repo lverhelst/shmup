@@ -141,9 +141,10 @@ public class AI implements IntentGenerator {
             //right side
             boolean rightWall = pathFinder.isFacingWall(controlledEntity.get(PhysicalComponent.class).getBody(), -1);
             boolean leftWall = pathFinder.isFacingWall(controlledEntity.get(PhysicalComponent.class).getBody(), 1);
-            System.out.println("Right " + rightWall + " Left " + leftWall);
+            boolean middleWall = pathFinder.isFacingWall(controlledEntity.get(PhysicalComponent.class).getBody(), 0);
+           // System.out.println("Right " + rightWall + " Left " + leftWall);
 
-            if(rightWall && leftWall){
+            if((rightWall && leftWall) || middleWall){
                 MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.DECELERATE);
                 MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.STRAIGHT, 0);
             }else if (rightWall){
@@ -156,7 +157,7 @@ public class AI implements IntentGenerator {
                 MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
                 boolean didTurn = false;
 
-                System.out.println("Setting rotation" + rotation);
+                //System.out.println("Setting rotation" + rotation);
                 if(rotation > 0){
                     didTurn = true;
                     MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.LEFTTURN, (180 - rotation));

@@ -200,9 +200,9 @@ public class Astar {
         AstarRayCast rayCast  = new AstarRayCast();
         //project a beam 20 units long
 
-        float adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(side * 15) + Math.PI/2) * 10f +  entity.getPosition().x);
+        float adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(side * 15) + Math.PI/2) * 1f +  entity.getPosition().x);
 
-        float adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(side * 15) + Math.PI/2) * 10f +  entity.getPosition().y);
+        float adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(side * 15) + Math.PI/2) * 1f +  entity.getPosition().y);
 
         if(false)
             System.out.println("Angle " + entity.getAngle() + " adjX " + adjustX + " adjy " + adjustY);

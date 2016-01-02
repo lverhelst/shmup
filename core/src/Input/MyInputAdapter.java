@@ -2,6 +2,7 @@ package Input;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.math.Vector3;
 
 import AI.IntentGenerator;
 import MessageManagement.MessageManager;
@@ -23,6 +24,8 @@ import static com.badlogic.gdx.Input.Keys.CONTROL_RIGHT;
 public class MyInputAdapter extends InputAdapter implements IntentGenerator {
 
     private static boolean[] keysdown =  new boolean[256];
+    private static boolean[] mousedown = new boolean[10];
+    private static int screenX, screenY;
 
     public static boolean[] getKeysdown(){
         return keysdown;
@@ -38,6 +41,32 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
     public boolean keyUp(int keycode) {
         keysdown[keycode] = false;
         return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        this.screenX = screenX;
+        this.screenY = screenY;
+        return super.mouseMoved(screenX, screenY);
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        this.screenX = screenX;
+        this.screenY = screenY;
+        return super.touchDragged(screenX, screenY, pointer);
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        mousedown[button] = true;
+        return super.touchDown(screenX, screenY, pointer, button);
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        mousedown[button] = false;
+        return super.touchUp(screenX, screenY, pointer, button);
     }
 
     /**
@@ -98,8 +127,14 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
         if(!didTurn) {
             MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.STRAIGHT, 0);
         }
-        if(keysdown[Input.Keys.SPACE]||keysdown[CONTROL_RIGHT]){
+        if(keysdown[Input.Keys.SPACE]||keysdown[CONTROL_RIGHT]|| mousedown[Input.Buttons.LEFT]){
             MessageManager.getInstance().addMessage(WeaponSystem.class, entity);
         }
+        //for aiming the weapon
+        Vector3 vector3 = new Vector3(screenX, screenY, 0);
+        ShmupGame.getCam().unproject(vector3);
+        MessageManager.getInstance().addMessage(WeaponSystem.class,entity,(int)vector3.x,(int)vector3.y);
+
+
     }
 }

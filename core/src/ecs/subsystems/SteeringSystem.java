@@ -63,7 +63,7 @@ public class SteeringSystem implements SubSystem {
                             //strangly enough currentForwardNormal gets cleared somehow
                             //so we save current forward normal into a new vector
                             wtf = new Vector2(currentForwardNormal.x, currentForwardNormal.y);
-                            boost_multiplier = (sc.canTurn ? 2: 10);
+                            boost_multiplier = (sc.canTurn ? 1: 3);
                             force = sc.maxDriveForce * boost_multiplier;
                             body.applyForce(wtf.scl(force), body.getWorldCenter(), true);
                        // }
@@ -73,7 +73,6 @@ public class SteeringSystem implements SubSystem {
                         //so we save current forward normal into a new vector
                         wtf = new Vector2(currentForwardNormal.x, currentForwardNormal.y);
                         currentSpeed = getForwardVelocity(body).dot(wtf);
-
                         //apply the forces!
                         if (sc.maxForwardSpeed > currentSpeed) {
                             force = sc.maxDriveForce * boost_multiplier;
@@ -106,7 +105,6 @@ public class SteeringSystem implements SubSystem {
                 //check if entity has joint
                 if (entity.recursiveHas(JointComponent.class)) {
                     JointComponent jc = entity.recursiveGet(JointComponent.class);
-
                     jc.joint.setLimits((float) Math.toRadians(sc.getSteering_angle()), (float) Math.toRadians(sc.getSteering_angle()));
                 }
             }
@@ -134,11 +132,11 @@ public class SteeringSystem implements SubSystem {
         body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
 
         //dampen angular velocity
-        body.applyAngularImpulse(0.1f * body.getInertia() * body.getAngularVelocity(), true);
+        body.applyAngularImpulse(0.001f * body.getInertia() * body.getAngularVelocity(), true);
 
         //drag
         Vector2 currentForwardNormal = getForwardVelocity(body);
         float speed = (float)Math.sqrt(currentForwardNormal.x * currentForwardNormal.x + currentForwardNormal.y * currentForwardNormal.y);
-        body.applyForceToCenter(currentForwardNormal.scl(-0.02f * speed),true);
+        body.applyForceToCenter(currentForwardNormal.scl(-0.002f * speed),true);
     }
 }
