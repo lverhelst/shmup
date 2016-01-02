@@ -17,6 +17,7 @@ import java.util.Random;
 
 import AI.IntentGenerator;
 import AI.AI;
+import MessageManagement.MessageManager;
 import ecs.components.ChildEntityComponent;
 import ecs.components.DamageComponent;
 import ecs.components.HealthComponent;
@@ -28,6 +29,7 @@ import ecs.components.PhysicalComponent;
 import ecs.components.ControlledComponent;
 import ecs.components.SteeringComponent;
 import ecs.components.WeaponComponent;
+import ecs.subsystems.SpawnSystem;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.ShmupGame;
 import Level.Point;
@@ -60,13 +62,16 @@ public class CarFactory {
         //Add message for spawning
         Random rand = new Random();
         Point spawn = new Point();
-        spawn.create("SPAWN", "RED", 12f + rand.nextInt(12), 12f + rand.nextInt(12));
+        spawn.create("SPAWN", "RED", 1f + rand.nextInt(12), 1f + rand.nextInt(12));
 
         Entity carBodyEntity = assembleCarBody(ig, spawn);
-        addWeapon(carBodyEntity);
+        if(!(ig instanceof AI))
+            addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
         }
+        MessageManager.getInstance().addMessage(SpawnSystem.class, carBodyEntity);
+
         return carBodyEntity;
     }
 
@@ -86,7 +91,8 @@ public class CarFactory {
         e.removeAllComponents();
 
         Entity carBodyEntity = assembleCarBody(cc.ig, spawn);
-        addWeapon(carBodyEntity);
+        if(!(cc.ig instanceof AI))
+            addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
         }
@@ -190,7 +196,7 @@ public class CarFactory {
         if(!(ig instanceof AI)){
             carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
         }else{
-            carBodyEntity = new Entity("AICarTest",new PhysicalComponent(carbody),new DamageComponent(10), new ControlledComponent(ig), new HealthComponent(100),cec);
+            carBodyEntity = new Entity("AICarTest",new PhysicalComponent(carbody), new DamageComponent(10), new ControlledComponent(ig), new HealthComponent(100),cec);
         }
         (carBodyEntity.get(PhysicalComponent.class)).isRoot = true;
 

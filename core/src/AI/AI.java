@@ -7,16 +7,19 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
+import Input.MyInputAdapter;
 import Level.NavigationNode;
 import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.EntityManager;
 import ecs.components.CameraAttachmentComponent;
 
+import ecs.components.ControlledComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.SteeringComponent;
 import ecs.components.WeaponComponent;
+import ecs.subsystems.RemovalSystem;
 import ecs.subsystems.SpawnSystem;
 import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
@@ -59,9 +62,21 @@ public class AI implements IntentGenerator {
 
     private void selectTarget(){
         ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponent(WeaponComponent.class);
-        if(targetables.size() > 1) {
-            Entity e = EntityManager.getInstance().getEntity(targetables.get(1));
-            target = e;
+        if(targetables.size() >= 1) {
+            Entity e = null;
+            for(UUID uuid : targetables){
+                if(EntityManager.getInstance().getEntity(uuid).has(ControlledComponent.class)){
+                    if(EntityManager.getInstance().getEntity(uuid).get(ControlledComponent.class).ig instanceof MyInputAdapter){
+                        e = EntityManager.getInstance().getEntity(uuid);
+                        System.out.println("Entity target: " + e);
+                    }
+                }
+            }
+
+            if(e != null) {
+                target = e;
+                System.out.println("Tar " + e );
+            }
             if (debug) {
                  System.out.println("Tar " + e );
             }
@@ -214,15 +229,27 @@ public class AI implements IntentGenerator {
             if(entity.has(CameraAttachmentComponent.class)){
                 debug = true;
             }
-
+            selectTarget();
 
         }
         if( entity.get(PhysicalComponent.class).isRoot) {
-           // selectTarget();
+
             getPathToTarget(entity);
         }
         if(path != null  &&  path.size() > 1)
             gotoPoint(path.get(1), entity);
+
+        if(random.nextInt(10000) == 0){
+            if (entity.has(PhysicalComponent.class)) {
+                if ((entity.get(PhysicalComponent.class)).isRoot) {
+                    if (entity.has(HealthComponent.class)) {
+                        ( entity.get(HealthComponent.class)).setCur_Health(0);
+                        MessageManager.getInstance().addMessage(RemovalSystem.class, entity, INTENT.DIED);
+                    }
+                }
+                return;
+            }
+        }
 
         //Add messages to message manager
         /*

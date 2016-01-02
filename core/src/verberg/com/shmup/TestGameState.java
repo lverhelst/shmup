@@ -32,6 +32,7 @@ import ecs.subsystems.RenderSystem;
 import ecs.subsystems.SpawnSystem;
 import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
+import AI.AI;
 
 /**
  * Created by Orion on 12/19/2015.
@@ -72,6 +73,10 @@ public class TestGameState extends GameState {
         MyInputAdapter playerInput;
         testCar = carFactory.produceCarECS(playerInput = new MyInputAdapter());
         testCar.addComponent(new CameraAttachmentComponent());
+
+        for(int  i = 0; i < 4; i++){
+            carFactory.produceCarECS(new AI());
+        }
 
 
 
@@ -158,7 +163,7 @@ public class TestGameState extends GameState {
 
 
 
-
+/*
 
         ShapeRenderer shapeRenderer = gsm.game().getShapeRenderer();
         shapeRenderer.setProjectionMatrix(cam.combined);
@@ -166,6 +171,7 @@ public class TestGameState extends GameState {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
 
+        shapeRenderer.setColor(Color.CYAN);
 
 
             Entity debug = testCar;
@@ -177,8 +183,7 @@ public class TestGameState extends GameState {
 
             shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
 
-            shapeRenderer.setColor(Color.CYAN);
-        /*    ArrayList<Vector2> temp = ((AI) debug.get(ControlledComponent.class).ig).path;
+           ArrayList<Vector2> temp = ((AI) debug.get(ControlledComponent.class).ig).path;
 
             if(temp != null) {
                 float pathdist = 0;
@@ -195,7 +200,7 @@ public class TestGameState extends GameState {
                 shapeRenderer.setColor(Color.FIREBRICK);
                 if (temp.size() > 1)
                     shapeRenderer.line(temp.get(0).x, temp.get(0).y, temp.get(temp.size() - 1).x, temp.get(temp.size() - 1).y);
-            }*/
+            }
         //right
         shapeRenderer.setColor(Color.YELLOW);
         adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(-1 * 15) + Math.PI/2) * 1f +  entity.getPosition().x);
@@ -214,7 +219,7 @@ public class TestGameState extends GameState {
 
         shapeRenderer.end();
 
-
+        */
 
         debugRenderer.render(world, cam.combined);
     }

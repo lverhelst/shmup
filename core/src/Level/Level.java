@@ -46,67 +46,16 @@ public class Level {
 
     public void create(World world, String filename) {
         //one time method
-
-
         bodies = new HashMap<String, Body>();
         pointList = new ArrayList<Point>();
         navNodeStack = new Stack<NavigationNode>();
         navNodes = new ArrayList<NavigationNode>();
 
         this.world = world;
-
         this.filename = filename;
-
-        fixFile("blacklevel.lvl");
-        fixFile("savedlevel.lvl");
-
-        fixFile("savedlevel2.lvl");
-
-        fixFile("defaultLevel");
-
-
-
         loadLevel(filename);
     }
 
-    private void fixFile(String filename){
-        String line = "", input = "", output = "";
-        try {
-            FileReader fr = new FileReader("D:\\Development\\Shumpbros\\android\\assets\\" + filename);
-            BufferedReader br = new BufferedReader(fr);
-            while((line = br.readLine()) != null)  input += line + '\n';
-            fr.close();
-
-            String currentNum = "";
-            for(int i = 0; i < input.length(); i++){
-                //number state
-                if(isInt(input.charAt(i)) || (currentNum.length() > 0 && input.charAt(i) == '.')){
-                    currentNum += input.charAt(i);
-                }else if (currentNum.length() > 0){
-                    float f = Float.parseFloat(currentNum)/10f;
-                    output += f;
-                    System.out.println(currentNum + " " + f);
-                    currentNum = "";
-                    output += input.charAt(i);
-                }else{
-                    output += input.charAt(i);
-                }
-            }
-
-            FileOutputStream fOUt = new FileOutputStream("D:\\Development\\Shumpbros\\android\\assets\\2" + filename);
-            fOUt.write(output.getBytes());
-            fOUt.close();
-
-
-
-        }catch(Exception e){
-            //do nothing
-        }
-    }
-
-    public static boolean isInt(char str) {
-        return Character.isDigit(str);
-    }
 
     public void loadLevel(String levelName){
         JsonReader reader = new JsonReader();
