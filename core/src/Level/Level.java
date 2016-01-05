@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Stack;
 
+import MessageManagement.INTENT;
 import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.components.DamageComponent;
@@ -157,7 +158,7 @@ public class Level {
                 if(type.equals("PICKUP")) {
                     //TODO: pick powerup type from subtype
                 } else {
-                    MessageManager.getInstance().addMessage(SpawnSystem.class, newPoint);
+                    MessageManager.getInstance().addMessage(INTENT.ADDSPAWN, newPoint);
                 }
             }
         }

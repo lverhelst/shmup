@@ -9,10 +9,6 @@ import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
-import ecs.subsystems.RemovalSystem;
-import ecs.subsystems.SpawnSystem;
-import ecs.subsystems.SteeringSystem;
-import ecs.subsystems.WeaponSystem;
 import verberg.com.shmup.ShmupGame;
 import MessageManagement.INTENT;
 
@@ -84,7 +80,7 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
                         if(keysdown[Input.Keys.Y]) {
                                 System.out.println("SPAWN");
                                 //is dead respawn
-                                MessageManager.getInstance().addMessage(SpawnSystem.class, entity);
+                                MessageManager.getInstance().addMessage(INTENT.SPAWN, entity);
                                 return;
                             }
 
@@ -100,40 +96,40 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
                 if ((entity.get(PhysicalComponent.class)).isRoot) {
                     if (entity.has(HealthComponent.class)) {
                         (entity.get(HealthComponent.class)).setCur_Health(0);
-                        MessageManager.getInstance().addMessage(RemovalSystem.class, entity, INTENT.DIED);
+                        MessageManager.getInstance().addMessage(INTENT.DIED, entity);
                     }
                 }
                 return;
             }
         }
         if(keysdown[Input.Keys.UP]||keysdown[Input.Keys.W]){
-            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.ACCELERATE);
+            MessageManager.getInstance().addMessage(INTENT.ACCELERATE, entity);
         }
         if(keysdown[Input.Keys.SHIFT_LEFT]){
-            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.BOOST);
+            MessageManager.getInstance().addMessage(INTENT.BOOST, entity);
         }
         if(keysdown[Input.Keys.DOWN]||keysdown[Input.Keys.S]){
-            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.DECELERATE);
+            MessageManager.getInstance().addMessage(INTENT.DECELERATE, entity);
         }
         boolean didTurn = false;
         if(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.A]){
-            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.LEFTTURN, 35);
+            MessageManager.getInstance().addMessage(INTENT.LEFTTURN, entity, 35);
             didTurn |= true;
         }
         if(keysdown[Input.Keys.RIGHT]||keysdown[Input.Keys.D]){
-            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.RIGHTTURN, -35);
+            MessageManager.getInstance().addMessage(INTENT.RIGHTTURN, entity, -35);
             didTurn |= true;
         }
         if(!didTurn) {
-            MessageManager.getInstance().addMessage(SteeringSystem.class, entity, INTENT.STRAIGHT, 0);
+            MessageManager.getInstance().addMessage(INTENT.STRAIGHT, entity, 0);
         }
         if(keysdown[Input.Keys.SPACE]||keysdown[CONTROL_RIGHT]|| mousedown[Input.Buttons.LEFT]){
-            MessageManager.getInstance().addMessage(WeaponSystem.class, entity);
+            MessageManager.getInstance().addMessage(INTENT.FIRE, entity);
         }
         //for aiming the weapon
         Vector3 vector3 = new Vector3(screenX, screenY, 0);
         ShmupGame.getCam().unproject(vector3);
-        MessageManager.getInstance().addMessage(WeaponSystem.class,entity,(int)vector3.x,(int)vector3.y);
+        MessageManager.getInstance().addMessage(INTENT.AIM, entity,(int)vector3.x,(int)vector3.y);
 
 
     }

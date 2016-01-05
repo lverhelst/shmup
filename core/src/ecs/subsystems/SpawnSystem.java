@@ -3,6 +3,7 @@ package ecs.subsystems;
 import java.util.ArrayList;
 
 import Factories.CarFactory;
+import MessageManagement.INTENT;
 import ecs.Entity;
 import ecs.SubSystem;
 import ecs.components.HealthComponent;
@@ -18,13 +19,16 @@ public class SpawnSystem implements SubSystem{
     static ArrayList<Point> spawnPoints = new ArrayList<Point>();
     static int newSpawn = 0; //TODO: replace with something better
 
-    public void processMessage(Object ... list) {
-        if(list[0].getClass() == Entity.class) {
-            Entity e = (Entity)list[0];
-            spawn(e);
-        } else if(list[0].getClass() == Point.class) {
-            Point spawn = (Point)list[0];
-            addSpawnPoint(spawn);
+    public void processMessage(INTENT intent, Object ... list) {
+        switch (intent) {
+            case SPAWN:
+                Entity e = (Entity)list[0];
+                spawn(e);
+                break;
+            case ADDSPAWN:
+                Point spawn = (Point)list[0];
+                addSpawnPoint(spawn);
+                break;
         }
     }
 

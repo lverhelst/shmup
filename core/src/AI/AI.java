@@ -157,38 +157,38 @@ public class AI implements IntentGenerator {
            // System.out.println("Right " + rightWall + " Left " + leftWall);
 
             if((rightWall && leftWall) || middleWall){
-                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.DECELERATE);
-                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.STRAIGHT, 0);
+                MessageManager.getInstance().addMessage(INTENT.DECELERATE, controlledEntity);
+                MessageManager.getInstance().addMessage(INTENT.STRAIGHT, controlledEntity, 0);
             }else if (rightWall){
-                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.LEFTTURN, SteeringComponent.DIRECTION.LEFT.getAngle());
-                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
+                MessageManager.getInstance().addMessage(INTENT.LEFTTURN, controlledEntity, SteeringComponent.DIRECTION.LEFT.getAngle());
+                MessageManager.getInstance().addMessage(INTENT.ACCELERATE, controlledEntity);
             }else if (leftWall){
-                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.RIGHTTURN,SteeringComponent.DIRECTION.RIGHT.getAngle());
-                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
+                MessageManager.getInstance().addMessage(INTENT.RIGHTTURN, controlledEntity, SteeringComponent.DIRECTION.RIGHT.getAngle());
+                MessageManager.getInstance().addMessage(INTENT.ACCELERATE, controlledEntity);
             }else{
-                MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.ACCELERATE);
+                MessageManager.getInstance().addMessage(INTENT.ACCELERATE, controlledEntity);
                 boolean didTurn = false;
 
                 //System.out.println("Setting rotation" + rotation);
                 if(rotation > 0){
                     didTurn = true;
-                    MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.LEFTTURN, (180 - rotation));
+                    MessageManager.getInstance().addMessage(INTENT.LEFTTURN, controlledEntity, (180 - rotation));
 
 
                 }else if(rotation  < 0){
                     didTurn = true;
-                    MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.RIGHTTURN, -(180 + rotation));
+                    MessageManager.getInstance().addMessage(INTENT.RIGHTTURN, controlledEntity, -(180 + rotation));
                 }
 
 
                 if(Math.abs(rotation) > 172)
-                    MessageManager.getInstance().addMessage(WeaponSystem.class, controlledEntity, INTENT.FIRE);
+                    MessageManager.getInstance().addMessage(INTENT.FIRE, controlledEntity);
 
 
 
 
                 if(!didTurn) {
-                    MessageManager.getInstance().addMessage(SteeringSystem.class, controlledEntity, INTENT.STRAIGHT, 0);
+                    MessageManager.getInstance().addMessage(INTENT.STRAIGHT, controlledEntity, 0);
                 }
             }
         }
@@ -212,7 +212,7 @@ public class AI implements IntentGenerator {
                             waitToRespawn = true;
                         }else{
                             waitToRespawn = false;
-                            MessageManager.getInstance().addMessage(SpawnSystem.class, entity);
+                            MessageManager.getInstance().addMessage(INTENT.SPAWN, entity);
                         }
                     }
                 }
@@ -241,7 +241,7 @@ public class AI implements IntentGenerator {
                 if ((entity.get(PhysicalComponent.class)).isRoot) {
                     if (entity.has(HealthComponent.class)) {
                         ( entity.get(HealthComponent.class)).setCur_Health(0);
-                        MessageManager.getInstance().addMessage(RemovalSystem.class, entity, INTENT.DIED);
+                        MessageManager.getInstance().addMessage(INTENT.DIED, entity);
                     }
                 }
                 return;

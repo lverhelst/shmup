@@ -17,6 +17,7 @@ import java.util.Random;
 
 import AI.IntentGenerator;
 import AI.AI;
+import MessageManagement.INTENT;
 import MessageManagement.MessageManager;
 import ecs.components.ChildEntityComponent;
 import ecs.components.DamageComponent;
@@ -71,7 +72,7 @@ public class CarFactory {
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
         }
-        MessageManager.getInstance().addMessage(SpawnSystem.class, carBodyEntity);
+        MessageManager.getInstance().addMessage(INTENT.SPAWN, carBodyEntity);
 
         return carBodyEntity;
     }
@@ -301,7 +302,7 @@ public class CarFactory {
         pc.maxContacts = 1;
         Entity deadlySpike = new Entity(pc, new DamageComponent(86));
         f.setUserData(deadlySpike);
-        MessageManager.getInstance().addMessage(SpawnSystem.class, deadlySpike);
+        MessageManager.getInstance().addMessage(INTENT.SPAWN, deadlySpike);
     }
 
     /***
@@ -326,7 +327,7 @@ public class CarFactory {
         PhysicalComponent pc = new PhysicalComponent(spikyBody);
         Entity deadlySpike = new Entity(pc, new TypeComponent(1));
         f.setUserData(deadlySpike);
-        MessageManager.getInstance().addMessage(SpawnSystem.class, deadlySpike);
+        MessageManager.getInstance().addMessage(INTENT.SPAWN, deadlySpike);
     }
 
 }

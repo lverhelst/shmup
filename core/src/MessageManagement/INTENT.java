@@ -15,7 +15,8 @@ public enum INTENT {
     STRAIGHT,
     REMOVE,
     DIED,
-    SPAWN_PLAYER,
-    SPAWN_AI
-
+    SPAWN,
+    SPAWN_AI,
+    ADDSPAWN,
+    AIM
 }

@@ -22,12 +22,11 @@ import MessageManagement.INTENT;
 
 public class RemovalSystem implements SubSystem{
 
-    public void processMessage(Object... list) {
-        if(list[0].getClass() == Entity.class && list[1].getClass() == INTENT.class) {
+    public void processMessage(INTENT intent, Object... list) {
+        if(list[0].getClass() == Entity.class) {
             Entity e = (Entity)list[0];
-            INTENT i = (INTENT)list[1];
 
-            switch (i) {
+            switch (intent) {
                 case REMOVE:
                     remove(e);
                     break;

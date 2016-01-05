@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import Input.MyInputAdapter;
 import Factories.CarFactory;
 import Level.Level;
+import MessageManagement.INTENT;
 import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.EntityManager;
@@ -54,10 +55,25 @@ public class TestGameState extends GameState {
         super(gsm);
         bf = new BitmapFont();
 
-        slightlyWarmMail.addSystem(SteeringSystem.class, new SteeringSystem());
-        slightlyWarmMail.addSystem(WeaponSystem.class, new WeaponSystem());
-        slightlyWarmMail.addSystem(RemovalSystem.class, new RemovalSystem());
-        slightlyWarmMail.addSystem(SpawnSystem.class, new SpawnSystem());
+        //Steering
+        slightlyWarmMail.registerSystem(INTENT.ACCELERATE, new SteeringSystem());
+        slightlyWarmMail.registerSystem(INTENT.BOOST, new SteeringSystem());
+        slightlyWarmMail.registerSystem(INTENT.LEFTTURN, new SteeringSystem());
+        slightlyWarmMail.registerSystem(INTENT.DECELERATE, new SteeringSystem());
+        slightlyWarmMail.registerSystem(INTENT.RIGHTTURN, new SteeringSystem());
+        slightlyWarmMail.registerSystem(INTENT.STRAIGHT, new SteeringSystem());
+
+        //Fire
+        slightlyWarmMail.registerSystem(INTENT.FIRE, new WeaponSystem());
+        slightlyWarmMail.registerSystem(INTENT.AIM, new WeaponSystem());
+
+        //Remove
+        slightlyWarmMail.registerSystem(INTENT.DIED, new RemovalSystem());
+        slightlyWarmMail.registerSystem(INTENT.REMOVE, new RemovalSystem());
+
+        //Spawn
+        slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem());
+        slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem());
 
         EntityManager.getInstance().clear();
         slightlyWarmMail.clearMessages();

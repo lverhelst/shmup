@@ -54,7 +54,7 @@ public class ContactSystem implements ContactListener{
                 pc.numberOfContact++;
                 if(pc.numberOfContact == pc.maxContacts){
                     //Flag entity for deletion
-                    MessageManager.getInstance().addMessage(RemovalSystem.class, ecs, INTENT.REMOVE);
+                    MessageManager.getInstance().addMessage(INTENT.REMOVE, ecs);
                 }
             }
         }
@@ -73,7 +73,7 @@ public class ContactSystem implements ContactListener{
                         (aEntity.get(HealthComponent.class)).reduceCur_Health((bEntity.get(DamageComponent.class)).damage);
                         //if the other entity is now dead, send the dead messagea
                         if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
-                            MessageManager.getInstance().addMessage(RemovalSystem.class, aEntity, INTENT.DIED);
+                            MessageManager.getInstance().addMessage(INTENT.DIED, aEntity);
                         }
                     }
                 }

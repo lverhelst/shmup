@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import Factories.CarFactory;
+import MessageManagement.INTENT;
 import MessageManagement.MessageManager;
 import ecs.SubSystem;
 import gameObjects.DoubleDamagePowerUp;
@@ -29,7 +30,7 @@ public class PowerUpSystem implements SubSystem{
         livePowerUp = new PowerUp[10];
     }
 
-    public void processMessage(Object... list) {
+    public void processMessage(INTENT intent, Object... list) {
         //TODO make messagable
     }
 
@@ -41,7 +42,7 @@ public class PowerUpSystem implements SubSystem{
         for (int i = 0; i < livePowerUp.length; i++){
             if(livePowerUp[i] == null || !livePowerUp[i].isActive()){
                 livePowerUp[i] = randomPowerUp();
-                MessageManager.getInstance().addMessage(SpawnSystem.class, livePowerUp[i].createEntity());
+                MessageManager.getInstance().addMessage(INTENT.SPAWN, livePowerUp[i].createEntity());
             }
             //update powerup
             livePowerUp[i].update();

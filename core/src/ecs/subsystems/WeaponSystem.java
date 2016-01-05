@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 
+import MessageManagement.INTENT;
 import ecs.Entity;
 import ecs.SubSystem;
 import ecs.components.DamageComponent;
@@ -23,7 +24,7 @@ import verberg.com.shmup.ShmupGame;
  */
 public class WeaponSystem implements SubSystem {
 
-    public void processMessage(Object ... list) {
+    public void processMessage(INTENT intent, Object ... list) {
         if(list[0].getClass() == Entity.class) {
             Entity e = (Entity)list[0];
             if(e.has(HealthComponent.class)){

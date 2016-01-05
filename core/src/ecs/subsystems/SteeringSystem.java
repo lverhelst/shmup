@@ -24,15 +24,14 @@ public class SteeringSystem implements SubSystem {
     private int boost_multiplier;
     private int steering_angle_deg;
 
-    public void processMessage(Object ... list) {
-        if(list[0].getClass() == Entity.class && list[1].getClass() == INTENT.class) {
+    public void processMessage(INTENT intent, Object ... list) {
+        if(list[0].getClass() == Entity.class) {
             Entity e = (Entity)list[0];
-            INTENT i = (INTENT)list[1];
-            if(i == INTENT.LEFTTURN || i == INTENT.RIGHTTURN || i == INTENT.STRAIGHT){
-                steering_angle_deg = (Integer)list[2];
+            if(intent == INTENT.LEFTTURN || intent == INTENT.RIGHTTURN || intent == INTENT.STRAIGHT){
+                steering_angle_deg = (Integer)list[1];
             }
 
-            updateSteering(e,i);
+            updateSteering(e,intent);
         }
     }
 

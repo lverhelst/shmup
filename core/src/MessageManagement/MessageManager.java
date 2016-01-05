@@ -11,14 +11,13 @@ import ecs.SubSystem;
 public class MessageManager {
 
     //TODO create a pool for messages? (lower the number of new operator)
-
-    private HashMap<Class, SubSystem> systems;
+    private HashMap<INTENT, ArrayList<SubSystem>> intentList;
     private ArrayList<Message> messages;
     private static MessageManager instance;
 
 
     protected MessageManager() {
-        systems = new HashMap<Class, SubSystem>();
+        intentList = new HashMap<INTENT, ArrayList<SubSystem>>();
         messages = new ArrayList<Message>();
     }
 
@@ -29,14 +28,18 @@ public class MessageManager {
         return instance;
     }
 
+    public void registerSystem(INTENT intent, SubSystem system) {
+        if(!intentList.containsKey(intent)) {
+            intentList.put(intent, new ArrayList<SubSystem>());
+        }
 
-    public void addSystem(Class systemType, SubSystem system) {
-        if(!systems.containsKey(systemType))
-            systems.put(systemType, system);
+        if(!intentList.get(intent).contains(system)) {
+            intentList.get(intent).add(system);
+        }
     }
 
-    public void addMessage(Class system, Object ... list){
-        messages.add(new Message(system, list));
+    public void addMessage(INTENT intent, Object ... list){
+        messages.add(new Message(intent, list));
     }
 
     public void clearMessages(){
@@ -45,8 +48,9 @@ public class MessageManager {
 
     public void update() {
         for(Message msg: messages) {
-            SubSystem system = systems.get(msg.getSystem());
-            system.processMessage(msg.getParameters());
+            for(SubSystem system: intentList.get(msg.getIntent())) {
+                system.processMessage(msg.getIntent(), msg.getParameters());
+            }
         }
         clearMessages();
     }
