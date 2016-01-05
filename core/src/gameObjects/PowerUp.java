@@ -34,38 +34,38 @@ public abstract class PowerUp {
     }
 
     //spawn at location
-    public void spawn(float x, float y) {
+    public Entity createEntity() {
         BodyDef bdef = new BodyDef();
         bdef.type = BodyDef.BodyType.DynamicBody;
-        bdef.position.set(x,y);
-
 
         body = ShmupGame.getWorld().createBody(bdef);
 
         Vector2[] vertices = new Vector2[5];
-        vertices[0] = new Vector2(-1,0);
-        vertices[1] = new Vector2(1,0);
-        vertices[2] = new Vector2(2,1);
-        vertices[3] = new Vector2(0,3);
-        vertices[4] = new Vector2(-2,1);
+        vertices[0] = new Vector2(-.1f,0);
+        vertices[1] = new Vector2(.1f,0);
+        vertices[2] = new Vector2(.2f,.1f);
+        vertices[3] = new Vector2(0,.3f);
+        vertices[4] = new Vector2(-.2f,.1f);
         PolygonShape pShape = new PolygonShape();
         pShape.set(vertices);
 
         FixtureDef fd = new FixtureDef();
+        fd.isSensor = true;
         fd.shape = pShape;
         fd.filter.categoryBits = Constants.POWERUP_BIT;
         fd.filter.maskBits = Constants.POWERUP_MASK;
 
         Fixture fixture = body.createFixture(fd);
+        fixture.setDensity(0f);
         fixture.setUserData(this);
-        new Entity(this.getClass().toString(), new PhysicalComponent(body));
+        Entity powerup = new Entity(this.getClass().getSimpleName(), new PhysicalComponent(body));
 
 
 
         timeSpawned = System.currentTimeMillis();
         timePickedUp = 0;
         isActive = true;
-
+        return powerup;
     }
 
     public void update(){

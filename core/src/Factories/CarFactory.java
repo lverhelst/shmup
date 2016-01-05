@@ -28,6 +28,7 @@ import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.ControlledComponent;
 import ecs.components.SteeringComponent;
+import ecs.components.TypeComponent;
 import ecs.components.WeaponComponent;
 import ecs.subsystems.SpawnSystem;
 import verberg.com.shmup.Constants;
@@ -65,7 +66,7 @@ public class CarFactory {
         spawn.create("SPAWN", "RED", 1f + rand.nextInt(12), 1f + rand.nextInt(12));
 
         Entity carBodyEntity = assembleCarBody(ig, spawn);
-        if(!(ig instanceof AI))
+       // if(!(ig instanceof AI))
             addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
@@ -131,31 +132,7 @@ public class CarFactory {
         }
     }
 
-    /***
-     * Spawns a spiky thing
-     */
-    public static void getMoreCarsIntTheShopExe(){
 
-        //spawning location stuff
-        Random random = new Random();
-
-        BodyDef bdef = new BodyDef();
-        bdef.type = BodyDef.BodyType.DynamicBody;
-        bdef.position.set(new Vector2(random.nextInt(128) + 64, random.nextInt(128) + 64)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
-        Body spikyBody = ShmupGame.getWorld().createBody(bdef);
-
-        CircleShape circleShape = new CircleShape();
-        circleShape.setRadius(4f); //Make it real big
-
-        Fixture f = spikyBody.createFixture(circleShape, 10.0f);
-        Filter filter2 = new Filter();
-        filter2.categoryBits = Constants.POWERUP_BIT;
-        filter2.maskBits = Constants.POWERUP_MASK;
-        f.setFilterData(filter2);
-        PhysicalComponent pc = new PhysicalComponent(spikyBody);
-        pc.maxContacts = 1;
-        f.setUserData(new Entity(pc, new DamageComponent(86)));
-    }
 
     private Entity assembleCarBody(IntentGenerator ig, Point spawn){
 
@@ -196,7 +173,7 @@ public class CarFactory {
         if(!(ig instanceof AI)){
             carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
         }else{
-            carBodyEntity = new Entity("AICarTest",new PhysicalComponent(carbody), new DamageComponent(10), new ControlledComponent(ig), new HealthComponent(100),cec);
+            carBodyEntity = new Entity("AICarTest",new PhysicalComponent(carbody), new DamageComponent(0), new ControlledComponent(ig), new HealthComponent(100),cec);
         }
         (carBodyEntity.get(PhysicalComponent.class)).isRoot = true;
 
@@ -270,7 +247,7 @@ public class CarFactory {
         Body tireBody = ShmupGame.getWorld().createBody(tireBodyDef);
 
         PolygonShape tireShape = new PolygonShape();
-        tireShape.setAsBox(tValue.get("size").asFloatArray()[0],tValue.get("size").asFloatArray()[1]);
+        tireShape.setAsBox(tValue.get("size").asFloatArray()[0], tValue.get("size").asFloatArray()[1]);
 
         Fixture fixture = tireBody.createFixture(tireShape,0.1f);
         Filter filter = new Filter();
@@ -292,15 +269,64 @@ public class CarFactory {
         joint = new Entity("JointEntity", new JointComponent(carBodyEntity.get(PhysicalComponent.class).getBody(), tireBody, v2, tireName));
 
         tireEntity.addComponent(new ParentEntityComponent(joint));
-
-
         joint.addComponent(new ParentEntityComponent(carBodyEntity));
         joint.addComponent(new ChildEntityComponent(tireEntity));
-
-
-
-
         carBodyEntity.get(ChildEntityComponent.class).childList.add(joint);
 
     }
+
+
+    /***
+     * Spawns a spiky thing
+     */
+    public static void getMoreCarsIntTheShopExe(){
+
+        //spawning location stuff
+        Random random = new Random();
+
+        BodyDef bdef = new BodyDef();
+        bdef.type = BodyDef.BodyType.DynamicBody;
+        //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        Body spikyBody = ShmupGame.getWorld().createBody(bdef);
+
+        CircleShape circleShape = new CircleShape();
+        circleShape.setRadius(0.4f); //Make it real big
+
+        Fixture f = spikyBody.createFixture(circleShape, 2.0f);
+        Filter filter2 = new Filter();
+        filter2.categoryBits = Constants.POWERUP_BIT;
+        filter2.maskBits = Constants.POWERUP_MASK;
+        f.setFilterData(filter2);
+        PhysicalComponent pc = new PhysicalComponent(spikyBody);
+        pc.maxContacts = 1;
+        Entity deadlySpike = new Entity(pc, new DamageComponent(86));
+        f.setUserData(deadlySpike);
+        MessageManager.getInstance().addMessage(SpawnSystem.class, deadlySpike);
+    }
+
+    /***
+     * Spawns an oversized beach ball
+     */
+    public static void  spawnBeachBall(){
+
+        BodyDef bdef = new BodyDef();
+        bdef.type = BodyDef.BodyType.DynamicBody;
+        //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        Body spikyBody = ShmupGame.getWorld().createBody(bdef);
+
+        CircleShape circleShape = new CircleShape();
+        circleShape.setRadius(2f); //Make it real big
+
+        //very little density since it's filled with air
+        Fixture f = spikyBody.createFixture(circleShape, 0.00001f);
+        Filter filter2 = new Filter();
+        filter2.categoryBits = Constants.CAR_BIT;
+        filter2.maskBits = Constants.CAR_MASK;
+        f.setFilterData(filter2);
+        PhysicalComponent pc = new PhysicalComponent(spikyBody);
+        Entity deadlySpike = new Entity(pc, new TypeComponent(1));
+        f.setUserData(deadlySpike);
+        MessageManager.getInstance().addMessage(SpawnSystem.class, deadlySpike);
+    }
+
 }

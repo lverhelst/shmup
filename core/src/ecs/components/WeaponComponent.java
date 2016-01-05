@@ -21,6 +21,9 @@ public class WeaponComponent extends Component {
         this.weaponEntity = weaponEntity;
     }
 
-
-
+    @Override
+    public void dispose() {
+        super.dispose();
+        weaponEntity.removeAllComponents();
+    }
 }

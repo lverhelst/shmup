@@ -27,7 +27,9 @@ import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.components.DamageComponent;
 import ecs.components.PhysicalComponent;
+import ecs.subsystems.PowerUpSystem;
 import ecs.subsystems.SpawnSystem;
+import gameObjects.PowerUp;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.ShmupGame;
 
@@ -77,7 +79,7 @@ public class Level {
 
 
         //TODO: add joint handling and creation from file
-        Body circle = createCircle("WALL", 155, 155, 5, 1, 1, BodyType.StaticBody);
+        Body circle = createCircle("WALL", 15.5f, 15.5f, 0.5f, 0.1f, 0.1f, BodyType.StaticBody);
 
         /**
          * The navigation graph needs to detect the circle, but not detect the blade.
@@ -87,7 +89,7 @@ public class Level {
 
         if(!filename.equals("blacklevel.lvl")) {
 
-            blade = createBox("WALL", 160, 154.5f, 150, 2, 0, 1, BodyType.DynamicBody);
+            blade = createBox("WALL", 16, 15.45f, 15, 0.2f, 0f, 0.1f, BodyType.DynamicBody);
 
             RevoluteJointDef joint = new RevoluteJointDef();
             joint.bodyA = circle;
@@ -153,7 +155,7 @@ public class Level {
                 newPoint.create(type, subtype, pos[0], pos[1]);
 
                 if(type.equals("PICKUP")) {
-                    //send pickup point???
+                    //TODO: pick powerup type from subtype
                 } else {
                     MessageManager.getInstance().addMessage(SpawnSystem.class, newPoint);
                 }

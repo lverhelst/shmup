@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.Joint;
 import ecs.Entity;
 import ecs.SubSystem;
 import ecs.components.ChildEntityComponent;
+import ecs.components.DamageComponent;
 import ecs.components.JointComponent;
 import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
@@ -53,6 +54,11 @@ public class RemovalSystem implements SubSystem{
     }
 
     public void madeDead(Entity e) {
+        if(e.has(DamageComponent.class)){
+            e.removeComponent(DamageComponent.class);
+        }
+
+
         if(e.has(PhysicalComponent.class)) {
             if (e.get(PhysicalComponent.class).isRoot) {
                 //Destroy Joints

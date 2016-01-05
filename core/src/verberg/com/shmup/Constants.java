@@ -21,6 +21,7 @@ public class Constants {
      *  TIRE            TIRE                   WALL|TIRE|CAR|BULLET  //Don't need to collide w/ powerup since if we only collide with body then we're conveniently at root of car
      *  POWERUP         POWERUP                CAR
      *  BULLET          BULLET                 WALL|TIRE|CAR|BULLET  //Don't collide w/ powerups
+     *
      */
 
     //0000 0000 0000 0001

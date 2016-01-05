@@ -74,7 +74,7 @@ public class TestGameState extends GameState {
         testCar = carFactory.produceCarECS(playerInput = new MyInputAdapter());
         testCar.addComponent(new CameraAttachmentComponent());
 
-        for(int  i = 0; i < 4; i++){
+        for(int  i = 0; i < 10; i++){
             carFactory.produceCarECS(new AI());
         }
 
@@ -85,6 +85,9 @@ public class TestGameState extends GameState {
         renderSystem = new RenderSystem();
 
         setInputProcessor(playerInput);
+
+
+        carFactory.spawnBeachBall();
 
 /*
         setInputProcessor(new InputAdapter(){

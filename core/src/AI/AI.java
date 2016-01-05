@@ -18,6 +18,7 @@ import ecs.components.ControlledComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.SteeringComponent;
+import ecs.components.TypeComponent;
 import ecs.components.WeaponComponent;
 import ecs.subsystems.RemovalSystem;
 import ecs.subsystems.SpawnSystem;
@@ -55,30 +56,26 @@ public class AI implements IntentGenerator {
     public void setTarget(Entity e){
 
 
-        System.out.println("Set target");
+       // System.out.println("Set target");
         target = e;
         debug = true;
     }
 
     private void selectTarget(){
-        ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponent(WeaponComponent.class);
+        ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponent(TypeComponent.class);
         if(targetables.size() >= 1) {
             Entity e = null;
             for(UUID uuid : targetables){
-                if(EntityManager.getInstance().getEntity(uuid).has(ControlledComponent.class)){
-                    if(EntityManager.getInstance().getEntity(uuid).get(ControlledComponent.class).ig instanceof MyInputAdapter){
-                        e = EntityManager.getInstance().getEntity(uuid);
-                        System.out.println("Entity target: " + e);
-                    }
-                }
+               e = EntityManager.getInstance().getEntity(uuid);
+   //  System.out.println("Entity target: " + e);
             }
 
             if(e != null) {
                 target = e;
-                System.out.println("Tar " + e );
+              //  System.out.println("Tar " + e );
             }
             if (debug) {
-                 System.out.println("Tar " + e );
+              //   System.out.println("Tar " + e );
             }
         }
     }

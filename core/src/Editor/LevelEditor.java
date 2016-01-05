@@ -618,6 +618,7 @@ public class LevelEditor extends ApplicationAdapter {
 
         public void zoom(OrthographicCamera cam, float amount) {
             zoom += amount;
+            System.out.println("zoom " + zoom + " amount " + amount);
             zoom = Math.min(Math.max(zoom, 0.1f), 5f);
             cam.zoom = zoom;
         }

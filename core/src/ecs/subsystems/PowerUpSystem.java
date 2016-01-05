@@ -1,8 +1,10 @@
 package ecs.subsystems;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import Factories.CarFactory;
+import MessageManagement.MessageManager;
 import ecs.SubSystem;
 import gameObjects.DoubleDamagePowerUp;
 import gameObjects.FireRatePowerUp;
@@ -15,17 +17,16 @@ import gameObjects.RepairPowerUp;
  * Created by Orion on 11/30/2015.
  */
 public class PowerUpSystem implements SubSystem{
-    Random rand;
+    private static Random rand = new Random();
 
 
     //One at a time for now
-    PowerUp[] livePowerUp;
+    static PowerUp[] livePowerUp;
     int x = 0;
 
 
     public PowerUpSystem(){
-        rand = new Random();
-        livePowerUp = new PowerUp[4];
+        livePowerUp = new PowerUp[10];
     }
 
     public void processMessage(Object... list) {
@@ -40,7 +41,7 @@ public class PowerUpSystem implements SubSystem{
         for (int i = 0; i < livePowerUp.length; i++){
             if(livePowerUp[i] == null || !livePowerUp[i].isActive()){
                 livePowerUp[i] = randomPowerUp();
-                livePowerUp[i].spawn(64 + rand.nextInt(64), 64 + rand.nextInt(64));
+                MessageManager.getInstance().addMessage(SpawnSystem.class, livePowerUp[i].createEntity());
             }
             //update powerup
             livePowerUp[i].update();
@@ -54,16 +55,21 @@ public class PowerUpSystem implements SubSystem{
     /***
      * @return New instance of a random powerup
      */
-    private PowerUp randomPowerUp(){
+    public static PowerUp randomPowerUp(){
         //increase the below integer as more powerups are added
         //can also change spawn distribution here
+        PowerUp ret = null;
         switch(rand.nextInt(4)){
-            case 0: System.out.println("spawning fire rate");    return new FireRatePowerUp();
-            case 1: System.out.println("spawning double damage");return new DoubleDamagePowerUp();
-            case 2: System.out.println("spawning health");       return new GradualHealPowerUp();
-            case 3: System.out.println("spawning reapir");       return new RepairPowerUp();
+            case 0: ret =  new FireRatePowerUp();
+                break;
+            case 1: ret =  new DoubleDamagePowerUp();
+                break;
+            case 2: ret =  new GradualHealPowerUp();
+                break;
+            case 3: ret =  new RepairPowerUp();
+                break;
         }
-        return null;
+        return ret;
     }
 
 }

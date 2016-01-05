@@ -45,6 +45,10 @@ public class SpawnSystem implements SubSystem{
                     }
                 }
             }
+        }else if(e.has(PhysicalComponent.class)){
+            newSpawn = (newSpawn + 1) % spawnPoints.size();
+            System.out.println("Spawning " + e.getName() + " at " + spawnPoints.get(newSpawn).position);
+            e.get(PhysicalComponent.class).getBody().setTransform(spawnPoints.get(newSpawn).position, newSpawn);
         }
     }
 
