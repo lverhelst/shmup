@@ -2,6 +2,7 @@ package verberg.com.shmup;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
@@ -12,6 +13,17 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
@@ -46,11 +58,101 @@ public class LevelEditorGameState extends GameState {
 
     private BitmapFont bitmapFont;
 
+    private Stage stage;
+
+    final Slider gridSlider, zoomSlider;
+
     public LevelEditorGameState(GameStateManager gsm){
         super(gsm);
+
+
         bitmapFont = new BitmapFont();
         levelObjects = new ArrayList<Selectable>();
-        setInputProcessor(new EditorInputAdapter());
+
+
+        stage = new Stage();
+
+        Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
+        Label titleLabel = new Label("Level Editor", skin);
+        stage.addActor(titleLabel);
+        Table table = new Table();
+        stage.addActor(table);
+        table.setSize(V_WIDTH / 3, V_HEIGHT);
+        table.setPosition(0, 0);
+        table.debug();//show debug shit
+
+        int i = 0;
+        for(E_TOOL e: E_TOOL.values()){
+            //for use in the input listener
+            final E_TOOL temp = e;
+            TextButton b = new TextButton(e.name(), skin);
+            b.addListener(new InputListener(){
+                @Override
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                    current_Tool = temp;
+                    return false;
+                }
+            });
+
+            if(++i % 2 == 0){
+                table.row();
+            }
+            table.add(b);
+        }
+
+
+        table.row();
+
+        table.add(new Label("Zoom", skin));
+        zoomSlider = new Slider(0.1f,10.0f,0.1f,false, skin);
+        zoomSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                cam.zoom = zoom = zoomSlider.getValue();
+            }
+        });
+        table.add(zoomSlider);
+
+
+        table.row();
+
+        table.add(new Label("Grid", skin));
+        gridSlider = new Slider(1,20,1,false, skin);
+        gridSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                gridSize = (int) gridSlider.getValue();
+            }
+        });
+        table.add(gridSlider);
+
+        final List pointTypeList = new List(skin);
+        pointTypeList.setItems(Point.TYPE.values());
+        pointTypeList.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                point_Type = (Point.TYPE)pointTypeList.getSelected();
+            }
+        });
+
+
+        final List shapeTypeList = new List(skin);
+        shapeTypeList.setItems(Shape.TYPE.values());
+        shapeTypeList.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                shape_Type = (Shape.TYPE)shapeTypeList.getSelected();
+            }
+        });
+
+
+        table.row();
+        table.add(pointTypeList);
+
+        table.row();
+        table.add(shapeTypeList);
+
+
 
         current_Tool = E_TOOL.SELECT;
         point_Type = Point.TYPE.SPAWN;
@@ -65,6 +167,9 @@ public class LevelEditorGameState extends GameState {
 
         filename = "blacklevel.lvl";
         loadLevel(filename);
+
+        setInputProcessor(new InputMultiplexer(stage, new EditorInputAdapter()));
+
     }
 
     @Override
@@ -76,6 +181,10 @@ public class LevelEditorGameState extends GameState {
 
     @Override
     public void update(float dt) {
+        gridSlider.setValue(gridSize);
+        zoomSlider.setValue(cam.zoom);
+
+        stage.act();
         cam.update();
     }
 
@@ -122,6 +231,8 @@ public class LevelEditorGameState extends GameState {
         }
 
         sp.end();
+
+        stage.draw();
     }
 
     @Override
@@ -620,7 +731,7 @@ public class LevelEditorGameState extends GameState {
 
         public void zoom(OrthographicCamera cam, float amount) {
             zoom += amount;
-            zoom = Math.min(Math.max(zoom, 0.1f), 5f);
+            zoom = Math.min(Math.max(zoom, 0.1f), 10f);
             cam.zoom = zoom;
         }
 

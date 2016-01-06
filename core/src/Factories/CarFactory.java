@@ -316,7 +316,7 @@ public class CarFactory {
         Body spikyBody = ShmupGame.getWorld().createBody(bdef);
 
         CircleShape circleShape = new CircleShape();
-        circleShape.setRadius(2f); //Make it real big
+        circleShape.setRadius(1f); //Make it real big
 
         //very little density since it's filled with air
         Fixture f = spikyBody.createFixture(circleShape, 0.00001f);
