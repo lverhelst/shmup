@@ -53,7 +53,7 @@ public class MainMenuGameState extends GameState {
         SpriteBatch sp = this.gsm.game().getBatch();
         sp.begin();
 
-        bf.draw(sp, "1: Play, 2:Testbed 3: LevelEditor ESC (returns to this menu from other screen", 600,400);
+        bf.draw(sp, "1: Play, 2:Testbed 3: LevelEditor  ESC (returns to this menu from other screen", 600,400);
 
         sp.end();
     }

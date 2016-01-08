@@ -3,14 +3,11 @@ package verberg.com.shmup;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
@@ -23,9 +20,10 @@ import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.EntityManager;
 import ecs.components.CameraAttachmentComponent;
-import ecs.components.PhysicalComponent;
+import ecs.components.FlagComponent;
 import ecs.subsystems.CameraSystem;
 import ecs.subsystems.ContactSystem;
+import ecs.subsystems.FlagUpdateSystem;
 import ecs.subsystems.InputSystem;
 import ecs.subsystems.PowerUpSystem;
 import ecs.subsystems.RemovalSystem;
@@ -44,6 +42,7 @@ public class TestGameState extends GameState {
     InputSystem inputSystem = new InputSystem();
     CameraSystem cameraSystem = new CameraSystem();
     PowerUpSystem powerupSystem = new PowerUpSystem();
+    FlagUpdateSystem flagUpdateSystem = new FlagUpdateSystem();
     RenderSystem renderSystem;
     Box2DDebugRenderer debugRenderer;
     Level test;
@@ -90,9 +89,11 @@ public class TestGameState extends GameState {
         testCar = carFactory.produceCarECS(playerInput = new MyInputAdapter());
         testCar.addComponent(new CameraAttachmentComponent());
 
-        for(int  i = 0; i < 10; i++){
+        for(int  i = 0; i < 4; i++){
             carFactory.produceCarECS(new AI());
         }
+
+        carFactory.spawnFlag();
 
 
 
@@ -160,6 +161,7 @@ public class TestGameState extends GameState {
         powerupSystem.update();
         //steeringSystem.update(entities);
         slightlyWarmMail.update();
+        flagUpdateSystem.update(EntityManager.getInstance().getEntitiesWithComponent(FlagComponent.class));
 
         cameraSystem.update(EntityManager.getInstance().entityList(), cam);
     }

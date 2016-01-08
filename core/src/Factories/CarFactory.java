@@ -21,6 +21,7 @@ import MessageManagement.INTENT;
 import MessageManagement.MessageManager;
 import ecs.components.ChildEntityComponent;
 import ecs.components.DamageComponent;
+import ecs.components.FlagComponent;
 import ecs.components.HealthComponent;
 import ecs.components.CameraAttachmentComponent;
 import ecs.Entity;
@@ -93,7 +94,7 @@ public class CarFactory {
         e.removeAllComponents();
 
         Entity carBodyEntity = assembleCarBody(cc.ig, spawn);
-        if(!(cc.ig instanceof AI))
+       // if(!(cc.ig instanceof AI))
             addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
@@ -328,6 +329,27 @@ public class CarFactory {
         Entity deadlySpike = new Entity(pc, new TypeComponent(1));
         f.setUserData(deadlySpike);
         MessageManager.getInstance().addMessage(INTENT.SPAWN, deadlySpike);
+    }
+
+
+    public static void spawnFlag(){
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+
+        Body flagBody = ShmupGame.getWorld().createBody(bodyDef);
+
+        PolygonShape flagShape = new PolygonShape();
+        flagShape.set(new float[]{-.25f,0f,.25f,0f,0f,1f});
+
+        Fixture f = flagBody.createFixture(flagShape, 0.1f);
+        Filter filter2 = new Filter();
+        filter2.categoryBits = Constants.POWERUP_BIT;
+        filter2.maskBits = Constants.POWERUP_MASK;
+        f.setFilterData(filter2);
+        PhysicalComponent pc = new PhysicalComponent(flagBody);
+        Entity flagEntity = new Entity("Flag", pc, new FlagComponent());
+        f.setUserData(flagEntity);
+        MessageManager.getInstance().addMessage(INTENT.SPAWN, flagEntity);
     }
 
 }

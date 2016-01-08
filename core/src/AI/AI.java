@@ -15,6 +15,7 @@ import ecs.EntityManager;
 import ecs.components.CameraAttachmentComponent;
 
 import ecs.components.ControlledComponent;
+import ecs.components.FlagComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.SteeringComponent;
@@ -62,7 +63,7 @@ public class AI implements IntentGenerator {
     }
 
     private void selectTarget(){
-        ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponent(TypeComponent.class);
+        ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponent(FlagComponent.class);
         if(targetables.size() >= 1) {
             Entity e = null;
             for(UUID uuid : targetables){
@@ -181,7 +182,7 @@ public class AI implements IntentGenerator {
                 }
 
 
-                if(Math.abs(rotation) > 172)
+               if(Math.abs(rotation) > 172)
                     MessageManager.getInstance().addMessage(INTENT.FIRE, controlledEntity);
 
 

@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.components.DamageComponent;
+import ecs.components.FlagComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 import gameObjects.PowerUp;
@@ -76,6 +77,14 @@ public class ContactSystem implements ContactListener{
                             MessageManager.getInstance().addMessage(INTENT.DIED, aEntity);
                         }
                     }
+                }
+                /*
+                    If something with a health component that's not dead and a root physical component hits a non-held flag, make it hold the flag
+                 */
+                if(aEntity.has(HealthComponent.class) && aEntity.get(HealthComponent.class).getHealthState() != HealthComponent.HEALTH_STATE.DEAD
+                        && aEntity.has(PhysicalComponent.class) && aEntity.get(PhysicalComponent.class).isRoot
+                        && bEntity.has(FlagComponent.class) && bEntity.get(FlagComponent.class).getHeldBy() == null){
+                    bEntity.get(FlagComponent.class).setHeldBy(aEntity.getUuid());
                 }
             }
 

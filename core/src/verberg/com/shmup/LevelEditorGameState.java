@@ -478,10 +478,10 @@ public class LevelEditorGameState extends GameState {
                     break;
                 case '=':
                 case '+':
-                    gridSize += 1;
+                    grid(1);
                     break;
                 case '-':
-                    gridSize -= 1;
+                    grid(-1);
                     break;
             }
 
@@ -733,6 +733,11 @@ public class LevelEditorGameState extends GameState {
             zoom += amount;
             zoom = Math.min(Math.max(zoom, 0.1f), 10f);
             cam.zoom = zoom;
+        }
+
+        public void grid(int amount){
+            gridSize += amount;
+            gridSize = Math.min(Math.max(gridSize, 1),20);
         }
 
         public void printFeilds(Selectable selectable) {
