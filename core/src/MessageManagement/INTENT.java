@@ -18,5 +18,6 @@ public enum INTENT {
     SPAWN,
     SPAWN_AI,
     ADDSPAWN,
-    AIM
+    AIM,
+    TEAM_CAPTURE
 }

@@ -32,6 +32,7 @@ import ecs.subsystems.SpawnSystem;
 import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
 import AI.AI;
+import gameObjects.TeamCTFCondition;
 
 /**
  * Created by Orion on 12/19/2015.
@@ -74,6 +75,8 @@ public class TestGameState extends GameState {
         slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem());
         slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem());
 
+        slightlyWarmMail.registerSystem(INTENT.TEAM_CAPTURE, new TeamCTFCondition(2, 3));
+
         EntityManager.getInstance().clear();
         slightlyWarmMail.clearMessages();
 
@@ -93,8 +96,8 @@ public class TestGameState extends GameState {
             carFactory.produceCarECS(new AI());
         }
 
-        carFactory.spawnFlag();
 
+        MessageManager.getInstance().addMessage(INTENT.SPAWN, carFactory.makeFlag());
 
 
 

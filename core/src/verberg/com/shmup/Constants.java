@@ -42,8 +42,8 @@ public class Constants {
     public static final int CAR_MASK = WALL_BIT | CAR_BIT | TIRE_BIT | POWERUP_BIT | BULLET_BIT | GROUND_BIT;   //63
     public static final int TIRE_MASK = WALL_BIT | CAR_BIT | TIRE_BIT | BULLET_BIT | GROUND_BIT;                //55
     public static final int BULLET_MASK = WALL_BIT | CAR_BIT | TIRE_BIT | BULLET_BIT;
-    public static final int POWERUP_MASK = CAR_BIT;                                                             //02
-    public static final int GROUND_MASK = CAR_BIT | TIRE_BIT;
+    public static final int POWERUP_MASK = CAR_BIT | GROUND_BIT;                                                //02*
+    public static final int GROUND_MASK = CAR_BIT | TIRE_BIT | POWERUP_BIT;
 
 
 }

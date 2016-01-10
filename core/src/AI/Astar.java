@@ -81,7 +81,7 @@ public class Astar {
         ArrayList<NavigationNode> startNodes = getVisibleNodes(source);
         if(startNodes.size() < 1){
             //no visible nodes, no path
-            System.out.println("No visible nav nodes from starting position");
+            //System.out.println("No visible nav nodes from starting position");
             startNode.dispose();
             return null;
         }
@@ -107,7 +107,7 @@ public class Astar {
 
             if(currentNode == null || currentNode.getBody() == null){
                 startNode.dispose();
-                System.out.println("Current Node is null");
+                //System.out.println("Current Node is null");
                 return null; //no path
             }
 
@@ -156,7 +156,7 @@ public class Astar {
         }while(!openList.isEmpty());
         startNode.dispose();
         //No path found
-        System.out.println("Open list empty");
+        //System.out.println("Open list empty");
         return null;
     }
 

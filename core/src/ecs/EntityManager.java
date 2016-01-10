@@ -36,7 +36,6 @@ public class EntityManager {
     }
 
     public void addEntity(Entity e){
-        System.out.println(e.getName() + " " + e.uuid);
         entitiesMap.put(e.uuid, e);
     }
 

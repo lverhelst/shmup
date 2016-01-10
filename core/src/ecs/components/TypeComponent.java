@@ -14,9 +14,21 @@ public class TypeComponent extends Component {
         this.type = type;
     }
 
-    public String ToString(){
+    public int getType() {
+        return type;
+    }
 
-        return (type == 1 ? "Beach Ball Type Component" : "Unknown Type");
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String ToString(){
+        switch (type){
+            case 0: return "Unk";
+            case 1: return "Beach Ball Type Component";
+            case 2: return "Goal Ground";
+            default: return "Unk";
+        }
     }
 
 

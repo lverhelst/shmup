@@ -30,6 +30,7 @@ import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.ControlledComponent;
 import ecs.components.SteeringComponent;
+import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
 import ecs.components.WeaponComponent;
 import ecs.subsystems.SpawnSystem;
@@ -79,6 +80,17 @@ public class CarFactory {
     }
 
     public void applyLifeTimeWarranty(Entity e, Point spawn){
+        /***
+         * Reload from file so that we test easily
+         */
+        FileHandle fileHandle = Gdx.files.internal("carlist");
+        jv = jr.parse(fileHandle);
+        jCar = jv.get("car");
+        jTires = new ArrayList<JsonValue>();
+        for(JsonValue tire : jCar.get("tires")) {
+            jTires.add(tire);
+        }
+
         ControlledComponent cc = null;
         if(e.has(ControlledComponent.class)) {
             cc = e.get(ControlledComponent.class);
@@ -173,9 +185,9 @@ public class CarFactory {
         Entity carBodyEntity = null;
         ChildEntityComponent cec = new ChildEntityComponent();
         if(!(ig instanceof AI)){
-            carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
+            carBodyEntity = new Entity("PlayerControlled",new PhysicalComponent(carbody), new CameraAttachmentComponent(), new HealthComponent(100), new ControlledComponent(ig),cec, new TeamComponent(0));
         }else{
-            carBodyEntity = new Entity("AICarTest",new PhysicalComponent(carbody), new DamageComponent(0), new ControlledComponent(ig), new HealthComponent(100),cec);
+            carBodyEntity = new Entity("AICarTest",new PhysicalComponent(carbody), new DamageComponent(0), new ControlledComponent(ig), new HealthComponent(100),cec, new TeamComponent(1));
         }
         (carBodyEntity.get(PhysicalComponent.class)).isRoot = true;
 
@@ -326,13 +338,14 @@ public class CarFactory {
         filter2.maskBits = Constants.CAR_MASK;
         f.setFilterData(filter2);
         PhysicalComponent pc = new PhysicalComponent(spikyBody);
-        Entity deadlySpike = new Entity(pc, new TypeComponent(1));
-        f.setUserData(deadlySpike);
-        MessageManager.getInstance().addMessage(INTENT.SPAWN, deadlySpike);
+        //steering component so that it slows down
+        Entity peachyBeachyBall = new Entity(pc, new TypeComponent(1), new SteeringComponent());
+        f.setUserData(peachyBeachyBall);
+        MessageManager.getInstance().addMessage(INTENT.SPAWN, peachyBeachyBall);
     }
 
 
-    public static void spawnFlag(){
+    public static Entity makeFlag(){
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
 
@@ -349,7 +362,8 @@ public class CarFactory {
         PhysicalComponent pc = new PhysicalComponent(flagBody);
         Entity flagEntity = new Entity("Flag", pc, new FlagComponent());
         f.setUserData(flagEntity);
-        MessageManager.getInstance().addMessage(INTENT.SPAWN, flagEntity);
+
+        return flagEntity;
     }
 
 }

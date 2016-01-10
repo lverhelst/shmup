@@ -28,6 +28,7 @@ import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.components.DamageComponent;
 import ecs.components.PhysicalComponent;
+import ecs.components.TypeComponent;
 import ecs.subsystems.PowerUpSystem;
 import ecs.subsystems.SpawnSystem;
 import gameObjects.PowerUp;
@@ -217,7 +218,7 @@ public class Level {
         fixtureDef.shape = box;
         fixtureDef.density = density;
 
-        if(type.equals("GROUND") || type.equals("DEATH")){
+        if(type.equals("GROUND") || type.equals("DEATH") || type.equals("GOAL")){
             fixtureDef.isSensor = true;
             //Death ground is only collidable in the same manner as powerups
             fixtureDef.filter.categoryBits = Constants.GROUND_BIT;
@@ -228,11 +229,14 @@ public class Level {
         fixtureDef.friction = friction;
         Fixture fixture = body.createFixture(fixtureDef);
 
-        Entity entity = new Entity();
+        Entity entity = new Entity("GROUND_" + type);
         entity.addComponent(new PhysicalComponent(body));
 
         if(type.equals("DEATH")) {
             entity.addComponent(new DamageComponent(50));
+        }
+        if(type.equals("GOAL")){
+            entity.addComponent(new TypeComponent(2));
         }
 
         fixture.setUserData(entity);
