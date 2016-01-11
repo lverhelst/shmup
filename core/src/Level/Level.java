@@ -28,6 +28,7 @@ import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.components.DamageComponent;
 import ecs.components.PhysicalComponent;
+import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
 import ecs.subsystems.PowerUpSystem;
 import ecs.subsystems.SpawnSystem;
@@ -47,6 +48,9 @@ public class Level {
 
     public static World world;
     private Body blade;
+
+    //TODO: Make creation of GOALS use something in the file to determine team
+    int teamNum = 0;
 
     public void create(World world, String filename) {
         //one time method
@@ -237,6 +241,7 @@ public class Level {
         }
         if(type.equals("GOAL")){
             entity.addComponent(new TypeComponent(2));
+            entity.addComponent(new TeamComponent(++teamNum));
         }
 
         fixture.setUserData(entity);
@@ -244,6 +249,8 @@ public class Level {
 
         return body;
     }
+
+
 
     public Body createCircle(String type, float x, float y, float r, float friction, float density, BodyType bodyType) {
         BodyDef bodyDef = new BodyDef();

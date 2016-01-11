@@ -1,5 +1,6 @@
 package gameObjects;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -28,10 +29,11 @@ public class TeamCTFCondition extends Condition {
         if(parameters[0] instanceof UUID){
             Entity e = EntityManager.getInstance().getEntity((UUID)parameters[0]);
             if(e.has(TeamComponent.class)){
-                teamCaptures[e.get(TeamComponent.class).getTeamNumber()]++;
-                System.out.println(e.getName() + " captured the flag for TEAM " + e.get(TeamComponent.class).getTeamNumber() );
-                if(numCaps == teamCaptures[e.get(TeamComponent.class).getTeamNumber()]){
-
+                teamCaptures[e.get(TeamComponent.class).getTeamNumber() - 1]++;
+                System.out.println(e.getName() + " captured the flag for TEAM " + e.get(TeamComponent.class).getTeamNumber() +
+                        "\r\n" + "The score is " + Arrays.toString(teamCaptures));
+                if(numCaps == teamCaptures[e.get(TeamComponent.class).getTeamNumber() -1]){
+                    System.out.println("******************** WINNER WINNER CHICKEN DINNER ********************");
 
                     //MessageManager.getInstance().addMessage(INTENT.WIN_COND_MET,);
                 }

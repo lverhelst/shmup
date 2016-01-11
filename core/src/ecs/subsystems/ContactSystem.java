@@ -10,11 +10,13 @@ import Factories.CarFactory;
 import MessageManagement.Message;
 import MessageManagement.MessageManager;
 import ecs.Entity;
+import ecs.EntityManager;
 import ecs.components.DamageComponent;
 import ecs.components.FlagComponent;
 import ecs.components.HealthComponent;
 import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
+import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
 import gameObjects.PowerUp;
 import verberg.com.shmup.ShmupGame;
@@ -105,7 +107,10 @@ public class ContactSystem implements ContactListener{
                  */
                 System.out.println(aEntity.getName() + " collided with " + bEntity.getName());
                 if(aEntity.has(TypeComponent.class) && aEntity.get(TypeComponent.class).getType() == 2
-                        && bEntity.has(FlagComponent.class) && bEntity.get(FlagComponent.class).getHeldBy() != null){
+                        && bEntity.has(FlagComponent.class) && bEntity.get(FlagComponent.class).getHeldBy() != null
+                        && aEntity.has(TeamComponent.class)
+                        && aEntity.get(TeamComponent.class).getTeamNumber() == EntityManager.getInstance().getEntity(bEntity.get(FlagComponent.class).getHeldBy()).get(TeamComponent.class).getTeamNumber() ) {
+                    System.out.println( aEntity.get(TeamComponent.class).getTeamNumber() + " " + EntityManager.getInstance().getEntity(bEntity.get(FlagComponent.class).getHeldBy()).get(TeamComponent.class).getTeamNumber());
                     System.out.println("CAPTURE");
                     MessageManager.getInstance().addMessage(INTENT.TEAM_CAPTURE, bEntity.get(FlagComponent.class).getHeldBy());
                     //despawn flag

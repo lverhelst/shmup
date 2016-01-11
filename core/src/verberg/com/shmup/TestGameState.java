@@ -92,7 +92,7 @@ public class TestGameState extends GameState {
         testCar = carFactory.produceCarECS(playerInput = new MyInputAdapter());
         testCar.addComponent(new CameraAttachmentComponent());
 
-        for(int  i = 0; i < 4; i++){
+        for(int  i = 0; i < 1; i++){
             carFactory.produceCarECS(new AI());
         }
 
