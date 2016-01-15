@@ -7,7 +7,15 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
  * Created by emery on 2015-12-09.
  */
 public class Point extends Selectable {
-    public enum TYPE { SPAWN, PICKUP, NODE }
+    public enum TYPE { SPAWN, PICKUP, NODE;
+        public TYPE cycleNext() {
+            return values()[(ordinal() + 1) % values().length];
+        }
+        // 4 (3 4 )
+        public TYPE cyclePrev() {
+            return values()[(ordinal() + values().length - 1) % values().length];
+        }
+    }
     public TYPE type; //spawn point, powerup, Nav
     public String subType; //red, blue, firerate, etc...
     private float r;

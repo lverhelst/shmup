@@ -31,6 +31,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import Editor.Circle;
+import Editor.EditorController;
 import Editor.Point;
 import Editor.Rectangle;
 import Editor.Selectable;
@@ -40,6 +41,7 @@ import Editor.Shape;
  * Created by Orion on 12/19/2015.
  */
 public class LevelEditorGameState extends GameState {
+    private EditorController controller = new EditorController();
 
     enum E_TOOL { SELECT, PAN, TRANSLATE, SCALE, RECTANGLE, CIRCLE, POINT }
     private E_TOOL current_Tool;
@@ -53,8 +55,6 @@ public class LevelEditorGameState extends GameState {
     private static final int V_WIDTH = 620;
     private static final int V_HEIGHT = 480;
 
-    private ArrayList<Selectable> levelObjects;
-    private Selectable selection;
 
     private BitmapFont bitmapFont;
 
@@ -65,11 +65,7 @@ public class LevelEditorGameState extends GameState {
     public LevelEditorGameState(GameStateManager gsm){
         super(gsm);
 
-
         bitmapFont = new BitmapFont();
-        levelObjects = new ArrayList<Selectable>();
-
-
         stage = new Stage();
 
         Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
@@ -152,8 +148,6 @@ public class LevelEditorGameState extends GameState {
         table.row();
         table.add(shapeTypeList);
 
-
-
         current_Tool = E_TOOL.SELECT;
         point_Type = Point.TYPE.SPAWN;
         shape_Type = Shape.TYPE.WALL;
@@ -206,7 +200,7 @@ public class LevelEditorGameState extends GameState {
             shapeRenderer.line(0, y, width * factor, y);
         }
 
-        for(Selectable shape : levelObjects) {
+        for(Selectable shape : controller.levelObjects) {
             shape.render(shapeRenderer);
         }
 
@@ -222,11 +216,11 @@ public class LevelEditorGameState extends GameState {
         if(current_Tool == E_TOOL.RECTANGLE || current_Tool == E_TOOL.CIRCLE)
             bitmapFont.draw(sp, shape_Type.name(), 20, V_HEIGHT - 40);
 
-        if(current_Tool == E_TOOL.SELECT && selection != null) {
-            if(selection instanceof Shape)
+        if(current_Tool == E_TOOL.SELECT && controller.selection != null) {
+            if(controller.selection instanceof Shape)
                 bitmapFont.draw(sp, shape_Type.name(), 20, V_HEIGHT - 40);
 
-            if(selection instanceof Point)
+            if(controller.selection instanceof Point)
                 bitmapFont.draw(sp, point_Type.name(), 20, V_HEIGHT - 40);
         }
 
@@ -285,11 +279,11 @@ public class LevelEditorGameState extends GameState {
 
                 if(shape.equals("box")) {
                     float[] size = shapeVal.get("size").asFloatArray();
-                    levelObjects.add(createBox(typeLookup, pos[0] + x, pos[1] + y, size[0], size[1], friction, density));
+                    controller.createBox(typeLookup, pos[0] + x, pos[1] + y, size[0], size[1], friction, density);
 
                 } else if(shape.equals("circle")) {
                     float radius = shapeVal.get("radius").asFloat();
-                    levelObjects.add(createCircle(typeLookup, pos[0] + x, pos[1] + y, radius, 0, 0));
+                    controller.createCircle(typeLookup, pos[0] + x, pos[1] + y, radius, 0, 0);
                 }
 
                 //Only add named blocks
@@ -313,10 +307,9 @@ public class LevelEditorGameState extends GameState {
             //looking up enum type
             if(type.equals("NODE")) {
                 typeLookup = Point.TYPE.NODE;
-            } else if(type.equals("PICKUP")) {
                 typeLookup = Point.TYPE.PICKUP;
             }
-            levelObjects.add(createPoint(typeLookup, subtype, pos[0], pos[1]));
+            controller.createPoint(typeLookup, subtype, pos[0], pos[1]);
         }
     }
 
@@ -329,7 +322,7 @@ public class LevelEditorGameState extends GameState {
         String points = "\t\t\"points\" : [\n ";
 
         //add to appropriate sections
-        for(Selectable lo: levelObjects) {
+        for(Selectable lo: controller.levelObjects) {
             if(lo instanceof Shape)
                 blocks += "\t\t\t" + lo.toJson() + ",\n";
             else if(lo instanceof Point)
@@ -350,44 +343,23 @@ public class LevelEditorGameState extends GameState {
         file.writeString(jsonString, false);//false == overwrite
     }
 
-    public Rectangle createBox(Shape.TYPE type, float x, float y, float w, float h, float friction, float density) {
-        return new Rectangle(type,x,y,w,h);
-    }
-
-    public Circle createCircle(Shape.TYPE type, float x, float y, float r, float friction, float density){
-        return new Circle(type,x,y,r);
-    }
-
-    public Point createPoint(Point.TYPE type, String subType, float x, float y){
-        return new Point(type,subType,x,y);
-    }
-
-    private void setSelection(Selectable o){
-        if(selection == null && o != null) {
-            o.toggleSelect();
-        }
-        if(selection != null && o == null) {
-            selection.toggleSelect();
-        }
-        if(selection != null && o != null && o != selection) {
-            selection.toggleSelect();
-            o.toggleSelect();
-        }
-
-        selection = o;
-    }
-
     class EditorInputAdapter implements InputProcessor {
         private Vector3 touchDown = new Vector3(0,0,0);
         private Vector3 touchUp = new Vector3(0,0,0);
-        private float mouseX, mouseY, camX, camY;
         private boolean toolLock = false;
+        private float x, y;
 
         private float snapToGrid(float num) {
             int gridLocation = (int)num % gridSize;
             gridLocation = (int)num - gridLocation;
 
             return gridLocation;
+        }
+
+        public void zoom(OrthographicCamera cam, float amount) {
+            zoom += amount;
+            zoom = Math.min(Math.max(zoom, 0.1f), 10f);
+            cam.zoom = zoom;
         }
 
         @Override
@@ -398,9 +370,9 @@ public class LevelEditorGameState extends GameState {
 
             switch(keycode){
                 case Input.Keys.FORWARD_DEL:
-                    if(selection != null) {
-                        levelObjects.remove(selection);
-                        setSelection(null);
+                    if(controller.selection != null) {
+                        controller.levelObjects.remove(controller.selection);
+                        controller.setSelection(null);
                     }
                     break;
                 case Input.Keys.S:
@@ -410,37 +382,23 @@ public class LevelEditorGameState extends GameState {
                     }
                     break;
                 case Input.Keys.LEFT:
-                    if(current_Tool == E_TOOL.RECTANGLE || current_Tool == E_TOOL.CIRCLE) {
-                        cycleShape(true);
-                    } else if(current_Tool == E_TOOL.POINT) {
-                        cyclePoint(true);
-                    } else if(current_Tool == E_TOOL.SELECT && selection != null) {
-                        if(selection instanceof Shape) {
-                            shape_Type = ((Shape) selection).type;
-                            cycleShape(true);
-                            ((Shape) selection).setType(shape_Type);
-                        } else if(selection instanceof Point) {
-                            point_Type = ((Point) selection).type;
-                            cyclePoint(true);
-                            ((Point) selection).setType(point_Type);
-                        }
+                    if(current_Tool == E_TOOL.RECTANGLE || current_Tool == E_TOOL.CIRCLE || current_Tool == E_TOOL.POINT || current_Tool == E_TOOL.SELECT) {
+                        controller.cycleType(true);
                     }
                     break;
                 case Input.Keys.RIGHT:
-                    if(current_Tool == E_TOOL.RECTANGLE || current_Tool == E_TOOL.CIRCLE) {
-                        cycleShape(false);
-                    } else if(current_Tool == E_TOOL.POINT) {
-                        cyclePoint(false);
-                    } else if(current_Tool == E_TOOL.SELECT && selection != null) {
-                        if(selection instanceof Shape) {
-                            shape_Type = ((Shape) selection).type;
-                            cycleShape(false);
-                            ((Shape) selection).setType(shape_Type);
-                        } else if(selection instanceof Point) {
-                            point_Type = ((Point) selection).type;
-                            cyclePoint(false);
-                            ((Point) selection).setType(point_Type);
-                        }
+                    if(current_Tool == E_TOOL.RECTANGLE || current_Tool == E_TOOL.CIRCLE || current_Tool == E_TOOL.POINT || current_Tool == E_TOOL.SELECT) {
+                        controller.cycleType(false);
+                    }
+                    break;
+                case Input.Keys.Z:
+                    if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)){
+                        controller.undo();
+                    }
+                    break;
+                case Input.Keys.Y:
+                    if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)){
+                        controller.redo();
                     }
                     break;
             }
@@ -494,52 +452,43 @@ public class LevelEditorGameState extends GameState {
             cam.unproject(touchDown);
             toolLock = true;
 
-            camX = cam.position.x;
-            camY = cam.position.y;
-
             switch (current_Tool){
                 case SELECT:
                     boolean selected = false;
                     touchDown.set(screenX,screenY,0);
                     cam.unproject(touchDown);
 
-                    for (Selectable n : levelObjects) {
+                    for (Selectable n : controller.levelObjects) {
                         if(n.contains(touchDown.x, touchDown.y)){
-                            if(n == selection) {
+                            if(n == controller.selection) {
                                 current_Tool = E_TOOL.TRANSLATE;
                                 selected = true;
                             } else {
-                                setSelection(n);
+                                controller.setSelection(n);
                                 selected = true;
                             }
                         }
                     }
 
                     if(selected == false) {
-                        setSelection(null);
+                        controller.setSelection(null);
                         current_Tool = E_TOOL.PAN;
                     } else {
-                        if(selection instanceof Shape) {
-                            shape_Type = ((Shape) selection).type;
-                        } else if(selection instanceof Point) {
-                            point_Type = ((Point) selection).type;
+                        if(controller.isSelectionShape()) {
+                            shape_Type = ((Shape) controller.selection).type;
+                        } else if(controller.isSelectionPoint()) {
+                            point_Type = ((Point) controller.selection).type;
                         }
                     }
                     break;
                 case RECTANGLE:
-                    Selectable rectangle = createBox(shape_Type, snapToGrid(touchDown.x), snapToGrid(touchDown.y), 2, 2, 0, 0);
-                    levelObjects.add(rectangle);
-                    setSelection(rectangle);
+                    controller.createBox(shape_Type, snapToGrid(touchDown.x), snapToGrid(touchDown.y), 2, 2, 0, 0);
                     break;
                 case CIRCLE:
-                    Selectable circle = createCircle(shape_Type, snapToGrid(touchDown.x), snapToGrid(touchDown.y), 2, 0, 0);
-                    levelObjects.add(circle);
-                    setSelection(circle);
+                    controller.createCircle(shape_Type, snapToGrid(touchDown.x), snapToGrid(touchDown.y), 2, 0, 0);
                     break;
                 case POINT :
-                    Selectable node = createPoint(point_Type, "default", snapToGrid(touchUp.x), snapToGrid(touchUp.y));
-                    levelObjects.add(node);
-                    setSelection(node);
+                    controller.createPoint(point_Type, "default", snapToGrid(touchUp.x), snapToGrid(touchUp.y));
                     break;
             }
 
@@ -556,28 +505,39 @@ public class LevelEditorGameState extends GameState {
                 case SCALE:
                 case RECTANGLE:
                 case CIRCLE:
-                    if(selection != null && selection instanceof Shape)
-                        resize(selection, touchDown, touchUp);
+                    float xDown = snapToGrid(touchDown.x);
+                    float xUp = snapToGrid(touchUp.x);
+                    float yDown = snapToGrid(touchDown.y);
+                    float yUp = snapToGrid(touchUp.y);
+
+                    if(controller.selection != null && controller.isSelectionShape())
+                        controller.resize(xDown, xUp, yDown, yUp);
                     break;
                 case POINT :
-                    translate(selection, touchUp);
+                    x = snapToGrid(touchUp.x - controller.selection.x);
+                    y = snapToGrid(touchUp.y - controller.selection.y);
+                    controller.translate(x, y);
                     break;
                 case TRANSLATE:
-                    if(selection != null) {
-                        translate(selection, touchUp);
+                    x = snapToGrid(touchUp.x - controller.selection.x);
+                    y = snapToGrid(touchUp.y - controller.selection.y);
+                    if(controller.selection != null) {
+                        controller.translate(x, y);
                         current_Tool = E_TOOL.SELECT;
                     }
                     break;
                 case PAN:
-                    if(selection == null) {
+                    if(controller.selection == null) {
                         current_Tool = E_TOOL.SELECT;
                     }
                     break;
                 default:
-                    if(selection != null)
-                        printFeilds(selection);
+                    if(controller.selection != null)
+                        printFeilds(controller.selection);
                     break;
             }
+
+            controller.commandComplete();
 
             return false;
         }
@@ -591,19 +551,29 @@ public class LevelEditorGameState extends GameState {
                 case SCALE:
                 case RECTANGLE:
                 case CIRCLE:
-                    if(selection != null && selection instanceof Shape)
-                        resize(selection, touchDown, touchUp);
+                    float xDown = snapToGrid(touchDown.x);
+                    float xUp = snapToGrid(touchUp.x);
+                    float yDown = snapToGrid(touchDown.y);
+                    float yUp = snapToGrid(touchUp.y);
+
+                    if(controller.selection != null && controller.isSelectionShape())
+                        controller.resize(xDown, xUp, yDown, yUp);
                     break;
                 case POINT :
-                    translate(selection, touchUp);
+                    x = snapToGrid(touchUp.x - controller.selection.x);
+                    y = snapToGrid(touchUp.y - controller.selection.y);
+                    controller.translate(x, y);
                     break;
                 case TRANSLATE:
-                    if(selection != null)
-                        translate(selection, touchUp);
+                    x = snapToGrid(touchUp.x - controller.selection.x);
+                    y = snapToGrid(touchUp.y - controller.selection.y);
+                    controller.translate(x, y);
                     break;
                 case PAN:
-                    if(selection == null)
-                        pan(cam, touchUp, touchDown, camX, camY);
+                    x = ((touchUp.x - touchDown.x) - cam.position.x)/100;
+                    y = ((touchUp.y - touchDown.y) - cam.position.y)/100;
+                    if(controller.selection == null)
+                        pan(cam, x, y);
                     break;
             }
 
@@ -612,8 +582,6 @@ public class LevelEditorGameState extends GameState {
 
         @Override
         public boolean mouseMoved(int screenX, int screenY) {
-            mouseX = screenX;
-            mouseY = screenY;
 
             return false;
         }
@@ -630,109 +598,16 @@ public class LevelEditorGameState extends GameState {
             return false;
         }
 
-        public void cycleShape(boolean reverse) {
-            if(reverse) {
-                switch (shape_Type) {
-                    case WALL:
-                        shape_Type = Shape.TYPE.DEATH;
-                        break;
-                    case GROUND:
-                        shape_Type = Shape.TYPE.WALL;
-                        break;
-                    case DEATH:
-                        shape_Type = Shape.TYPE.GROUND;
-                        break;
-                }
-            } else {
-                switch (shape_Type) {
-                    case WALL:
-                        shape_Type = Shape.TYPE.GROUND;
-                        break;
-                    case GROUND:
-                        shape_Type = Shape.TYPE.DEATH;
-                        break;
-                    case DEATH:
-                        shape_Type = Shape.TYPE.WALL;
-                        break;
-                }
-            }
-        }
-
-        public void cyclePoint(boolean reverse) {
-            if(reverse) {
-                switch (point_Type) {
-                    case SPAWN:
-                        point_Type = Point.TYPE.NODE;
-                        break;
-                    case PICKUP:
-                        point_Type = Point.TYPE.SPAWN;
-                        break;
-                    case NODE:
-                        point_Type = Point.TYPE.PICKUP;
-                        break;
-                }
-            } else {
-                switch (point_Type) {
-                    case SPAWN:
-                        point_Type = Point.TYPE.PICKUP;
-                        break;
-                    case PICKUP:
-                        point_Type = Point.TYPE.NODE;
-                        break;
-                    case NODE:
-                        point_Type = Point.TYPE.SPAWN;
-                        break;
-                }
-            }
-        }
-
-        public void resize(Selectable selectable, Vector3 touchDown, Vector3 touchUp) {
-            float xDown = snapToGrid(touchDown.x);
-            float xUp = snapToGrid(touchUp.x);
-            float yDown = snapToGrid(touchDown.y);
-            float yUp = snapToGrid(touchUp.y);
-            float x = xUp - xDown;
-            float y = yUp - yDown;
-
-            if(selectable instanceof Rectangle) {
-                if (x < 0 && y < 0) {
-                    selection.moveTo(xUp, yUp);
-                } else if (x < 0) {
-                    selection.moveTo(xUp, yDown);
-                } else if (y < 0) {
-                    selection.moveTo(xDown, yUp);
-                } else {
-                    selection.moveTo(xDown, yDown);
-                }
-            }
-
-            ((Shape)selectable).resize(x, y);
-        }
-
-        public void translate(Selectable selectable, Vector3 touchUp) {
-            float x = snapToGrid(touchUp.x - selectable.x);
-            float y = snapToGrid(touchUp.y - selectable.y);
-
-            selectable.translate(x, y);
-        }
-
-        public void pan(OrthographicCamera cam, Vector3 touchUp) {
-            float x = ((touchUp.x - touchDown.x) - cam.position.x)/100;
-            float y = ((touchUp.y - touchDown.y) - cam.position.y)/100;
+        public void pan(OrthographicCamera cam, float x, float y) {
             cam.translate(x, y);
         }
+
         public void pan(OrthographicCamera cam, Vector3 touchUp, Vector3 touchDown, float camX, float camY) {
             float x = touchUp.x;
             float y = touchUp.y;
             float x2 = camX;
             float y2 = camY;
             cam.translate(x2 - x, y2 - y);
-        }
-
-        public void zoom(OrthographicCamera cam, float amount) {
-            zoom += amount;
-            zoom = Math.min(Math.max(zoom, 0.1f), 10f);
-            cam.zoom = zoom;
         }
 
         public void printFeilds(Selectable selectable) {

@@ -6,7 +6,15 @@ import com.badlogic.gdx.graphics.Color;
  * Created by emery on 2015-12-09.
  */
 public abstract class Shape extends Selectable {
-    public enum TYPE { WALL, GROUND, DEATH }
+    public enum TYPE { WALL, GROUND, DEATH;
+        public TYPE cycleNext() {
+            return values()[(ordinal() + 1) % values().length];
+        }
+        // 4 (3 4 )
+        public TYPE cyclePrev() {
+            return values()[(ordinal() + values().length - 1) % values().length];
+        }
+    }
     public TYPE type;
 
     public Shape(TYPE type, float x, float y) {
