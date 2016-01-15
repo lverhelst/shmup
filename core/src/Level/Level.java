@@ -28,6 +28,8 @@ import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.components.DamageComponent;
 import ecs.components.PhysicalComponent;
+import ecs.components.TeamComponent;
+import ecs.components.TypeComponent;
 import ecs.subsystems.PowerUpSystem;
 import ecs.subsystems.SpawnSystem;
 import gameObjects.PowerUp;
@@ -46,6 +48,9 @@ public class Level {
 
     public static World world;
     private Body blade;
+
+    //TODO: Make creation of GOALS use something in the file to determine team
+    int teamNum = 0;
 
     public void create(World world, String filename) {
         //one time method
@@ -217,7 +222,7 @@ public class Level {
         fixtureDef.shape = box;
         fixtureDef.density = density;
 
-        if(type.equals("GROUND") || type.equals("DEATH")){
+        if(type.equals("GROUND") || type.equals("DEATH") || type.equals("GOAL")){
             fixtureDef.isSensor = true;
             //Death ground is only collidable in the same manner as powerups
             fixtureDef.filter.categoryBits = Constants.GROUND_BIT;
@@ -228,11 +233,15 @@ public class Level {
         fixtureDef.friction = friction;
         Fixture fixture = body.createFixture(fixtureDef);
 
-        Entity entity = new Entity();
+        Entity entity = new Entity("GROUND_" + type);
         entity.addComponent(new PhysicalComponent(body));
 
         if(type.equals("DEATH")) {
             entity.addComponent(new DamageComponent(50));
+        }
+        if(type.equals("GOAL")){
+            entity.addComponent(new TypeComponent(2));
+            entity.addComponent(new TeamComponent(++teamNum));
         }
 
         fixture.setUserData(entity);
@@ -240,6 +249,8 @@ public class Level {
 
         return body;
     }
+
+
 
     public Body createCircle(String type, float x, float y, float r, float friction, float density, BodyType bodyType) {
         BodyDef bodyDef = new BodyDef();

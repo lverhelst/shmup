@@ -15,9 +15,11 @@ import ecs.EntityManager;
 import ecs.components.CameraAttachmentComponent;
 
 import ecs.components.ControlledComponent;
+import ecs.components.FlagComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.SteeringComponent;
+import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
 import ecs.components.WeaponComponent;
 import ecs.subsystems.RemovalSystem;
@@ -58,11 +60,11 @@ public class AI implements IntentGenerator {
 
        // System.out.println("Set target");
         target = e;
-        debug = true;
+        //debug = true;
     }
 
-    private void selectTarget(){
-        ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponent(TypeComponent.class);
+    private void selectTarget(Entity thisEntity){
+        ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponent(FlagComponent.class);
         if(targetables.size() >= 1) {
             Entity e = null;
             for(UUID uuid : targetables){
@@ -70,8 +72,24 @@ public class AI implements IntentGenerator {
    //  System.out.println("Entity target: " + e);
             }
 
+
             if(e != null) {
-                target = e;
+
+                if(e.has(FlagComponent.class))
+                {
+                    if(e.get(FlagComponent.class).getHeldBy() != null){
+                      //  System.out.println("SOMETHING IS HOLDING FLAG " + thisEntity.getUuid() + "( " + thisEntity.getName() + ") flag:" + e.get(FlagComponent.class).getHeldBy() + "(" + e.getName() + ")");
+                        if(e.get(FlagComponent.class).getHeldBy() == thisEntity.getUuid()){
+                          //  System.out.println("AI IS HOLDING FLAG");
+                            targetGoal(thisEntity);
+                       }else{
+                            setTarget(e);
+                        }
+                    }else{
+                        setTarget(e);
+                    //   System.out.println("Targetted flag");
+                    }
+                }
               //  System.out.println("Tar " + e );
             }
             if (debug) {
@@ -80,29 +98,42 @@ public class AI implements IntentGenerator {
         }
     }
 
+    private void targetGoal(Entity thisEntity){
+
+        if(thisEntity.has(TeamComponent.class)){
+            int teamId = thisEntity.get(TeamComponent.class).getTeamNumber();
+            ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponents(PhysicalComponent.class, TypeComponent.class, TeamComponent.class);
+
+            for(UUID uuid : targetables){
+
+                if(EntityManager.getInstance().getComponent(uuid, TeamComponent.class).getTeamNumber() == teamId
+                    && EntityManager.getInstance().getComponent(uuid, TypeComponent.class).getType() == 2){
+                    setTarget(EntityManager.getInstance().getEntity(uuid));
+                   // System.out.println("Targetted Goal");
+                    break;
+                }
+                //  System.out.println("Entity target: " + e);
+            }
+
+        }
+    }
+
     private void getPathToTarget(Entity controlledEntity){
-
-
         if(target == null)
             return;
 
         if(controlledEntity.has(PhysicalComponent.class)){
-
             if(!controlledEntity.get(PhysicalComponent.class).isRoot)
             {
                 return;
-            }else{
-
             }
         }
-
 
         if (target.has(PhysicalComponent.class)){
             if((target.has(HealthComponent.class) &&  target.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) || controlledEntity.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
                 //wander
                 return;
             }
-
             path = pathFinder.findPath(controlledEntity.get(PhysicalComponent.class).getBody().getPosition(), target.get(PhysicalComponent.class).getBody().getPosition());
 
         }else{
@@ -181,7 +212,7 @@ public class AI implements IntentGenerator {
                 }
 
 
-                if(Math.abs(rotation) > 172)
+               if(Math.abs(rotation) > 172)
                     MessageManager.getInstance().addMessage(INTENT.FIRE, controlledEntity);
 
 
@@ -226,11 +257,12 @@ public class AI implements IntentGenerator {
             if(entity.has(CameraAttachmentComponent.class)){
                 debug = true;
             }
-            selectTarget();
+
+
 
         }
         if( entity.get(PhysicalComponent.class).isRoot) {
-
+            selectTarget(entity);
             getPathToTarget(entity);
         }
         if(path != null  &&  path.size() > 1)
@@ -241,7 +273,7 @@ public class AI implements IntentGenerator {
                 if ((entity.get(PhysicalComponent.class)).isRoot) {
                     if (entity.has(HealthComponent.class)) {
                         ( entity.get(HealthComponent.class)).setCur_Health(0);
-                        MessageManager.getInstance().addMessage(INTENT.DIED, entity);
+                        MessageManager.getInstance().addMessage(INTENT.DIED, entity, entity);
                     }
                 }
                 return;

@@ -6,11 +6,18 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
+import Factories.CarFactory;
+import MessageManagement.Message;
 import MessageManagement.MessageManager;
 import ecs.Entity;
+import ecs.EntityManager;
 import ecs.components.DamageComponent;
+import ecs.components.FlagComponent;
 import ecs.components.HealthComponent;
+import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
+import ecs.components.TeamComponent;
+import ecs.components.TypeComponent;
 import gameObjects.PowerUp;
 import verberg.com.shmup.ShmupGame;
 import MessageManagement.INTENT;
@@ -73,9 +80,42 @@ public class ContactSystem implements ContactListener{
                         (aEntity.get(HealthComponent.class)).reduceCur_Health((bEntity.get(DamageComponent.class)).damage);
                         //if the other entity is now dead, send the dead messagea
                         if ((aEntity.get(HealthComponent.class)).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
-                            MessageManager.getInstance().addMessage(INTENT.DIED, aEntity);
+                            Entity bEntityOwner = null;
+                            if(bEntity.has(ParentEntityComponent.class))
+                                bEntityOwner = bEntity.get(ParentEntityComponent.class).parent;
+
+                            MessageManager.getInstance().addMessage(INTENT.DIED, aEntity, bEntityOwner);
+
+
+
                         }
                     }
+                }
+                /*
+                    If something with a health component that's not dead and a root physical component hits a non-held flag, make it hold the flag
+                 */
+                if(aEntity.has(HealthComponent.class) && aEntity.get(HealthComponent.class).getHealthState() != HealthComponent.HEALTH_STATE.DEAD
+                        && aEntity.has(PhysicalComponent.class) && aEntity.get(PhysicalComponent.class).isRoot
+                        && bEntity.has(FlagComponent.class) && bEntity.get(FlagComponent.class).getHeldBy() == null){
+                    bEntity.get(FlagComponent.class).setHeldBy(aEntity.getUuid());
+                }
+                //For Goals/Target Areas
+                /**
+                 *  if A has Type Component w/ goal
+                 *  if B has Flag Component
+                 *
+                 */
+                if(aEntity.has(TypeComponent.class) && aEntity.get(TypeComponent.class).getType() == 2
+                        && bEntity.has(FlagComponent.class) && bEntity.get(FlagComponent.class).getHeldBy() != null
+                        && aEntity.has(TeamComponent.class)
+                        && aEntity.get(TeamComponent.class).getTeamNumber() == EntityManager.getInstance().getEntity(bEntity.get(FlagComponent.class).getHeldBy()).get(TeamComponent.class).getTeamNumber() ) {
+                    System.out.println( aEntity.get(TeamComponent.class).getTeamNumber() + " " + EntityManager.getInstance().getEntity(bEntity.get(FlagComponent.class).getHeldBy()).get(TeamComponent.class).getTeamNumber());
+                    System.out.println("CAPTURE");
+                    MessageManager.getInstance().addMessage(INTENT.TEAM_CAPTURE, bEntity.get(FlagComponent.class).getHeldBy());
+                    //despawn flag
+                    bEntity.get(FlagComponent.class).setHeldBy(null);
+                    //Move the flag back to spawn location
+                    MessageManager.getInstance().addMessage(INTENT.SPAWN, bEntity);
                 }
             }
 

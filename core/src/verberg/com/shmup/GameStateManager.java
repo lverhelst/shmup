@@ -18,6 +18,10 @@ public class GameStateManager {
     public static final int PLAY = 1;
     public static final int TEST = 2;
     public static final int EDITOR = 3;
+    public static final int ENDGAME = 4;
+
+    boolean popOnUpdate;
+
 
     public GameStateManager(ShmupGame game){
         this.game = game;
@@ -26,8 +30,11 @@ public class GameStateManager {
     }
 
     public void update(float dt){
-        gameStates.peek().handleInput(); //check global input keys
-        gameStates.peek().update(dt);
+            gameStates.peek().handleInput(); //check global input keys
+            gameStates.peek().update(dt);
+
+
+
     }
 
     public void render(float dt){
@@ -44,6 +51,7 @@ public class GameStateManager {
             case PLAY:      return new PlayGameState(this);
             case TEST:      return new TestGameState(this);
             case EDITOR:    return new LevelEditorGameState(this);
+            case ENDGAME:   return new EndGameState(this);
             default:        return null;
         }
     }

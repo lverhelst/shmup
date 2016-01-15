@@ -37,7 +37,7 @@ public class ShmupGame extends ApplicationAdapter {
         cam.update();
 
         hudCam = new OrthographicCamera();
-        hudCam.setToOrtho(false, V_WIDTH, V_HEIGHT);
+        hudCam.setToOrtho(false, 600, 400);
         gsm = new GameStateManager(this);
 
 	}

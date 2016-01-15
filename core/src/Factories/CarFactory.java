@@ -21,6 +21,7 @@ import MessageManagement.INTENT;
 import MessageManagement.MessageManager;
 import ecs.components.ChildEntityComponent;
 import ecs.components.DamageComponent;
+import ecs.components.FlagComponent;
 import ecs.components.HealthComponent;
 import ecs.components.CameraAttachmentComponent;
 import ecs.Entity;
@@ -29,6 +30,7 @@ import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.ControlledComponent;
 import ecs.components.SteeringComponent;
+import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
 import ecs.components.WeaponComponent;
 import ecs.subsystems.SpawnSystem;
@@ -62,11 +64,11 @@ public class CarFactory {
     public Entity produceCarECS(IntentGenerator ig){
         //Generate a spawn point, since this has no access to them (As its not part of the spawn system)
         //Add message for spawning
-        Random rand = new Random();
+        /*Random rand = new Random();
         Point spawn = new Point();
         spawn.create("SPAWN", "RED", 1f + rand.nextInt(12), 1f + rand.nextInt(12));
-
-        Entity carBodyEntity = assembleCarBody(ig, spawn);
+        */
+        Entity carBodyEntity = assembleCarBody(ig);
        // if(!(ig instanceof AI))
             addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
@@ -78,6 +80,17 @@ public class CarFactory {
     }
 
     public void applyLifeTimeWarranty(Entity e, Point spawn){
+        /***
+         * Reload from file so that we test easily
+         */
+        FileHandle fileHandle = Gdx.files.internal("carlist");
+        jv = jr.parse(fileHandle);
+        jCar = jv.get("car");
+        jTires = new ArrayList<JsonValue>();
+        for(JsonValue tire : jCar.get("tires")) {
+            jTires.add(tire);
+        }
+
         ControlledComponent cc = null;
         if(e.has(ControlledComponent.class)) {
             cc = e.get(ControlledComponent.class);
@@ -92,8 +105,8 @@ public class CarFactory {
         //ShmupGame.removeEntityTree(e);
         e.removeAllComponents();
 
-        Entity carBodyEntity = assembleCarBody(cc.ig, spawn);
-        if(!(cc.ig instanceof AI))
+        Entity carBodyEntity = assembleCarBody(cc.ig);
+       // if(!(cc.ig instanceof AI))
             addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
@@ -134,8 +147,8 @@ public class CarFactory {
     }
 
 
-
-    private Entity assembleCarBody(IntentGenerator ig, Point spawn){
+    int team = 0;
+    private Entity assembleCarBody(IntentGenerator ig){
 
         JsonValue jVertices  = jCar.get("vertices");
 
@@ -155,7 +168,7 @@ public class CarFactory {
         bdef.type = BodyDef.BodyType.DynamicBody;
 
         Random random = new Random();
-        bdef.position.set(new Vector2(spawn.position.x, spawn.position.y)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        bdef.position.set(new SpawnSystem().getSpawnPoint()); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body carbody = ShmupGame.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();
@@ -172,9 +185,9 @@ public class CarFactory {
         Entity carBodyEntity = null;
         ChildEntityComponent cec = new ChildEntityComponent();
         if(!(ig instanceof AI)){
-            carBodyEntity = new Entity(new PhysicalComponent(carbody), new CameraAttachmentComponent(), new HealthComponent(100), new ControlledComponent(ig),cec );
+            carBodyEntity = new Entity("PlayerControlled",new PhysicalComponent(carbody), new CameraAttachmentComponent(), new HealthComponent(100), new ControlledComponent(ig),cec, new TeamComponent(1));
         }else{
-            carBodyEntity = new Entity("AICarTest",new PhysicalComponent(carbody), new DamageComponent(0), new ControlledComponent(ig), new HealthComponent(100),cec);
+            carBodyEntity = new Entity("AICarTest" + random.nextInt(1000),new PhysicalComponent(carbody), new DamageComponent(0), new ControlledComponent(ig), new HealthComponent(100),cec, new TeamComponent(++team%2 + 1));
         }
         (carBodyEntity.get(PhysicalComponent.class)).isRoot = true;
 
@@ -325,9 +338,32 @@ public class CarFactory {
         filter2.maskBits = Constants.CAR_MASK;
         f.setFilterData(filter2);
         PhysicalComponent pc = new PhysicalComponent(spikyBody);
-        Entity deadlySpike = new Entity(pc, new TypeComponent(1));
-        f.setUserData(deadlySpike);
-        MessageManager.getInstance().addMessage(INTENT.SPAWN, deadlySpike);
+        //steering component so that it slows down
+        Entity peachyBeachyBall = new Entity(pc, new TypeComponent(1), new SteeringComponent());
+        f.setUserData(peachyBeachyBall);
+        MessageManager.getInstance().addMessage(INTENT.SPAWN, peachyBeachyBall);
+    }
+
+
+    public static Entity makeFlag(){
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+
+        Body flagBody = ShmupGame.getWorld().createBody(bodyDef);
+
+        PolygonShape flagShape = new PolygonShape();
+        flagShape.set(new float[]{-.25f,0f,.25f,0f,0f,1f});
+
+        Fixture f = flagBody.createFixture(flagShape, 0.1f);
+        Filter filter2 = new Filter();
+        filter2.categoryBits = Constants.POWERUP_BIT;
+        filter2.maskBits = Constants.POWERUP_MASK;
+        f.setFilterData(filter2);
+        PhysicalComponent pc = new PhysicalComponent(flagBody);
+        Entity flagEntity = new Entity("Flag", pc, new FlagComponent());
+        f.setUserData(flagEntity);
+
+        return flagEntity;
     }
 
 }

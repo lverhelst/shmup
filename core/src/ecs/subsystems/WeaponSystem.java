@@ -91,7 +91,7 @@ public class WeaponSystem implements SubSystem {
                 circle.setRadius(0.25f);
                 FixtureDef fixture = new FixtureDef();
                 fixture.shape = circle;
-                fixture.density = 1f;
+                fixture.density = 0.001f;
                 fixture.friction = 0.1f;
                 fixture.filter.categoryBits = Constants.BULLET_BIT;
                 fixture.filter.maskBits = Constants.BULLET_MASK;
@@ -103,7 +103,7 @@ public class WeaponSystem implements SubSystem {
                 pc.maxContacts = 1; //Bullets can only hit 1 object before being destroyed
 
 
-                bulletbody.applyLinearImpulse(((float) Math.cos(direction)) * 6f, ((float) Math.sin(direction)) * 6f, bulletbody.getWorldCenter().x, bulletbody.getWorldCenter().y, true);
+                bulletbody.applyLinearImpulse(((float) Math.cos(direction)) * 0.005f, ((float) Math.sin(direction)) * 0.005f, bulletbody.getWorldCenter().x, bulletbody.getWorldCenter().y, true);
                 circle.dispose();
 
                 wc.lastFire = System.currentTimeMillis();

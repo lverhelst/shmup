@@ -2,6 +2,8 @@ package MessageManagement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import ecs.SubSystem;
 
@@ -13,12 +15,17 @@ public class MessageManager {
     //TODO create a pool for messages? (lower the number of new operator)
     private HashMap<INTENT, ArrayList<SubSystem>> intentList;
     private ArrayList<Message> messages;
+    private ArrayList<Message> duringIteration;
     private static MessageManager instance;
+    private ListIterator<Message> iter;
+    private boolean iterating;
 
 
     protected MessageManager() {
         intentList = new HashMap<INTENT, ArrayList<SubSystem>>();
         messages = new ArrayList<Message>();
+        duringIteration = new ArrayList<Message>();
+        iterating = false;
     }
 
     public static synchronized MessageManager getInstance(){
@@ -39,7 +46,12 @@ public class MessageManager {
     }
 
     public void addMessage(INTENT intent, Object ... list){
-        messages.add(new Message(intent, list));
+        if(!iterating)
+            messages.add(new Message(intent, list));
+        else{
+            duringIteration.add(new Message(intent, list));
+        }
+
     }
 
     public void clearMessages(){
@@ -47,11 +59,24 @@ public class MessageManager {
     }
 
     public void update() {
-        for(Message msg: messages) {
+        iterating = true;
+        for(Message msg : messages){
             for(SubSystem system: intentList.get(msg.getIntent())) {
                 system.processMessage(msg.getIntent(), msg.getParameters());
             }
         }
-        clearMessages();
+        iterating = false;
+        messages.clear();
+        if(duringIteration.size() > 0){
+            messages.addAll(duringIteration);
+        }
+        duringIteration.clear();
+    }
+
+    public void clear(){
+        intentList = new HashMap<INTENT, ArrayList<SubSystem>>();
+        messages = new ArrayList<Message>();
+        duringIteration = new ArrayList<Message>();
+        iterating = false;
     }
 }

@@ -4,7 +4,7 @@
     "density" : 0.2,
     //vertices start in the lower left and wrap around counter clockwise
     "vertices" : [
-      [-0.25,0.25,0.25,-0.25], //X vertices
+      [-0.15,0.15,0.25,-0.25], //X vertices
       [0.0   ,0.0  ,0.5   ,0.5 ] //Y vertices
     ],
     "weapon" : {
@@ -17,21 +17,21 @@
       {
         "name" : "RearLeft",
         "canTurn" : false,
-        "location" : [-0.25,0.0],
+        "location" : [-0.15,0.0],
         "size"     : [0.05,0.125],
         "maxForwardSpeed" : 12.0,
         "maxBackwardsSpeed": -8.0,
-        "maxDriveForce": 1.1,
+        "maxDriveForce": 1.4,
         "maxLateralImpulse" : 0.85
       },
       {
         "name" : "RearRight",
         "canTurn" : false,
-        "location" : [0.25,0.0],
+        "location" : [0.15,0.0],
         "size"     : [0.05,0.125],
         "maxForwardSpeed" : 12.0,
         "maxBackwardsSpeed": -8.0,
-        "maxDriveForce": 1.1,
+        "maxDriveForce": 1.4,
         "maxLateralImpulse" : 0.85
       },
       {
@@ -39,8 +39,8 @@
         "canTurn" : true,
         "location" : [-0.25,0.5],
         "size"     : [0.05,0.125],
-        "maxForwardSpeed" : 8.0,
-        "maxBackwardsSpeed": -4.0,
+        "maxForwardSpeed" : 6.0,
+        "maxBackwardsSpeed": -6.0,
         "maxDriveForce": 1.0,
         "maxLateralImpulse" : 0.35
       },
@@ -49,8 +49,8 @@
         "canTurn" : true,
         "location" : [0.25,0.5],
         "size"     : [0.05,0.125],
-        "maxForwardSpeed" : 8.0,
-        "maxBackwardsSpeed": -4.0,
+        "maxForwardSpeed" : 6.0,
+        "maxBackwardsSpeed": -6.0,
         "maxDriveForce": 1.0,
         "maxLateralImpulse" : 0.35
       }

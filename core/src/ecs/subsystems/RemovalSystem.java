@@ -31,6 +31,8 @@ public class RemovalSystem implements SubSystem{
                     remove(e);
                     break;
                 case DIED:
+                    if(list.length >= 2)
+                        System.out.println(e.getName() + " was killed by " + (list[1] == null ? "Probably the level" : ((Entity)list[1]).getName()));
                     madeDead(e);
                     break;
             }

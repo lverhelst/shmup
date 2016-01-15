@@ -135,4 +135,5 @@ public class Entity {
     public String getName() {
         return name;
     }
+    public UUID getUuid() {return uuid; }
 }

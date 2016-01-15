@@ -9,40 +9,33 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 /**
- * Created by Orion on 12/19/2015.
+ * Created by Orion on 1/13/2016.
  */
-public class MainMenuGameState extends GameState {
+public class EndGameState extends GameState {
 
     BitmapFont bf;
 
-    public MainMenuGameState(GameStateManager gsm){
+    public EndGameState(GameStateManager gsm){
         super(gsm);
         bf = new BitmapFont();
         cam = new OrthographicCamera();
         cam.setToOrtho(false, ShmupGame.V_WIDTH,ShmupGame.V_HEIGHT);
         cam.update();
 
+
         final GameStateManager gsm2 = gsm;
-
-
-
         setInputProcessor(new InputAdapter(){
 
             @Override
             public boolean keyUp(int keycode) {
 
                 switch(keycode){
-                    case Input.Keys.NUM_1: gsm2.pushState(1);
-                        break;
-                    case Input.Keys.NUM_2: gsm2.pushState(2);
-                        break;
-                    case Input.Keys.NUM_3: gsm2.pushState(3);
+                    //pop current state (end) and state before (whatever came before end)
+                    case Input.Keys.NUM_1: gsm2.popState(); gsm2.popState();
                         break;
                 }
                 return false;
             }
-
-
             @Override
             public boolean scrolled(int amount) {
                 //TODO: this is hard to make zoom based on pointer....
@@ -59,9 +52,8 @@ public class MainMenuGameState extends GameState {
                 cam.zoom += amount;
                 cam.zoom = Math.min(Math.max(cam.zoom, 0.1f), 10f);
             }
+
         });
-
-
 
     }
 
@@ -77,12 +69,11 @@ public class MainMenuGameState extends GameState {
 
     @Override
     public void render(float dt) {
-        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
         SpriteBatch sp = this.gsm.game().getBatch();
+        sp.setProjectionMatrix(cam.combined);
         sp.begin();
-        sp.setProjectionMatrix(hudcam.combined);
 
-        bf.draw(sp, "1: Play, 2:Testbed 3: LevelEditor  ESC (returns to this menu from other screen\"", hudcam.viewportWidth/2, hudcam.viewportHeight/2);
+        bf.draw(sp, "Game Over (Press 1 to return to Main Menu)", 6,4);
 
         sp.end();
     }
@@ -91,4 +82,6 @@ public class MainMenuGameState extends GameState {
     public void dispose() {
 
     }
+
+
 }
