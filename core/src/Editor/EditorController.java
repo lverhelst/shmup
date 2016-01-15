@@ -144,11 +144,13 @@ public class EditorController {
         }
 
         public void redo() {
+            setSelection(selectable);
             selectable.moveTo(x, y);
             selectable.resize(w, h);
         }
 
         public void undo() {
+            setSelection(selectable);
             selectable.moveTo(orgX, orgY);
             selectable.resize(orgW, orgH);
         }
@@ -197,10 +199,12 @@ public class EditorController {
         }
 
         public void redo() {
+            setSelection(selectable);
             selectable.moveTo(x, y);
         }
 
         public void undo() {
+            setSelection(selectable);
             selectable.moveTo(orgY, orgY);
         }
 

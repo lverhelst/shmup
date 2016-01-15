@@ -436,10 +436,10 @@ public class LevelEditorGameState extends GameState {
                     break;
                 case '=':
                 case '+':
-                    grid(1);
+                    gridSize += 1;
                     break;
                 case '-':
-                    grid(-1);
+                    gridSize -= 1;
                     break;
             }
 
