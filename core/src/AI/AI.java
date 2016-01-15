@@ -78,11 +78,13 @@ public class AI implements IntentGenerator {
                 if(e.has(FlagComponent.class))
                 {
                     if(e.get(FlagComponent.class).getHeldBy() != null){
-                    //    System.out.println("SOMETHING IS HOLDING FLAG " + thisEntity.getUuid() + "( " + thisEntity.getName() + ") flag:" + e.get(FlagComponent.class).getHeldBy() + "(" + e.getName() + ")");
+                      //  System.out.println("SOMETHING IS HOLDING FLAG " + thisEntity.getUuid() + "( " + thisEntity.getName() + ") flag:" + e.get(FlagComponent.class).getHeldBy() + "(" + e.getName() + ")");
                         if(e.get(FlagComponent.class).getHeldBy() == thisEntity.getUuid()){
                           //  System.out.println("AI IS HOLDING FLAG");
                             targetGoal(thisEntity);
-                       }
+                       }else{
+                            setTarget(e);
+                        }
                     }else{
                         setTarget(e);
                     //   System.out.println("Targetted flag");
@@ -97,11 +99,13 @@ public class AI implements IntentGenerator {
     }
 
     private void targetGoal(Entity thisEntity){
+
         if(thisEntity.has(TeamComponent.class)){
             int teamId = thisEntity.get(TeamComponent.class).getTeamNumber();
             ArrayList<UUID> targetables = EntityManager.getInstance().getEntitiesWithComponents(PhysicalComponent.class, TypeComponent.class, TeamComponent.class);
 
             for(UUID uuid : targetables){
+
                 if(EntityManager.getInstance().getComponent(uuid, TeamComponent.class).getTeamNumber() == teamId
                     && EntityManager.getInstance().getComponent(uuid, TypeComponent.class).getType() == 2){
                     setTarget(EntityManager.getInstance().getEntity(uuid));

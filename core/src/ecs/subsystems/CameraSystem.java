@@ -21,7 +21,11 @@ public class CameraSystem {
                 if(e.has(CameraAttachmentComponent.class)){
                     if(e.has(PhysicalComponent.class)){
                         PhysicalComponent pc = e.get(PhysicalComponent.class);
-                        camera.position.set(pc.getBody().getPosition().x, pc.getBody().getPosition().y, 10);
+                        if(e.get(CameraAttachmentComponent.class).isSliding()){
+                            camera.position.set(e.get(CameraAttachmentComponent.class).getSlidePosition(), 10);
+                        }else{
+                            camera.position.set(pc.getBody().getPosition().x, pc.getBody().getPosition().y, 10);
+                        }
                         camera.update();
                     }
                 }

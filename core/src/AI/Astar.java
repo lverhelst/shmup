@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
@@ -15,6 +16,8 @@ import ecs.Entity;
 import ecs.EntityManager;
 import ecs.components.CameraAttachmentComponent;
 import ecs.components.PhysicalComponent;
+import ecs.components.TypeComponent;
+import ecs.subsystems.ContactSystem;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.ShmupGame;
 
@@ -234,12 +237,24 @@ public class Astar {
             //ignore tires
 
             if(fixture.getFilterData().maskBits == Constants.TIRE_MASK ||fixture.getFilterData().maskBits == Constants.POWERUP_MASK || fixture.getFilterData().maskBits == Constants.CAR_MASK
-                    || fixture.getFilterData().maskBits == Constants.BULLET_MASK){
+                    || fixture.getFilterData().maskBits == Constants.BULLET_MASK  ){
                 return 1;
             }
+
+
+            if(fixture.getUserData() instanceof Entity){
+                Entity e = (Entity)fixture.getUserData();
+                if(e.has(TypeComponent.class)){
+                    if(e.get(TypeComponent.class).getType() == 2){
+                        return 1;
+                    }
+                }
+
+            }
+
             //1 fixture usually hit when the AI Is targetting ground
             //TODO make this make sense
-            if (++fixturesHit > 1) {
+            if (++fixturesHit > 0) {
                 canSee = false;
                 return 0;
             }

@@ -1,6 +1,9 @@
 package ecs.subsystems;
 
+import com.badlogic.gdx.math.Vector2;
+
 import java.util.ArrayList;
+import java.util.Random;
 
 import Factories.CarFactory;
 import MessageManagement.INTENT;
@@ -51,12 +54,15 @@ public class SpawnSystem implements SubSystem{
             }
         }else if(e.has(PhysicalComponent.class)){
             newSpawn = (newSpawn + 1) % spawnPoints.size();
-            System.out.println("Spawning " + e.getName() + " at " + spawnPoints.get(newSpawn).position);
             e.get(PhysicalComponent.class).getBody().setTransform(spawnPoints.get(newSpawn).position, newSpawn);
         }
     }
 
     public void addSpawnPoint(Point spawn) {
         spawnPoints.add(spawn);
+    }
+
+    public Vector2 getSpawnPoint(){
+        return spawnPoints.get(new Random().nextInt(spawnPoints.size())).position;
     }
 }

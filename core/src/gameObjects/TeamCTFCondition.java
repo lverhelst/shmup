@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import MessageManagement.INTENT;
+import MessageManagement.Message;
 import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.EntityManager;
@@ -34,8 +35,7 @@ public class TeamCTFCondition extends Condition {
                         "\r\n" + "The score is " + Arrays.toString(teamCaptures));
                 if(numCaps == teamCaptures[e.get(TeamComponent.class).getTeamNumber() -1]){
                     System.out.println("******************** WINNER WINNER CHICKEN DINNER ********************");
-
-                    //MessageManager.getInstance().addMessage(INTENT.WIN_COND_MET,);
+                    MessageManager.getInstance().addMessage(INTENT.WIN_COND_MET);
                 }
             }else{
                 //requires team component
@@ -52,6 +52,15 @@ public class TeamCTFCondition extends Condition {
             }
         }
         return false;
+    }
+
+    public int getWinningTeam(){
+        for(int i = 0; i < teamCaptures.length; i++){
+            if(teamCaptures[i] == numCaps){
+                return i + 1;
+            }
+        }
+        return -1;
     }
 
     public int[] getTeamCaptures(){

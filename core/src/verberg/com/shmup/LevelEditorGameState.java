@@ -729,12 +729,12 @@ public class LevelEditorGameState extends GameState {
             cam.translate(x2 - x, y2 - y);
         }
 
+
         public void zoom(OrthographicCamera cam, float amount) {
             zoom += amount;
             zoom = Math.min(Math.max(zoom, 0.1f), 10f);
             cam.zoom = zoom;
         }
-
         public void grid(int amount){
             gridSize += amount;
             gridSize = Math.min(Math.max(gridSize, 1),20);

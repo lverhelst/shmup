@@ -105,7 +105,6 @@ public class ContactSystem implements ContactListener{
                  *  if B has Flag Component
                  *
                  */
-                System.out.println(aEntity.getName() + " collided with " + bEntity.getName());
                 if(aEntity.has(TypeComponent.class) && aEntity.get(TypeComponent.class).getType() == 2
                         && bEntity.has(FlagComponent.class) && bEntity.get(FlagComponent.class).getHeldBy() != null
                         && aEntity.has(TeamComponent.class)

@@ -1,5 +1,6 @@
 package verberg.com.shmup;
 
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
@@ -8,9 +9,13 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
+
+import java.util.List;
+import java.util.UUID;
 
 import Input.MyInputAdapter;
 import Factories.CarFactory;
@@ -19,8 +24,13 @@ import MessageManagement.INTENT;
 import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.EntityManager;
+import ecs.SubSystem;
 import ecs.components.CameraAttachmentComponent;
+import ecs.components.ControlledComponent;
 import ecs.components.FlagComponent;
+import ecs.components.PhysicalComponent;
+import ecs.components.TeamComponent;
+import ecs.components.TypeComponent;
 import ecs.subsystems.CameraSystem;
 import ecs.subsystems.ContactSystem;
 import ecs.subsystems.FlagUpdateSystem;
@@ -37,7 +47,7 @@ import gameObjects.TeamCTFCondition;
 /**
  * Created by Orion on 12/19/2015.
  */
-public class TestGameState extends GameState {
+public class TestGameState extends GameState implements SubSystem {
     public static MessageManagement.MessageManager slightlyWarmMail = MessageManager.getInstance();
     BitmapFont bf;
     InputSystem inputSystem = new InputSystem();
@@ -49,12 +59,15 @@ public class TestGameState extends GameState {
     Level test;
     private static World world;
     Entity testCar;
-
+    boolean gameover;
+    TeamCTFCondition ctf_cond;
 
     public TestGameState(GameStateManager gsm){
         super(gsm);
         bf = new BitmapFont();
 
+        slightlyWarmMail.clear();
+        gameover = false;
         //Steering
         slightlyWarmMail.registerSystem(INTENT.ACCELERATE, new SteeringSystem());
         slightlyWarmMail.registerSystem(INTENT.BOOST, new SteeringSystem());
@@ -75,7 +88,8 @@ public class TestGameState extends GameState {
         slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem());
         slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem());
 
-        slightlyWarmMail.registerSystem(INTENT.TEAM_CAPTURE, new TeamCTFCondition(2, 3));
+        slightlyWarmMail.registerSystem(INTENT.TEAM_CAPTURE, ctf_cond = new TeamCTFCondition(2, 3));
+        slightlyWarmMail.registerSystem(INTENT.WIN_COND_MET, this);
 
         EntityManager.getInstance().clear();
         slightlyWarmMail.clearMessages();
@@ -87,12 +101,17 @@ public class TestGameState extends GameState {
         test = new Level();
         test.create(world, "blacklevel.lvl");
 
+        slightlyWarmMail.update();
+
         CarFactory carFactory = new CarFactory();
         MyInputAdapter playerInput;
+
+
+
         testCar = carFactory.produceCarECS(playerInput = new MyInputAdapter());
         testCar.addComponent(new CameraAttachmentComponent());
 
-        for(int  i = 0; i < 1; i++){
+        for(int  i = 0; i < 5; i++){
             carFactory.produceCarECS(new AI());
         }
 
@@ -155,6 +174,7 @@ public class TestGameState extends GameState {
 
     @Override
     public void update(float dt) {
+
         test.update();
         //update collision listener
         world.step(dt, 6, 2);
@@ -176,6 +196,9 @@ public class TestGameState extends GameState {
         sp.begin();
 
         bf.draw(sp, "TESTBED", 50, 50);
+        sp.setProjectionMatrix(hudcam.combined);
+        if(gameover)
+            bf.draw(sp, "GAME OVER (ESC TO EXIT)", hudcam.viewportWidth/2, hudcam.viewportHeight/2);
 
         sp.end();
         batch.setProjectionMatrix(cam.combined);
@@ -255,4 +278,35 @@ public class TestGameState extends GameState {
     }
 
 
+    @Override
+    public void processMessage(INTENT intent, Object... parameters) {
+        if(intent == INTENT.WIN_COND_MET){
+            List<UUID> uuids = EntityManager.getInstance().getEntitiesWithComponent(ControlledComponent.class);
+            for(UUID uid : uuids){
+                EntityManager.getInstance().removeComponent(uid, ControlledComponent.class);
+            }
+            gameover = true;
+            /**
+             * Move the camera to the capture point
+             */
+            uuids = EntityManager.getInstance().getEntitiesWithComponent(CameraAttachmentComponent.class);
+            Vector2 src = new Vector2(0,0), tar = new Vector2(0,0);
+            for(UUID uid : uuids){
+                EntityManager.getInstance().removeComponent(uid, CameraAttachmentComponent.class);
+                if(EntityManager.getInstance().hasComponent(uid, PhysicalComponent.class)){
+                    src = EntityManager.getInstance().getComponent(uid, PhysicalComponent.class).getBody().getPosition();
+                }
+            }
+            int winners = ctf_cond.getWinningTeam();
+            uuids = EntityManager.getInstance().getEntitiesWithComponents(TeamComponent.class, PhysicalComponent.class, TypeComponent.class);
+            for(UUID uid : uuids){
+                if(EntityManager.getInstance().getComponent(uid, TypeComponent.class).getType() == 2
+                            && EntityManager.getInstance().getComponent(uid, TeamComponent.class).getTeamNumber() == winners){
+                    tar = EntityManager.getInstance().getComponent(uid, PhysicalComponent.class).getBody().getPosition();
+                    EntityManager.getInstance().addComponent(uid, new CameraAttachmentComponent());
+                    EntityManager.getInstance().getComponent(uid, CameraAttachmentComponent.class).initiateSlide(src, tar, 3000);
+                }
+            }
+        }
+    }
 }

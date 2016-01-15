@@ -65,7 +65,7 @@ public class PlayGameState extends GameState {
     public PlayGameState(GameStateManager gsm){
         super(gsm);
         this.gsm = gsm;
-
+        slightlyWarmMail.clear();
         //Steering
         slightlyWarmMail.registerSystem(INTENT.ACCELERATE, new SteeringSystem());
         slightlyWarmMail.registerSystem(INTENT.BOOST, new SteeringSystem());

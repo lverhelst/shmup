@@ -64,11 +64,11 @@ public class CarFactory {
     public Entity produceCarECS(IntentGenerator ig){
         //Generate a spawn point, since this has no access to them (As its not part of the spawn system)
         //Add message for spawning
-        Random rand = new Random();
+        /*Random rand = new Random();
         Point spawn = new Point();
         spawn.create("SPAWN", "RED", 1f + rand.nextInt(12), 1f + rand.nextInt(12));
-
-        Entity carBodyEntity = assembleCarBody(ig, spawn);
+        */
+        Entity carBodyEntity = assembleCarBody(ig);
        // if(!(ig instanceof AI))
             addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
@@ -105,7 +105,7 @@ public class CarFactory {
         //ShmupGame.removeEntityTree(e);
         e.removeAllComponents();
 
-        Entity carBodyEntity = assembleCarBody(cc.ig, spawn);
+        Entity carBodyEntity = assembleCarBody(cc.ig);
        // if(!(cc.ig instanceof AI))
             addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
@@ -147,8 +147,8 @@ public class CarFactory {
     }
 
 
-
-    private Entity assembleCarBody(IntentGenerator ig, Point spawn){
+    int team = 0;
+    private Entity assembleCarBody(IntentGenerator ig){
 
         JsonValue jVertices  = jCar.get("vertices");
 
@@ -168,7 +168,7 @@ public class CarFactory {
         bdef.type = BodyDef.BodyType.DynamicBody;
 
         Random random = new Random();
-        bdef.position.set(new Vector2(spawn.position.x, spawn.position.y)); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        bdef.position.set(new SpawnSystem().getSpawnPoint()); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body carbody = ShmupGame.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();
@@ -187,7 +187,7 @@ public class CarFactory {
         if(!(ig instanceof AI)){
             carBodyEntity = new Entity("PlayerControlled",new PhysicalComponent(carbody), new CameraAttachmentComponent(), new HealthComponent(100), new ControlledComponent(ig),cec, new TeamComponent(1));
         }else{
-            carBodyEntity = new Entity("AICarTest" + random.nextInt(1000),new PhysicalComponent(carbody), new DamageComponent(0), new ControlledComponent(ig), new HealthComponent(100),cec, new TeamComponent(2));
+            carBodyEntity = new Entity("AICarTest" + random.nextInt(1000),new PhysicalComponent(carbody), new DamageComponent(0), new ControlledComponent(ig), new HealthComponent(100),cec, new TeamComponent(++team%2 + 1));
         }
         (carBodyEntity.get(PhysicalComponent.class)).isRoot = true;
 
