@@ -66,4 +66,7 @@ public class TeamCTFCondition extends Condition {
     public int[] getTeamCaptures(){
         return teamCaptures;
     }
+
+
+
 }

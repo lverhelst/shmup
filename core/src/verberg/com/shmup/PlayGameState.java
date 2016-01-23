@@ -96,6 +96,8 @@ public class PlayGameState extends GameState {
         test = new Level();
         test.create(world, "savedlevel2.lvl");
 
+        slightlyWarmMail.update(); //creates the spawn points
+
         setInputProcessor(playerInput = new MyInputAdapter());
 
         CarFactory carFactory = new CarFactory();
@@ -140,7 +142,7 @@ public class PlayGameState extends GameState {
             //steeringSystem.update(entities);
             slightlyWarmMail.update();
 
-            cameraSystem.update(EntityManager.getInstance().entityList(), cam);
+            cameraSystem.update(EntityManager.getInstance().getEntitiesWithComponent(CameraAttachmentComponent.class), cam);
             //weaponSystem.update(entities);
 
             //messageManager.clearMessages();

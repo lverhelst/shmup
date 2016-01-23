@@ -32,9 +32,6 @@ public class GameStateManager {
     public void update(float dt){
             gameStates.peek().handleInput(); //check global input keys
             gameStates.peek().update(dt);
-
-
-
     }
 
     public void render(float dt){

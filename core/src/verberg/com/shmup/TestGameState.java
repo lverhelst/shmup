@@ -29,6 +29,7 @@ import ecs.components.CameraAttachmentComponent;
 import ecs.components.ControlledComponent;
 import ecs.components.FlagComponent;
 import ecs.components.PhysicalComponent;
+import ecs.components.SelfDestructTimer;
 import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
 import ecs.subsystems.CameraSystem;
@@ -38,10 +39,13 @@ import ecs.subsystems.InputSystem;
 import ecs.subsystems.PowerUpSystem;
 import ecs.subsystems.RemovalSystem;
 import ecs.subsystems.RenderSystem;
+import ecs.subsystems.SelfDestructTimerSystem;
 import ecs.subsystems.SpawnSystem;
 import ecs.subsystems.SteeringSystem;
 import ecs.subsystems.WeaponSystem;
 import AI.AI;
+import gameObjects.Condition;
+import gameObjects.FreeForAllCondition;
 import gameObjects.TeamCTFCondition;
 
 /**
@@ -54,15 +58,28 @@ public class TestGameState extends GameState implements SubSystem {
     CameraSystem cameraSystem = new CameraSystem();
     PowerUpSystem powerupSystem = new PowerUpSystem();
     FlagUpdateSystem flagUpdateSystem = new FlagUpdateSystem();
+    SelfDestructTimerSystem selfDestructTimerSystem = new SelfDestructTimerSystem();
     RenderSystem renderSystem;
     Box2DDebugRenderer debugRenderer;
     Level test;
     private static World world;
     Entity testCar;
     boolean gameover;
-    TeamCTFCondition ctf_cond;
+    Condition ctf_cond;
 
-    public TestGameState(GameStateManager gsm){
+
+    /**
+     * TODO: add parameter {file|list|vars} for
+     * + game modes
+     * + required components to be added to cars for game modes
+     * + number of cars to make
+     * + number of AI vs number of players
+     * + which level to load by file name
+     * + how many teams there are
+     *
+     * @param gsm
+     */
+     public TestGameState(GameStateManager gsm){
         super(gsm);
         bf = new BitmapFont();
 
@@ -88,7 +105,12 @@ public class TestGameState extends GameState implements SubSystem {
         slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem());
         slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem());
 
-        slightlyWarmMail.registerSystem(INTENT.TEAM_CAPTURE, ctf_cond = new TeamCTFCondition(2, 3));
+        if(true){
+            slightlyWarmMail.registerSystem(INTENT.TEAM_CAPTURE, ctf_cond = new TeamCTFCondition(2, 3));
+        }else{
+            slightlyWarmMail.registerSystem(INTENT.DIED, ctf_cond = new FreeForAllCondition(5, 3));
+        }
+
         slightlyWarmMail.registerSystem(INTENT.WIN_COND_MET, this);
 
         EntityManager.getInstance().clear();
@@ -111,10 +133,10 @@ public class TestGameState extends GameState implements SubSystem {
         testCar = carFactory.produceCarECS(playerInput = new MyInputAdapter());
         testCar.addComponent(new CameraAttachmentComponent());
 
+        Entity aiCar;
         for(int  i = 0; i < 5; i++){
-            carFactory.produceCarECS(new AI());
+            aiCar = carFactory.produceCarECS(new AI());
         }
-
 
         MessageManager.getInstance().addMessage(INTENT.SPAWN, carFactory.makeFlag());
 
@@ -185,8 +207,8 @@ public class TestGameState extends GameState implements SubSystem {
         //steeringSystem.update(entities);
         slightlyWarmMail.update();
         flagUpdateSystem.update(EntityManager.getInstance().getEntitiesWithComponent(FlagComponent.class));
-
-        cameraSystem.update(EntityManager.getInstance().entityList(), cam);
+        selfDestructTimerSystem.update(EntityManager.getInstance().getEntitiesWithComponent(SelfDestructTimer.class));
+        cameraSystem.update(EntityManager.getInstance().getEntitiesWithComponent(CameraAttachmentComponent.class), cam);
     }
 
     @Override
@@ -297,14 +319,16 @@ public class TestGameState extends GameState implements SubSystem {
                     src = EntityManager.getInstance().getComponent(uid, PhysicalComponent.class).getBody().getPosition();
                 }
             }
-            int winners = ctf_cond.getWinningTeam();
-            uuids = EntityManager.getInstance().getEntitiesWithComponents(TeamComponent.class, PhysicalComponent.class, TypeComponent.class);
-            for(UUID uid : uuids){
-                if(EntityManager.getInstance().getComponent(uid, TypeComponent.class).getType() == 2
-                            && EntityManager.getInstance().getComponent(uid, TeamComponent.class).getTeamNumber() == winners){
-                    tar = EntityManager.getInstance().getComponent(uid, PhysicalComponent.class).getBody().getPosition();
-                    EntityManager.getInstance().addComponent(uid, new CameraAttachmentComponent());
-                    EntityManager.getInstance().getComponent(uid, CameraAttachmentComponent.class).initiateSlide(src, tar, 3000);
+            if(ctf_cond instanceof TeamCTFCondition) {
+                int winners = ((TeamCTFCondition) ctf_cond).getWinningTeam();
+                uuids = EntityManager.getInstance().getEntitiesWithComponents(TeamComponent.class, PhysicalComponent.class, TypeComponent.class);
+                for (UUID uid : uuids) {
+                    if (EntityManager.getInstance().getComponent(uid, TypeComponent.class).getType() == 2
+                            && EntityManager.getInstance().getComponent(uid, TeamComponent.class).getTeamNumber() == winners) {
+                        tar = EntityManager.getInstance().getComponent(uid, PhysicalComponent.class).getBody().getPosition();
+                        EntityManager.getInstance().addComponent(uid, new CameraAttachmentComponent());
+                        EntityManager.getInstance().getComponent(uid, CameraAttachmentComponent.class).initiateSlide(src, tar, 3000);
+                    }
                 }
             }
         }

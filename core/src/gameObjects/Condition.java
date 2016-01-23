@@ -13,4 +13,5 @@ public abstract class Condition implements SubSystem{
     @Override
     public abstract void processMessage(INTENT intent, Object... parameters);
     public abstract boolean hasWinner();
+   // public abstract Condition[] requiredComponentsForPlayers();
 }

@@ -9,6 +9,7 @@ import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
+import ecs.components.SteeringComponent;
 import verberg.com.shmup.ShmupGame;
 import MessageManagement.INTENT;
 
@@ -102,6 +103,14 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
                 return;
             }
         }
+
+        int steeringAngle = 0;
+        if(entity.has(SteeringComponent.class)){
+            steeringAngle = entity.get(SteeringComponent.class).getSteering_angle();
+            System.out.println("Steering Angle" + steeringAngle);
+        }
+
+
         if(keysdown[Input.Keys.UP]||keysdown[Input.Keys.W]){
             MessageManager.getInstance().addMessage(INTENT.ACCELERATE, entity);
         }
@@ -113,11 +122,11 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
         }
         boolean didTurn = false;
         if(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.A]){
-            MessageManager.getInstance().addMessage(INTENT.LEFTTURN, entity, 35);
+            MessageManager.getInstance().addMessage(INTENT.LEFTTURN, entity, ++steeringAngle);
             didTurn |= true;
         }
         if(keysdown[Input.Keys.RIGHT]||keysdown[Input.Keys.D]){
-            MessageManager.getInstance().addMessage(INTENT.RIGHTTURN, entity, -35);
+            MessageManager.getInstance().addMessage(INTENT.RIGHTTURN, entity, --steeringAngle);
             didTurn |= true;
         }
         if(!didTurn) {

@@ -20,7 +20,9 @@ public class MainMenuGameState extends GameState {
         bf = new BitmapFont();
         cam = new OrthographicCamera();
         cam.setToOrtho(false, ShmupGame.V_WIDTH,ShmupGame.V_HEIGHT);
+        cam.zoom = 2f;
         cam.update();
+        hudcam.zoom = 2f;hudcam.update();
 
         final GameStateManager gsm2 = gsm;
 
@@ -51,7 +53,7 @@ public class MainMenuGameState extends GameState {
 
                 //pan(cam, touchUp.x - cam.position.x, touchUp.y - cam.position.y);
 
-                zoom(cam, 0.1f * amount);
+                zoom(hudcam, 0.1f * amount);
                 return false;
             }
 
@@ -73,6 +75,7 @@ public class MainMenuGameState extends GameState {
     @Override
     public void update(float dt) {
         cam.update();
+        hudcam.update();
     }
 
     @Override
@@ -82,7 +85,7 @@ public class MainMenuGameState extends GameState {
         sp.begin();
         sp.setProjectionMatrix(hudcam.combined);
 
-        bf.draw(sp, "1: Play, 2:Testbed 3: LevelEditor  ESC (returns to this menu from other screen\"", hudcam.viewportWidth/2, hudcam.viewportHeight/2);
+        bf.draw(sp, "1: Play,\r\n 2:Testbed\r\n 3: LevelEditor  ESC (returns to this menu from other screen", hudcam.viewportWidth/2, hudcam.viewportHeight/2);
 
         sp.end();
     }
@@ -91,4 +94,6 @@ public class MainMenuGameState extends GameState {
     public void dispose() {
 
     }
+
+
 }
