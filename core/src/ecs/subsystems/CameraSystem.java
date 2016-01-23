@@ -19,7 +19,7 @@ import ecs.components.PhysicalComponent;
 public class CameraSystem {
 
 
-        float playerAngle, camAngle;
+        float playerAngle, camAngle, lastSpeed, zoom;
 
         public void update(ArrayList<UUID> entities, OrthographicCamera camera){
             for(UUID ent : entities){
@@ -36,14 +36,13 @@ public class CameraSystem {
                             float velY = pc.getBody().getLinearVelocity().y;
 
                             float speed =  (float)Math.sqrt(velX * velX + velY * velY);
-                            System.out.println(speed);
 
 
 
 
-                            float adjustX = (float) (Math.cos(pc.getBody().getAngle() + Math.PI / 2) * 3f);
+                            float adjustX = (float) (Math.cos(pc.getBody().getAngle() + Math.PI / 2) * 3f) * 0f;
 
-                            float adjustY = (float) (Math.sin(pc.getBody().getAngle() + Math.PI / 2) * 3f);
+                            float adjustY = (float) (Math.sin(pc.getBody().getAngle() + Math.PI / 2) * 3f) * 0f;
 
 
 
@@ -51,7 +50,8 @@ public class CameraSystem {
                             camera.position.set(pc.getBody().getPosition().x + adjustX, pc.getBody().getPosition().y + adjustY, 10);
                             //camera.up.set(0,1,0);
                             //
-                            camera.zoom = 2f + (float)speed/20f;
+                            camera.zoom = Math.min(Math.max(camera.zoom += (float)(lastSpeed > speed ? -0.01 : 0.01),2f), 2.5f) ;
+                            lastSpeed = speed;
 
                             playerAngle = (float)Math.toDegrees(pc.getBody().getAngle());
                             while(playerAngle<=0){

@@ -107,7 +107,6 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
         int steeringAngle = 0;
         if(entity.has(SteeringComponent.class)){
             steeringAngle = entity.get(SteeringComponent.class).getSteering_angle();
-            System.out.println("Steering Angle" + steeringAngle);
         }
 
 
