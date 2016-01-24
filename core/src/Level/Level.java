@@ -44,7 +44,6 @@ public class Level {
     private ArrayList<Point> pointList;
     private Stack<NavigationNode> navNodeStack;
     private static ArrayList<NavigationNode> navNodes;
-    private String filename;
 
     public static World world;
     private Body blade;
@@ -52,7 +51,7 @@ public class Level {
     //TODO: Make creation of GOALS use something in the file to determine team
     int teamNum = 0;
 
-    public void create(World world, String filename) {
+    public void create(World world) {
         //one time method
         bodies = new HashMap<String, Body>();
         pointList = new ArrayList<Point>();
@@ -60,10 +59,49 @@ public class Level {
         navNodes = new ArrayList<NavigationNode>();
 
         this.world = world;
-        this.filename = filename;
-        loadLevel(filename);
     }
 
+    public void genLevel(String blockFile) {
+        JsonReader reader = new JsonReader();
+        JsonValue json = reader.parse(Gdx.files.internal((blockFile)));
+
+        JsonValue blocks = json.get("block");
+
+        HashMap<String, JsonValue> blockList = new HashMap<String, JsonValue>();
+        String mask;
+
+        if(blocks != null) {
+            for (JsonValue block : blocks) {
+                mask = block.get("mask").asString();
+
+                if(mask != null) {
+                    //if(!blockList.containsKey(mask)) {
+                    //    blockList.put(mask, new ArrayList<JsonValue>());
+                    //}
+
+                    blockList.put(mask, block.get("definition").child);
+                }
+            }
+        }
+
+        Generator gen = new Generator();
+        String[][] map = gen.generate(20, 20);
+
+        for(int i = 0; i < map.length ; ++i) {
+            for(int j = 0; j < map[i].length; ++j) {
+                JsonValue cell = blockList.get(map[i][j]);
+                float x = j * 4;
+                float y = map.length - i * 4;
+
+                if(cell != null) {
+                    loadShapes(cell, x, y);
+                    loadPoints(cell, x, y);
+                }
+            }
+        }
+
+        generateNavigationGraph();
+    }
 
     public void loadLevel(String levelName){
         JsonReader reader = new JsonReader();
@@ -81,7 +119,7 @@ public class Level {
         }
 
         loadShapes(map, 0, 0);
-        loadPoints(map);
+        loadPoints(map, 0, 0);
 
 
         //TODO: add joint handling and creation from file
@@ -93,7 +131,7 @@ public class Level {
         generateNavigationGraph();
 
 
-        if(!filename.equals("blacklevel.lvl")) {
+        if(!levelName.equals("blacklevel.lvl")) {
 
             blade = createBox("WALL", 16, 15.45f, 15, 0.2f, 0f, 0.1f, BodyType.DynamicBody);
 
@@ -144,26 +182,28 @@ public class Level {
         }
     }
 
-    public void loadPoints(JsonValue maps){
+    public void loadPoints(JsonValue maps, float x, float y){
         JsonValue points = maps.get("points");
 
-        for(JsonValue point : points){
-            float[] pos = point.get("location").asFloatArray();
-            String type = point.get("type").asString();
-            String subtype = point.get("subtype").asString();
+        if(points != null) {
+            for (JsonValue point : points) {
+                float[] pos = point.get("location").asFloatArray();
+                String type = point.get("type").asString();
+                String subtype = point.get("subtype").asString();
 
-            NavigationNode nNode = new NavigationNode((int)pos[0],(int)pos[1], 0.4f);
-            navNodes.add(nNode);
-            nNode.createBox2dBody(world);
+                NavigationNode nNode = new NavigationNode((int) (pos[0] + x), (int) (pos[1] + y), 0.4f);
+                navNodes.add(nNode);
+                nNode.createBox2dBody(world);
 
-            if(!type.equals("NODE")) {
-                Point newPoint = new Point();
-                newPoint.create(type, subtype, pos[0], pos[1]);
+                if (!type.equals("NODE")) {
+                    Point newPoint = new Point();
+                    newPoint.create(type, subtype, pos[0] + x, pos[1] + y);
 
-                if(type.equals("PICKUP")) {
-                    //TODO: pick powerup type from subtype
-                } else {
-                    MessageManager.getInstance().addMessage(INTENT.ADDSPAWN, newPoint);
+                    if (type.equals("PICKUP")) {
+                        //TODO: pick powerup type from subtype
+                    } else {
+                        MessageManager.getInstance().addMessage(INTENT.ADDSPAWN, newPoint);
+                    }
                 }
             }
         }

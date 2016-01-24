@@ -94,7 +94,8 @@ public class PlayGameState extends GameState {
         world.setContactListener(new ContactSystem());
 
         test = new Level();
-        test.create(world, "savedlevel2.lvl");
+        test.create(world);
+        test.genLevel("blocks.blk");
 
         slightlyWarmMail.update(); //creates the spawn points
 

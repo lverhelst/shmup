@@ -152,10 +152,10 @@ public class LevelEditorGameState extends GameState {
         point_Type = Point.TYPE.SPAWN;
         shape_Type = Shape.TYPE.WALL;
 
-        gridSize = 10;
+        gridSize = 2;
         width = V_WIDTH;
         height = V_HEIGHT;
-        zoom = 1;
+        zoom = 5;
 
         cam.zoom = zoom;
 
@@ -594,7 +594,7 @@ public class LevelEditorGameState extends GameState {
 
             //pan(cam, touchUp.x - cam.position.x, touchUp.y - cam.position.y);
 
-            zoom(cam, 0.1f * amount);
+            zoom(cam, 0.5f * amount);
             return false;
         }
 

@@ -24,7 +24,7 @@ public class Point extends Selectable {
         super(x, y);
         setType(type);
         this.subType = subType;
-        this.r = 4;
+        this.r = 0.25f;
     }
 
     public void setType(TYPE type) {
