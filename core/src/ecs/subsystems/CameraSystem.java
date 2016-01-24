@@ -31,37 +31,18 @@ public class CameraSystem {
                             camera.position.set(e.get(CameraAttachmentComponent.class).getSlidePosition(), 10);
                         }else{
 
-
-                            float velX = pc.getBody().getLinearVelocity().x;
-                            float velY = pc.getBody().getLinearVelocity().y;
-
-                            float speed =  (float)Math.sqrt(velX * velX + velY * velY);
+                            float speed =  pc.getSpeed();
 
 
-
-
-                            float adjustX = (float) (Math.cos(pc.getBody().getAngle() + Math.PI / 2) * 3f) * 0f;
-
-                            float adjustY = (float) (Math.sin(pc.getBody().getAngle() + Math.PI / 2) * 3f) * 0f;
-
-
-
-
-                            camera.position.set(pc.getBody().getPosition().x + adjustX, pc.getBody().getPosition().y + adjustY, 10);
+                            camera.position.set(pc.facingVector(3f), 10);
                             //camera.up.set(0,1,0);
                             //
                             camera.zoom = Math.min(Math.max(camera.zoom += (float)(lastSpeed > speed ? -0.01 : 0.01),2f), 2.5f) ;
                             lastSpeed = speed;
 
-                            playerAngle = (float)Math.toDegrees(pc.getBody().getAngle());
-                            while(playerAngle<=0){
-                                playerAngle += 360;
-                            }
-                            while(playerAngle>360){
-                                playerAngle -= 360;
-                            }
+                            playerAngle = pc.getAngleDegrees();
                             camAngle = -getCameraCurrentXYAngle(camera) + 180;
-                            camera.rotate((camAngle-playerAngle)+180);
+                            camera.rotate(((camAngle-playerAngle)+180));
                         }
                         camera.update();
                     }
