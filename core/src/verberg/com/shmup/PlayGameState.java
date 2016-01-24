@@ -109,7 +109,7 @@ public class PlayGameState extends GameState {
 
         aiList = new ArrayList<AI>();
         AI ai;
-        for(int i = 0; i < 5; i++){
+        for(int i = 0; i < 4; i++){
             ai = new AI();
             ai.setTarget(playerEntity);
             carFactory.produceCarECS(ai);
@@ -159,7 +159,7 @@ public class PlayGameState extends GameState {
         renderSystem.render(EntityManager.getInstance().entityList(), batch);
 
         batch.end();
-
+        /*
         ShapeRenderer shapeRenderer = gsm.game().getShapeRenderer();
         shapeRenderer.setProjectionMatrix(cam.combined);
 
@@ -194,9 +194,9 @@ public class PlayGameState extends GameState {
             shapeRenderer.setColor(Color.FIREBRICK);
             if (temp.size() > 1)
                 shapeRenderer.line(temp.get(0).x, temp.get(0).y, temp.get(temp.size() - 1).x, temp.get(temp.size() - 1).y);
-        }*/
+        }
         shapeRenderer.end();
-
+        */
 
         debugRenderer.render(world, cam.combined);
     }

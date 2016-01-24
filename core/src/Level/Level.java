@@ -84,8 +84,10 @@ public class Level {
             }
         }
 
-        Generator gen = new Generator();
-        String[][] map = gen.generate(20, 20);
+        Generator gen = new Generator(15, 10);
+        gen.smooth(2);
+
+        String[][] map = gen.getMarchingMap();
 
         for(int i = 0; i < map.length ; ++i) {
             for(int j = 0; j < map[i].length; ++j) {
