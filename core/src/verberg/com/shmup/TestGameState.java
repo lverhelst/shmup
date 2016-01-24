@@ -121,7 +121,8 @@ public class TestGameState extends GameState implements SubSystem {
         world.setContactListener(new ContactSystem());
 
         test = new Level();
-        test.create(world, "blacklevel.lvl");
+        test.create(world);
+        test.loadLevel("blacklevel.lvl");
 
         slightlyWarmMail.update();
 
