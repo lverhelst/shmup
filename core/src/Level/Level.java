@@ -63,7 +63,7 @@ public class Level {
 
     public void genLevel(String blockFile) {
         JsonReader reader = new JsonReader();
-        JsonValue json = reader.parse(Gdx.files.internal((blockFile)));
+        JsonValue json = reader.parse(Gdx.files.internal(blockFile));
 
         JsonValue blocks = json.get("block");
 
@@ -84,8 +84,23 @@ public class Level {
             }
         }
 
-        Generator gen = new Generator();
-        String[][] map = gen.generate(20, 20);
+        JsonValue settings = reader.parse(Gdx.files.internal("generator.cfg"));
+        settings = settings.get("settings");
+
+        int width = settings.getInt("width");
+        int height = settings.getInt("height");
+        int wallRate = settings.getInt("wallrate");
+        int emptyRate = settings.getInt("emptyrate");
+        int density = settings.getInt("density");
+        int smooth = settings.getInt("smooth");
+
+        Generator gen = new Generator(width, height);
+        gen.wallRate = wallRate;
+        gen.emptyRate = emptyRate;
+        gen.density = density;
+        gen.smooth(smooth);
+
+        String[][] map = gen.getMarchingMap();
 
         for(int i = 0; i < map.length ; ++i) {
             for(int j = 0; j < map[i].length; ++j) {
