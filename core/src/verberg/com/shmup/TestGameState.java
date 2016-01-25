@@ -14,6 +14,8 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,19 +70,21 @@ public class TestGameState extends GameState implements SubSystem {
     Condition ctf_cond;
 
 
-    /**
-     * TODO: add parameter {file|list|vars} for
-     * + game modes
-     * + required components to be added to cars for game modes
-     * + number of cars to make
-     * + number of AI vs number of players
-     * + which level to load by file name
-     * + how many teams there are
-     *
-     * @param gsm
+    /*
+        Possible parameters have to be defined in here
+
+
      */
-     public TestGameState(GameStateManager gsm){
+
+
+
+
+
+
+
+     public TestGameState(GameStateManager gsm, HashMap<String, Object> params){
         super(gsm);
+
         bf = new BitmapFont();
 
         slightlyWarmMail.clear();
@@ -105,11 +109,21 @@ public class TestGameState extends GameState implements SubSystem {
         slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem());
         slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem());
 
-        if(true){
-            slightlyWarmMail.registerSystem(INTENT.TEAM_CAPTURE, ctf_cond = new TeamCTFCondition(2, 3));
-        }else{
+
+        if(params.containsKey("conditions")){
+
+
+
             slightlyWarmMail.registerSystem(INTENT.DIED, ctf_cond = new FreeForAllCondition(5, 3));
+
+        }else {
+            //default
+            slightlyWarmMail.registerSystem(INTENT.TEAM_CAPTURE, ctf_cond = new TeamCTFCondition((params.containsKey("number_of_teams") ? (Integer)params.get("number_of_teams") : 2)
+                                                                                                  , (params.containsKey("number_of_captures") ? (Integer)params.get("number_of_captures") : 3)));
         }
+
+
+
 
         slightlyWarmMail.registerSystem(INTENT.WIN_COND_MET, this);
 
@@ -122,63 +136,58 @@ public class TestGameState extends GameState implements SubSystem {
 
         test = new Level();
         test.create(world);
-        test.loadLevel("blacklevel.lvl");
+
+
+        if(params.containsKey("Level")){
+            test.loadLevel((String)params.get("Level"));
+        }else{
+            //default
+            test.loadLevel("blacklevel.lvl");
+        }
 
         slightlyWarmMail.update();
 
+
+         /**
+          * Create cars
+          */
         CarFactory carFactory = new CarFactory();
         MyInputAdapter playerInput;
-
-
-
         testCar = carFactory.produceCarECS(playerInput = new MyInputAdapter());
         testCar.addComponent(new CameraAttachmentComponent());
 
-        Entity aiCar;
-        for(int  i = 0; i < 5; i++){
-            aiCar = carFactory.produceCarECS(new AI());
+        if(params.containsKey("number_of_cars")){
+            System.out.println(params.get("number_of_cars"));
         }
 
+        if(params.containsKey("number_of_bots")){
+
+            Entity aiCar;
+            int j =  ((Integer)params.get("number_of_bots"));
+            for(int  i = 0; i < j; i++){
+                aiCar = carFactory.produceCarECS(new AI());
+            }
+        }else{
+            Entity aiCar;
+            for(int  i = 0; i < 2; i++){
+                aiCar = carFactory.produceCarECS(new AI());
+            }
+        }
+
+
+
         MessageManager.getInstance().addMessage(INTENT.SPAWN, carFactory.makeFlag());
+
+        carFactory.spawnBeachBall();
 
 
 
         debugRenderer = new Box2DDebugRenderer();
         renderSystem = new RenderSystem();
 
-        setInputProcessor(playerInput);
+         setInputProcessor(playerInput);
 
 
-        carFactory.spawnBeachBall();
-
-/*
-        setInputProcessor(new InputAdapter(){
-
-
-            @Override
-            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-
-
-                Vector3 touchDown = new Vector3();
-                touchDown.set(screenX, screenY, 0);
-                cam.unproject(touchDown);
-
-                NavigationNode n = new NavigationNode((int)touchDown.x,(int) touchDown.y, 3);
-                ((AI)testCar.get(ControlledComponent.class).ig).setTarget(new Entity(new PhysicalComponent(n.createBox2dBody(world))));
-                Level.addNavigationNode(n);
-
-                return false;// super.touchUp(screenX, screenY, pointer, button);
-            }
-
-
-            @Override
-            public boolean scrolled(int amount) {
-                zoom(cam, 0.1f * amount);
-                return false;
-            }
-
-
-        });*/
 
     }
     float zoom;
@@ -231,66 +240,6 @@ public class TestGameState extends GameState implements SubSystem {
 
         batch.end();
 
-
-
-/*
-
-        ShapeRenderer shapeRenderer = gsm.game().getShapeRenderer();
-        shapeRenderer.setProjectionMatrix(cam.combined);
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.WHITE);
-
-        shapeRenderer.setColor(Color.CYAN);
-
-
-            Entity debug = testCar;
-            Body entity = debug.get(PhysicalComponent.class).getBody();
-
-            float adjustX = (float) (Math.cos(entity.getAngle() + Math.PI / 2) * 20f / Constants.PPM + entity.getPosition().x);
-
-            float adjustY = (float) (Math.sin(entity.getAngle() + Math.PI / 2) * 20f / Constants.PPM + entity.getPosition().y);
-
-            shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
-
-           ArrayList<Vector2> temp = ((AI) debug.get(ControlledComponent.class).ig).path;
-
-            if(temp != null) {
-                float pathdist = 0;
-                for (int i = 0; i < temp.size(); i++) {
-                    if (i >= 1) {
-                        shapeRenderer.line(temp.get(i - 1).x, temp.get(i - 1).y, temp.get(i).x, temp.get(i).y);
-                        //System.out.print(temp.get(i - 1) + " " + temp.get(i) + "|");
-                        pathdist += Vector2.dst2(temp.get(i - 1).x, temp.get(i - 1).y, temp.get(i).x, temp.get(i).y);
-                    }
-                }
-
-                //  System.out.println("Path length" + pathdist);
-
-                shapeRenderer.setColor(Color.FIREBRICK);
-                if (temp.size() > 1)
-                    shapeRenderer.line(temp.get(0).x, temp.get(0).y, temp.get(temp.size() - 1).x, temp.get(temp.size() - 1).y);
-            }
-        //right
-        shapeRenderer.setColor(Color.YELLOW);
-        adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(-1 * 15) + Math.PI/2) * 1f +  entity.getPosition().x);
-        adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(-1 * 15) + Math.PI/2) * 1f +  entity.getPosition().y);
-
-        shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
-
-        //left
-        shapeRenderer.setColor(Color.LIME);
-        adjustX = (float)(Math.cos(entity.getAngle() + Math.toRadians(1 * 15) + Math.PI/2) * 1f +  entity.getPosition().x);
-        adjustY = (float)(Math.sin(entity.getAngle() + Math.toRadians(1 * 15) + Math.PI/2) * 1f +  entity.getPosition().y);
-
-        shapeRenderer.line(entity.getPosition().x, entity.getPosition().y, adjustX, adjustY);
-
-
-
-        shapeRenderer.end();
-
-        */
-
         debugRenderer.render(world, cam.combined);
     }
 
@@ -299,7 +248,6 @@ public class TestGameState extends GameState implements SubSystem {
 
 
     }
-
 
     @Override
     public void processMessage(INTENT intent, Object... parameters) {
@@ -334,4 +282,9 @@ public class TestGameState extends GameState implements SubSystem {
             }
         }
     }
+
+
+
+
+
 }

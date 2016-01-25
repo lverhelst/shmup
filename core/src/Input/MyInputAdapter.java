@@ -108,6 +108,10 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
         if(entity.has(SteeringComponent.class)){
             steeringAngle = entity.get(SteeringComponent.class).getSteering_angle();
         }
+        float speed = 0;
+        if(entity.has(PhysicalComponent.class)){
+            speed = entity.get(PhysicalComponent.class).getSpeed();
+        }
 
 
         if(keysdown[Input.Keys.UP]||keysdown[Input.Keys.W]){
@@ -121,11 +125,11 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
         }
         boolean didTurn = false;
         if(keysdown[Input.Keys.LEFT]||keysdown[Input.Keys.A]){
-            MessageManager.getInstance().addMessage(INTENT.LEFTTURN, entity, ++steeringAngle);
+            MessageManager.getInstance().addMessage(INTENT.LEFTTURN, entity, (speed < 5 ? steeringAngle + 4 : ++steeringAngle));
             didTurn |= true;
         }
         if(keysdown[Input.Keys.RIGHT]||keysdown[Input.Keys.D]){
-            MessageManager.getInstance().addMessage(INTENT.RIGHTTURN, entity, --steeringAngle);
+            MessageManager.getInstance().addMessage(INTENT.RIGHTTURN, entity, (speed < 5 ? steeringAngle - 4 : --steeringAngle));
             didTurn |= true;
         }
         if(!didTurn) {

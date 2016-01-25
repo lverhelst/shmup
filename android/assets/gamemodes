@@ -56,10 +56,11 @@
           "type" : "component",
           "name" : "Components to add to cars",
           "values" : [
-                          { "component" : "healthcomponent" ,
+                          { "component" : "HealthComponent" ,
                             "value"     : 100,
-                            "applies to": ["BOT","PLAYER"]}, //initial health}
-                          { "component" : "weaponcomponent",
+                            "applies to": ["BOT","PLAYER"]
+                          }, //initial health}
+                          { "component" : "WeaponComponent",
                             "value"     : 1,
                             "applies to": ["BOT","PLAYER"]
                           }
@@ -145,10 +146,10 @@
         "type" : "component",
         "name" : "Components to add to cars",
         "values" : [
-          { "component" : "healthcomponent" ,
+          { "component" : "HealthComponent" ,
             "value"     : 100,
             "applies to": ["BOT","PLAYER"]},
-          { "component" : "weaponcomponent",
+          { "component" : "WeaponComponent",
             "value"     : 1,
             "applies to": ["BOT","PLAYER"]
           }
@@ -229,15 +230,16 @@
         "type" : "component",
         "name" : "Components to add to cars",
         "values" : [
-          { "component" : "healthcomponent" ,
+          { "component" : "HealthComponent" ,
             "value"     : 100,
-            "applies to": ["BOT","PLAYER"]},
-          { "component" : "weaponcomponent",
+            "applies to": ["BOT","PLAYER"]
+          },
+          { "component" : "WeaponComponent",
             "value"     : 1,
             "applies to": ["PLAYER"]
           },
           {
-            "component" : "damagecomponent",
+            "component" : "DamageComponent",
             "value"     : 10,
             "applies to": ["BOT"]
           }

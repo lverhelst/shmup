@@ -86,6 +86,7 @@ public class PlayGameState extends GameState {
         slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem());
         slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem());
 
+
         EntityManager.getInstance().clear();
         slightlyWarmMail.clearMessages();
 
@@ -136,17 +137,12 @@ public class PlayGameState extends GameState {
             test.update();
             //update collision listener
             world.step(dt, 6, 2);
-            // System.out.println("Entities: " + entities.size() + " Box2DBodies " + world.getBodyCount());
 
             inputSystem.update(EntityManager.getInstance().entityList());
             powerupSystem.update();
-            //steeringSystem.update(entities);
             slightlyWarmMail.update();
 
             cameraSystem.update(EntityManager.getInstance().getEntitiesWithComponent(CameraAttachmentComponent.class), cam);
-            //weaponSystem.update(entities);
-
-            //messageManager.clearMessages();
     }
 
     @Override
@@ -167,7 +163,7 @@ public class PlayGameState extends GameState {
         shapeRenderer.setColor(Color.WHITE);
         for(NavigationNode n : test.getNavNodes())
         {
-            n.render(shapeRenderer);
+         //   n.render(shapeRenderer);
         }
 
 

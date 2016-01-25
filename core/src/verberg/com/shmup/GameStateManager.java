@@ -7,6 +7,8 @@ package verberg.com.shmup;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Stack;
 
 public class GameStateManager {
@@ -26,7 +28,7 @@ public class GameStateManager {
     public GameStateManager(ShmupGame game){
         this.game = game;
         gameStates = new Stack<GameState>();
-        pushState(MAINMENU);
+        pushState(MAINMENU, null);
     }
 
     public void update(float dt){
@@ -42,24 +44,24 @@ public class GameStateManager {
         return game;
     }
 
-    private GameState getState(int state){
+    private GameState getState(int state,HashMap<String, Object> params){
         switch(state){
             case MAINMENU:  return new MainMenuGameState(this);
             case PLAY:      return new PlayGameState(this);
-            case TEST:      return new TestGameState(this);
+            case TEST:      return new TestGameState(this, params);
             case EDITOR:    return new LevelEditorGameState(this);
             case ENDGAME:   return new EndGameState(this);
             default:        return null;
         }
     }
 
-    public void setState(int state){
+    public void setState(int state, HashMap<String, Object> params){
         popState();
-        pushState(state);
+        pushState(state, params);
     }
 
-    public void pushState(int state){
-        gameStates.push(getState(state));
+    public void pushState(int state, HashMap<String, Object> params){
+        gameStates.push(getState(state, params));
     }
 
     public void popState(){
