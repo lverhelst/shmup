@@ -24,7 +24,7 @@ public class RepairPowerUp extends PowerUp {
         super(ChildEntityComponent.class);
         jointsToRepair = new ArrayList<Entity>();
         if(cf == null)
-            cf = new CarFactory();
+            cf = new CarFactory("");
     }
 
     @Override

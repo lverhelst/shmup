@@ -18,9 +18,15 @@ import Level.Point;
  * Created by Orion on 11/26/2015.
  */
 public class SpawnSystem implements SubSystem{
-    static CarFactory carFactory = new CarFactory();
+    static CarFactory carFactory;
     static ArrayList<Point> spawnPoints = new ArrayList<Point>();
     static int newSpawn = 0; //TODO: replace with something better
+
+
+    public SpawnSystem(String gameMode){
+        carFactory = new CarFactory(gameMode);
+    }
+
 
     public void processMessage(INTENT intent, Object ... list) {
         switch (intent) {

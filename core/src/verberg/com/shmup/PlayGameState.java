@@ -83,8 +83,8 @@ public class PlayGameState extends GameState {
         slightlyWarmMail.registerSystem(INTENT.REMOVE, new RemovalSystem());
 
         //Spawn
-        slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem());
-        slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem());
+        slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem("Capture The Flag"));
+        slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem("Capture The Flag"));
 
 
         EntityManager.getInstance().clear();
@@ -102,7 +102,7 @@ public class PlayGameState extends GameState {
 
         setInputProcessor(playerInput = new MyInputAdapter());
 
-        CarFactory carFactory = new CarFactory();
+        CarFactory carFactory = new CarFactory("Capture The Flag");
         Entity playerEntity = carFactory.produceCarECS(playerInput);
 
 

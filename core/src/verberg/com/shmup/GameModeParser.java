@@ -76,6 +76,8 @@ public class GameModeParser {
 
     //Rules are just parameters the player can't see and have no control over.
     public ArrayList<GameModeParameter> getRulesForMode(String gameMode) {
+        if(true) //fake out the compiler
+            return null; //this isn't used currently
         JsonValue obg  = rootValue.get("gamemode");
         do{
             if(obg.child().asString().equals(gameMode)){

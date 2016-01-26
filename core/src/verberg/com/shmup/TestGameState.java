@@ -29,11 +29,15 @@ import ecs.EntityManager;
 import ecs.SubSystem;
 import ecs.components.CameraAttachmentComponent;
 import ecs.components.ControlledComponent;
+import ecs.components.DamageComponent;
 import ecs.components.FlagComponent;
+import ecs.components.HealthComponent;
+import ecs.components.KDAComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.SelfDestructTimer;
 import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
+import ecs.components.WeaponComponent;
 import ecs.subsystems.CameraSystem;
 import ecs.subsystems.ContactSystem;
 import ecs.subsystems.FlagUpdateSystem;
@@ -68,7 +72,10 @@ public class TestGameState extends GameState implements SubSystem {
     Entity testCar;
     boolean gameover;
     Condition ctf_cond;
+    CarFactory carFactory;
+    String currentGameMode;
 
+    int team_num = 1;
 
     /*
         Possible parameters have to be defined in here
@@ -105,21 +112,25 @@ public class TestGameState extends GameState implements SubSystem {
         slightlyWarmMail.registerSystem(INTENT.DIED, new RemovalSystem());
         slightlyWarmMail.registerSystem(INTENT.REMOVE, new RemovalSystem());
 
-        //Spawn
-        slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem());
-        slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem());
-
-
-        if(params.containsKey("conditions")){
 
 
 
-            slightlyWarmMail.registerSystem(INTENT.DIED, ctf_cond = new FreeForAllCondition(5, 3));
+        currentGameMode = (String)params.get("gamemode");
+         //Spawn
+         slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem(currentGameMode));
+         slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem(currentGameMode));
 
-        }else {
+
+         System.out.println("Current Game Mode: " + currentGameMode);
+        if(currentGameMode.equals("Capture the Flag")){
             //default
             slightlyWarmMail.registerSystem(INTENT.TEAM_CAPTURE, ctf_cond = new TeamCTFCondition((params.containsKey("number_of_teams") ? (Integer)params.get("number_of_teams") : 2)
-                                                                                                  , (params.containsKey("number_of_captures") ? (Integer)params.get("number_of_captures") : 3)));
+                    , (params.containsKey("number_of_captures") ? (Integer)params.get("number_of_captures") : 3)));
+
+        }else if(currentGameMode.equals("Swarm Attack") || currentGameMode.equals("Free For All")){
+            System.out.println("Loaded " + currentGameMode);
+            slightlyWarmMail.registerSystem(INTENT.DIED, ctf_cond = new FreeForAllCondition((params.containsKey("number_of_cars") ? (Integer)params.get("number_of_cars") : 5)
+                                                                                                , (params.containsKey("number_of_kills") ? (Integer)params.get("number_of_kills") : 3)));
         }
 
 
@@ -151,45 +162,47 @@ public class TestGameState extends GameState implements SubSystem {
          /**
           * Create cars
           */
-        CarFactory carFactory = new CarFactory();
+        carFactory = new CarFactory(currentGameMode);
         MyInputAdapter playerInput;
         testCar = carFactory.produceCarECS(playerInput = new MyInputAdapter());
         testCar.addComponent(new CameraAttachmentComponent());
+        carFactory.addComponentsForGameMode(testCar);
+
+
 
         if(params.containsKey("number_of_cars")){
             System.out.println(params.get("number_of_cars"));
         }
 
         if(params.containsKey("number_of_bots")){
-
-            Entity aiCar;
             int j =  ((Integer)params.get("number_of_bots"));
-            for(int  i = 0; i < j; i++){
-                aiCar = carFactory.produceCarECS(new AI());
-            }
+            createBots(j);
         }else{
-            Entity aiCar;
-            for(int  i = 0; i < 2; i++){
-                aiCar = carFactory.produceCarECS(new AI());
-            }
+            createBots(2);
         }
-
-
-
-        MessageManager.getInstance().addMessage(INTENT.SPAWN, carFactory.makeFlag());
+        if(currentGameMode.equals("Capture the Flag")) {
+            MessageManager.getInstance().addMessage(INTENT.SPAWN, carFactory.makeFlag());
+        }
 
         carFactory.spawnBeachBall();
 
-
-
         debugRenderer = new Box2DDebugRenderer();
         renderSystem = new RenderSystem();
-
-         setInputProcessor(playerInput);
-
-
-
+        setInputProcessor(playerInput);
     }
+
+    private void createBots(int num_Bots){
+        Entity aiCar;
+        for(int  i = 0; i < num_Bots; i++){
+            aiCar = carFactory.produceCarECS(new AI());
+            carFactory.addComponentsForGameMode(aiCar);
+        }
+    }
+
+
+
+
+
     float zoom;
     public void zoom(OrthographicCamera cam, float amount) {
         zoom += amount;
@@ -227,7 +240,7 @@ public class TestGameState extends GameState implements SubSystem {
         SpriteBatch sp = this.gsm.game().getBatch();
         sp.begin();
 
-        bf.draw(sp, "TESTBED", 50, 50);
+        bf.draw(sp, "TESTBED: " + currentGameMode, 10, 50);
         sp.setProjectionMatrix(hudcam.combined);
         if(gameover)
             bf.draw(sp, "GAME OVER (ESC TO EXIT)", hudcam.viewportWidth/2, hudcam.viewportHeight/2);

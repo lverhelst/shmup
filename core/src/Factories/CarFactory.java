@@ -26,6 +26,7 @@ import ecs.components.HealthComponent;
 import ecs.components.CameraAttachmentComponent;
 import ecs.Entity;
 import ecs.components.JointComponent;
+import ecs.components.KDAComponent;
 import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.ControlledComponent;
@@ -50,8 +51,10 @@ public class CarFactory {
     JsonValue jv;
     JsonValue jCar;
     ArrayList<JsonValue> jTires;
+    int team_num = 1;
+    String gameMode;
 
-    public CarFactory(){
+    public CarFactory(String gameMode){
         FileHandle fileHandle = Gdx.files.internal("carlist");
         jv = jr.parse(fileHandle);
         jCar = jv.get("car");
@@ -59,6 +62,7 @@ public class CarFactory {
         for(JsonValue tire : jCar.get("tires")) {
             jTires.add(tire);
         }
+        this.gameMode = gameMode;
     }
 
     public Entity produceCarECS(IntentGenerator ig){
@@ -69,8 +73,6 @@ public class CarFactory {
         spawn.create("SPAWN", "RED", 1f + rand.nextInt(12), 1f + rand.nextInt(12));
         */
         Entity carBodyEntity = assembleCarBody(ig);
-       // if(!(ig instanceof AI))
-            addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
         }
@@ -106,12 +108,10 @@ public class CarFactory {
         e.removeAllComponents();
 
         Entity carBodyEntity = assembleCarBody(cc.ig);
-       // if(!(cc.ig instanceof AI))
-            addWeapon(carBodyEntity);
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
         }
-
+        addComponentsForGameMode(carBodyEntity);
 
     }
 
@@ -168,7 +168,7 @@ public class CarFactory {
         bdef.type = BodyDef.BodyType.DynamicBody;
 
         Random random = new Random();
-        bdef.position.set(new SpawnSystem().getSpawnPoint()); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
+        bdef.position.set(new SpawnSystem(gameMode).getSpawnPoint()); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body carbody = ShmupGame.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();
@@ -185,9 +185,9 @@ public class CarFactory {
         Entity carBodyEntity = null;
         ChildEntityComponent cec = new ChildEntityComponent();
         if(!(ig instanceof AI)){
-            carBodyEntity = new Entity("PlayerControlled",new PhysicalComponent(carbody), new CameraAttachmentComponent(), new HealthComponent(100), new ControlledComponent(ig),cec, new TeamComponent(1));
+            carBodyEntity = new Entity("PlayerControlled",new PhysicalComponent(carbody), new CameraAttachmentComponent(), new ControlledComponent(ig),cec);
         }else{
-            carBodyEntity = new Entity("AICarTest" + random.nextInt(1000),new PhysicalComponent(carbody), new DamageComponent(0), new ControlledComponent(ig), new HealthComponent(100),cec, new TeamComponent(++team%2 + 1));
+            carBodyEntity = new Entity("AICarTest" + random.nextInt(1000),new PhysicalComponent(carbody), new ControlledComponent(ig), cec);
         }
         (carBodyEntity.get(PhysicalComponent.class)).isRoot = true;
 
@@ -352,7 +352,7 @@ public class CarFactory {
         Body flagBody = ShmupGame.getWorld().createBody(bodyDef);
 
         PolygonShape flagShape = new PolygonShape();
-        flagShape.set(new float[]{-.25f,0f,.25f,0f,0f,1f});
+        flagShape.set(new float[]{-.25f, 0f, .25f, 0f, 0f, 1f});
 
         Fixture f = flagBody.createFixture(flagShape, 0.1f);
         Filter filter2 = new Filter();
@@ -364,6 +364,36 @@ public class CarFactory {
         f.setUserData(flagEntity);
 
         return flagEntity;
+    }
+
+    public Entity addComponentsForGameMode(Entity actOn){
+        if(gameMode.equals("Capture the Flag")){
+            addWeapon(actOn);
+            actOn.addComponent(new HealthComponent(100));
+            actOn.addComponent(new TeamComponent((team_num++ % 2) + 1));
+        }
+
+        if(gameMode.equals("Free For All")){
+           addWeapon(actOn);
+            actOn.addComponent(new HealthComponent(100));
+            actOn.addComponent(new TeamComponent(team_num++));
+            actOn.addComponent(new KDAComponent());
+        }
+
+        if(gameMode.equals("Swarm Attack")){
+            if(!(actOn.get(ControlledComponent.class).ig instanceof  AI)){
+                addWeapon(actOn);
+                actOn.addComponent(new HealthComponent(100));
+                actOn.addComponent(new TeamComponent(1));
+                actOn.addComponent(new KDAComponent());
+            }else{
+                actOn.addComponent(new DamageComponent(10));
+                actOn.addComponent(new HealthComponent(45));
+                actOn.addComponent(new TeamComponent(2));
+                actOn.addComponent(new KDAComponent());
+            }
+        }
+        return actOn;
     }
 
 }

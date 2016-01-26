@@ -151,7 +151,7 @@ public class MainMenuGameState extends GameState {
         table.add(titleLabel);
         table.row();
 
-        TextButton host = new TextButton("Host Game", skin);
+        TextButton host = new TextButton("GameModes", skin);
         host.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -163,17 +163,18 @@ public class MainMenuGameState extends GameState {
         table.add(host);
         table.row();
 
-        TextButton join = new TextButton("Join Game", skin);
+        TextButton join = new TextButton("Generated Level", skin);
         join.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                setUpMenuLevel2();
+               // setUpMenuLevel2();
+                gsm.pushState(1,null);
                 return false;
             }
         });
         //TODO: Multiplayer
-        join.setDisabled(true);
-        join.setTouchable(Touchable.disabled);
+        //join.setDisabled(true);
+        //join.setTouchable(Touchable.disabled);
         table.add(join);
         table.row();
 
@@ -218,6 +219,10 @@ public class MainMenuGameState extends GameState {
             table.add(gameModeBtn);
             table.row();
         }
+        if(horizontalGroup.getChildren().size >= 2)
+            horizontalGroup.getChildren().removeRange(1,horizontalGroup.getChildren().size - 1);
+
+
         horizontalGroup.addActor(table);
         return table;
     }
@@ -254,11 +259,13 @@ public class MainMenuGameState extends GameState {
                         parameters.put(gmp.name, ((GameModeParameter.IntParameter) gmp).getValue());
                     }
                 }
-                for(GameModeParameter gmp : gameModeParser.getRulesForMode(gm2)){
+                /*for(GameModeParameter gmp : gameModeParser.getRulesForMode(gm2)){
                     if(gmp instanceof GameModeParameter.ComponentParameter){
                         parameters.put(gmp.name, gmp);
                     }
-                }
+                }*/
+                parameters.put("gamemode", gm2);
+
                 gsm2.pushState(2, parameters);
 
                 return false;
@@ -266,6 +273,10 @@ public class MainMenuGameState extends GameState {
         });
         table.add(goBtn);
         table.row();
+
+
+        if(horizontalGroup.getChildren().size >= 3)
+            horizontalGroup.getChildren().removeRange(2,horizontalGroup.getChildren().size - 1);
 
         horizontalGroup.addActor(table);
         return table;

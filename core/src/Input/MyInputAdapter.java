@@ -95,7 +95,7 @@ public class MyInputAdapter extends InputAdapter implements IntentGenerator {
         if(keysdown[Input.Keys.T]) {
             if (entity.has(PhysicalComponent.class)) {
                 if ((entity.get(PhysicalComponent.class)).isRoot) {
-                    if (entity.has(HealthComponent.class)) {
+                    if (entity.has(HealthComponent.class) && !(entity.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD)) {
                         (entity.get(HealthComponent.class)).setCur_Health(0);
                         MessageManager.getInstance().addMessage(INTENT.DIED, entity, entity);
                     }

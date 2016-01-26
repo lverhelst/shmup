@@ -95,6 +95,20 @@ public class AI implements IntentGenerator {
             if (debug) {
               //   System.out.println("Tar " + e );
             }
+        }else {
+            targetables = EntityManager.getInstance().getEntitiesWithComponent(ControlledComponent.class);
+            Entity e = null;
+
+            for(UUID uuid : targetables){
+                e = EntityManager.getInstance().getEntity(uuid);
+                if(e.has(TeamComponent.class) && thisEntity.has(TeamComponent.class)
+                    && e.get(TeamComponent.class).getTeamNumber() == thisEntity.get(TeamComponent.class).getTeamNumber()){
+                    continue;
+                }else{
+                    setTarget(e);
+                    break;
+                }
+            }
         }
     }
 
@@ -114,7 +128,6 @@ public class AI implements IntentGenerator {
                 }
                 //  System.out.println("Entity target: " + e);
             }
-
         }
     }
 
@@ -130,11 +143,13 @@ public class AI implements IntentGenerator {
         }
 
         if (target.has(PhysicalComponent.class)){
-            if((target.has(HealthComponent.class) &&  target.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) || controlledEntity.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) {
+            if(target.has(HealthComponent.class) && controlledEntity.has(HealthComponent.class) && ((target.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) || controlledEntity.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD)) {
                 //wander
                 return;
+            }else{
+
+                path = pathFinder.findPath(controlledEntity.get(PhysicalComponent.class).getBody().getPosition(), target.get(PhysicalComponent.class).getBody().getPosition());
             }
-            path = pathFinder.findPath(controlledEntity.get(PhysicalComponent.class).getBody().getPosition(), target.get(PhysicalComponent.class).getBody().getPosition());
 
         }else{
             //wander
