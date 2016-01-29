@@ -76,9 +76,6 @@ public class ContactSystem implements ContactListener{
 
                 if (aEntity.has(HealthComponent.class) && bEntity.has(DamageComponent.class)) {
                     if ((aEntity.get(HealthComponent.class)).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
-
-
-
                         //apply damage
                         (aEntity.get(HealthComponent.class)).reduceCur_Health((bEntity.get(DamageComponent.class)).damage);
                         //if the other entity is now dead, send the dead messagea
@@ -86,10 +83,7 @@ public class ContactSystem implements ContactListener{
                             Entity bEntityOwner = null;
                             if(bEntity.has(ParentEntityComponent.class))
                                 bEntityOwner = bEntity.get(ParentEntityComponent.class).parent;
-
                             MessageManager.getInstance().addMessage(INTENT.DIED, aEntity, bEntityOwner);
-
-
 
                         }
                     }

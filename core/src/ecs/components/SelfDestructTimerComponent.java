@@ -5,12 +5,12 @@ import ecs.Component;
 /**
  * Created by Orion on 1/22/2016.
  */
-public class SelfDestructTimer extends Component{
+public class SelfDestructTimerComponent extends Component{
 
     int maxTimeAlive;
     long startTime;
 
-    public SelfDestructTimer(int maxTimeAlive){
+    public SelfDestructTimerComponent(int maxTimeAlive){
         this.maxTimeAlive = maxTimeAlive;
         startTime = System.currentTimeMillis();
     }

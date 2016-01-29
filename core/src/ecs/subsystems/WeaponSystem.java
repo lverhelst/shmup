@@ -1,6 +1,5 @@
 package ecs.subsystems;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
@@ -14,7 +13,7 @@ import ecs.components.DamageComponent;
 import ecs.components.HealthComponent;
 import ecs.components.ParentEntityComponent;
 import ecs.components.PhysicalComponent;
-import ecs.components.SelfDestructTimer;
+import ecs.components.SelfDestructTimerComponent;
 import ecs.components.WeaponComponent;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.ShmupGame;
@@ -109,7 +108,7 @@ public class WeaponSystem implements SubSystem {
 
                 wc.lastFire = System.currentTimeMillis();
 
-                Entity bEntity = new Entity(pc, new ParentEntityComponent(entity), new DamageComponent((int)(20 * wc.multiplier)), new SelfDestructTimer(1000));
+                Entity bEntity = new Entity(pc, new ParentEntityComponent(entity), new DamageComponent((int)(20 * wc.multiplier)), new SelfDestructTimerComponent(1000));
                 bulletFixture.setUserData(bEntity);
             }
         }

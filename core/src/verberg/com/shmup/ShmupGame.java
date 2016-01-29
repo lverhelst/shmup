@@ -13,7 +13,7 @@ public class ShmupGame extends ApplicationAdapter {
 
     SpriteBatch batch;
     static OrthographicCamera cam;
-    OrthographicCamera hudCam;
+    static OrthographicCamera hudCam;
     ShapeRenderer shapeRenderer;
     Texture img;
     static World world;
@@ -61,7 +61,7 @@ public class ShmupGame extends ApplicationAdapter {
         return cam;
     }
 
-    public OrthographicCamera getHudCam() {
+    public static OrthographicCamera getHudCam() {
         return hudCam;
     }
 

@@ -1,6 +1,5 @@
 package verberg.com.shmup;
 
-import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
@@ -14,7 +13,6 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -29,15 +27,11 @@ import ecs.EntityManager;
 import ecs.SubSystem;
 import ecs.components.CameraAttachmentComponent;
 import ecs.components.ControlledComponent;
-import ecs.components.DamageComponent;
 import ecs.components.FlagComponent;
-import ecs.components.HealthComponent;
-import ecs.components.KDAComponent;
 import ecs.components.PhysicalComponent;
-import ecs.components.SelfDestructTimer;
+import ecs.components.SelfDestructTimerComponent;
 import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
-import ecs.components.WeaponComponent;
 import ecs.subsystems.CameraSystem;
 import ecs.subsystems.ContactSystem;
 import ecs.subsystems.FlagUpdateSystem;
@@ -199,10 +193,6 @@ public class TestGameState extends GameState implements SubSystem {
         }
     }
 
-
-
-
-
     float zoom;
     public void zoom(OrthographicCamera cam, float amount) {
         zoom += amount;
@@ -230,7 +220,7 @@ public class TestGameState extends GameState implements SubSystem {
         //steeringSystem.update(entities);
         slightlyWarmMail.update();
         flagUpdateSystem.update(EntityManager.getInstance().getEntitiesWithComponent(FlagComponent.class));
-        selfDestructTimerSystem.update(EntityManager.getInstance().getEntitiesWithComponent(SelfDestructTimer.class));
+        selfDestructTimerSystem.update(EntityManager.getInstance().getEntitiesWithComponent(SelfDestructTimerComponent.class));
         cameraSystem.update(EntityManager.getInstance().getEntitiesWithComponent(CameraAttachmentComponent.class), cam);
     }
 

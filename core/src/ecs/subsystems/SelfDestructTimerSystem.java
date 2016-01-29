@@ -7,7 +7,7 @@ import MessageManagement.INTENT;
 import ecs.Entity;
 import ecs.EntityManager;
 import ecs.SubSystem;
-import ecs.components.SelfDestructTimer;
+import ecs.components.SelfDestructTimerComponent;
 
 /**
  * Created by Orion on 1/22/2016.
@@ -18,8 +18,8 @@ public class SelfDestructTimerSystem implements SubSystem{
     public void update(ArrayList<UUID> entities) {
         for (UUID ent : entities) {
             Entity e = EntityManager.getInstance().getEntity(ent);
-            if(e.has(SelfDestructTimer.class)){
-                if(e.get(SelfDestructTimer.class).isDead()){
+            if(e.has(SelfDestructTimerComponent.class)){
+                if(e.get(SelfDestructTimerComponent.class).isDead()){
                     e.removeAllComponents();
                 }
             }
