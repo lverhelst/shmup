@@ -1,6 +1,5 @@
 package Level;
 
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -15,12 +14,8 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.Stack;
 
 import MessageManagement.INTENT;
@@ -30,11 +25,7 @@ import ecs.components.DamageComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
-import ecs.subsystems.PowerUpSystem;
-import ecs.subsystems.SpawnSystem;
-import gameObjects.PowerUp;
 import verberg.com.shmup.Constants;
-import verberg.com.shmup.ShmupGame;
 
 /**
  * Created by Orion on 11/17/2015.
@@ -89,18 +80,19 @@ public class Level {
 
         int width = settings.getInt("width");
         int height = settings.getInt("height");
-        int wallRate = settings.getInt("wallrate");
-        int emptyRate = settings.getInt("emptyrate");
+        float upperRate = settings.getFloat("upperRate");
+        float lowerRate = settings.getFloat("lowerRate");
         int density = settings.getInt("density");
         int smooth = settings.getInt("smooth");
 
         Generator gen = new Generator(width, height);
-        gen.wallRate = wallRate;
-        gen.emptyRate = emptyRate;
+        gen.upperRate = upperRate;
+        gen.lowerRate = lowerRate;
         gen.density = density;
         gen.smooth(smooth);
 
         String[][] map = gen.getMarchingMap();
+        gen.printMap();
 
         for(int i = 0; i < map.length ; ++i) {
             for(int j = 0; j < map[i].length; ++j) {
