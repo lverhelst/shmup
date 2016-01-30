@@ -6,8 +6,6 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
-import Factories.CarFactory;
-import MessageManagement.Message;
 import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.EntityManager;
@@ -19,7 +17,6 @@ import ecs.components.PhysicalComponent;
 import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
 import gameObjects.PowerUp;
-import verberg.com.shmup.ShmupGame;
 import MessageManagement.INTENT;
 
 /**

@@ -2,29 +2,21 @@ package verberg.com.shmup;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
 import java.util.ArrayList;
 
 import AI.AI;
-import Factories.CarFactory;
+import Factories.Factory;
 import Input.MyInputAdapter;
 import Level.Level;
-import Level.*;
 import MessageManagement.INTENT;
 import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.EntityManager;
 import ecs.components.CameraAttachmentComponent;
-import ecs.components.ChildEntityComponent;
-import ecs.components.ControlledComponent;
-import ecs.components.PhysicalComponent;
 import ecs.subsystems.CameraSystem;
 import ecs.subsystems.ContactSystem;
 import ecs.subsystems.InputSystem;
@@ -53,7 +45,7 @@ public class PlayGameState extends GameState {
 
     //don't think we need multiple worlds am I right?
     private static World world;
-
+    Factory factory;
 
 
     static MyInputAdapter playerInput;
@@ -83,8 +75,8 @@ public class PlayGameState extends GameState {
         slightlyWarmMail.registerSystem(INTENT.REMOVE, new RemovalSystem());
 
         //Spawn
-        slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem("Capture The Flag"));
-        slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem("Capture The Flag"));
+        slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem("Swarm Attack"));
+        slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem("Swarm Attack"));
 
 
         EntityManager.getInstance().clear();
@@ -102,27 +94,31 @@ public class PlayGameState extends GameState {
 
         setInputProcessor(playerInput = new MyInputAdapter());
 
-        CarFactory carFactory = new CarFactory("Capture The Flag");
-        Entity playerEntity = carFactory.produceCarECS(playerInput);
+        factory = new Factory("Swarm Attack");
 
-
-
+        Entity testCar = factory.produceCarECS(playerInput);
+        factory.addComponentsForGameMode(testCar);
+        testCar.addComponent(new CameraAttachmentComponent());
+        MessageManager.getInstance().addMessage(INTENT.SPAWN, testCar);
 
         aiList = new ArrayList<AI>();
-        AI ai;
-        for(int i = 0; i < 4; i++){
-            ai = new AI();
-            ai.setTarget(playerEntity);
-            carFactory.produceCarECS(ai);
-        }
+        createBots(4);
 
-        //This seems back-asswards
-        // car = new Car(world);
 
         //debug renderer, make sure to move this later
         debugRenderer = new Box2DDebugRenderer();
         renderSystem = new RenderSystem();
     }
+
+    private void createBots(int num_Bots){
+        Entity aiCar;
+        for(int  i = 0; i < num_Bots; i++){
+            aiCar = factory.produceCarECS(new AI());
+            factory.addComponentsForGameMode(aiCar);
+            MessageManager.getInstance().addMessage(INTENT.SPAWN, aiCar);
+        }
+    }
+
 
     @Override
     public void handleInput() {

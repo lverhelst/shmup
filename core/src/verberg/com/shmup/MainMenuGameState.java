@@ -70,13 +70,13 @@ public class MainMenuGameState extends GameState {
 
                 switch (keycode) {
                     case Input.Keys.NUM_1:
-                        gsm2.pushState(1, null);
+                       // gsm2.pushState(1, null);
                         break;
                     case Input.Keys.NUM_2:
-                        gsm2.pushState(2, null);
+                      //  gsm2.pushState(2, null);
                         break;
                     case Input.Keys.NUM_3:
-                        gsm2.pushState(3, null);
+                        //gsm2.pushState(3, null);
                         break;
                 }
                 return false;

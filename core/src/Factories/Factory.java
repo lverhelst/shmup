@@ -45,7 +45,7 @@ import Level.Point;
  * and pumps out cars a "factory"
  * Created by Orion on 11/19/2015.
  */
-public class CarFactory {
+public class Factory {
 
     JsonReader jr = new JsonReader();
     JsonValue jv;
@@ -54,7 +54,7 @@ public class CarFactory {
     int team_num = 1;
     String gameMode;
 
-    public CarFactory(String gameMode){
+    public Factory(String gameMode){
         FileHandle fileHandle = Gdx.files.internal("carlist");
         jv = jr.parse(fileHandle);
         jCar = jv.get("car");
@@ -76,12 +76,11 @@ public class CarFactory {
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
         }
-        MessageManager.getInstance().addMessage(INTENT.SPAWN, carBodyEntity);
 
         return carBodyEntity;
     }
 
-    public void applyLifeTimeWarranty(Entity e, Point spawn){
+    public Entity applyLifeTimeWarranty(Entity e){
         /***
          * Reload from file so that we test easily
          */
@@ -96,12 +95,11 @@ public class CarFactory {
         ControlledComponent cc = null;
         if(e.has(ControlledComponent.class)) {
             cc = e.get(ControlledComponent.class);
+        }else{
+            System.out.println("Can't build car with no controlled component");
+            return null;
         }
-        if(cc == null){
-            //Error, can't apply warranty to uncontrolled object
-            //TODO: Err Msg/Assert
-            return;
-        }
+
 
         //remove old car from world
         //ShmupGame.removeEntityTree(e);
@@ -112,7 +110,7 @@ public class CarFactory {
             assembleTire(tValue, carBodyEntity, new Entity());
         }
         addComponentsForGameMode(carBodyEntity);
-
+        return carBodyEntity;
     }
 
 
@@ -168,7 +166,6 @@ public class CarFactory {
         bdef.type = BodyDef.BodyType.DynamicBody;
 
         Random random = new Random();
-        bdef.position.set(new SpawnSystem(gameMode).getSpawnPoint()); //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body carbody = ShmupGame.getWorld().createBody(bdef);
 
         PolygonShape pShape = new PolygonShape();
@@ -235,6 +232,7 @@ public class CarFactory {
         joint.addComponent(new ParentEntityComponent(carBodyEntity));
         weaponEntity.addComponent(new ParentEntityComponent(joint));
         carBodyEntity.get(ChildEntityComponent.class).childList.add(joint);
+        carBodyEntity.get(ChildEntityComponent.class).childList.add(weaponEntity);
         carBodyEntity.addComponent(new WeaponComponent(weaponEntity));
 
     }
@@ -291,18 +289,14 @@ public class CarFactory {
 
 
     /***
-     * Spawns a spiky thing
+     * Spawns a cirlce with damage component thing
      */
-    public static void getMoreCarsIntTheShopExe(){
-
-        //spawning location stuff
-        Random random = new Random();
+    public static Entity makeDamageOrb(int dmgAmt){
 
         BodyDef bdef = new BodyDef();
         bdef.type = BodyDef.BodyType.DynamicBody;
         //add message to spawn system queue so they can reposition the entity this body goes to on spawn
         Body spikyBody = ShmupGame.getWorld().createBody(bdef);
-
         CircleShape circleShape = new CircleShape();
         circleShape.setRadius(0.4f); //Make it real big
 
@@ -313,35 +307,35 @@ public class CarFactory {
         f.setFilterData(filter2);
         PhysicalComponent pc = new PhysicalComponent(spikyBody);
         pc.maxContacts = 1;
-        Entity deadlySpike = new Entity(pc, new DamageComponent(86));
+        Entity deadlySpike = new Entity(pc, new DamageComponent(dmgAmt));
         f.setUserData(deadlySpike);
-        MessageManager.getInstance().addMessage(INTENT.SPAWN, deadlySpike);
+        return deadlySpike;
     }
 
     /***
      * Spawns an oversized beach ball
      */
-    public static void  spawnBeachBall(){
+    public static Entity  makeBeachBall(){
 
         BodyDef bdef = new BodyDef();
         bdef.type = BodyDef.BodyType.DynamicBody;
         //add message to spawn system queue so they can reposition the entity this body goes to on spawn
-        Body spikyBody = ShmupGame.getWorld().createBody(bdef);
+        Body beachBody = ShmupGame.getWorld().createBody(bdef);
 
         CircleShape circleShape = new CircleShape();
         circleShape.setRadius(1f); //Make it real big
 
         //very little density since it's filled with air
-        Fixture f = spikyBody.createFixture(circleShape, 0.00001f);
+        Fixture f = beachBody.createFixture(circleShape, 0.00001f);
         Filter filter2 = new Filter();
         filter2.categoryBits = Constants.CAR_BIT;
         filter2.maskBits = Constants.CAR_MASK;
         f.setFilterData(filter2);
-        PhysicalComponent pc = new PhysicalComponent(spikyBody);
+        PhysicalComponent pc = new PhysicalComponent(beachBody);
         //steering component so that it slows down
         Entity peachyBeachyBall = new Entity(pc, new TypeComponent(1), new SteeringComponent());
         f.setUserData(peachyBeachyBall);
-        MessageManager.getInstance().addMessage(INTENT.SPAWN, peachyBeachyBall);
+        return peachyBeachyBall;
     }
 
 

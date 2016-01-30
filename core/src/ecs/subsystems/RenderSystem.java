@@ -82,20 +82,23 @@ public class RenderSystem {
 
     private float angle, ang2;
     private Vector2 src,tar;
-    private Vector3 flagCoords, srcCoords;
-
     private void renderArrow(UUID source, UUID target, Batch batch){
         if(EntityManager.getInstance().hasComponent(source, PhysicalComponent.class ) && EntityManager.getInstance().hasComponent(target, PhysicalComponent.class )){
+            if(!(source.equals(EntityManager.getInstance().getComponent(target, FlagComponent.class).getHeldBy()))) {
+                src = EntityManager.getInstance().getComponent(source, PhysicalComponent.class).getPosition();
+                tar = EntityManager.getInstance().getComponent(target, PhysicalComponent.class).getPosition();
+                if(ShmupGame.getCam().frustum.pointInFrustum(tar.x,tar.y,0)){
 
-            src =  EntityManager.getInstance().getComponent(source, PhysicalComponent.class).getPosition();
-            tar = EntityManager.getInstance().getComponent(target, PhysicalComponent.class).getPosition();
-            src = EntityManager.getInstance().getComponent(source, PhysicalComponent.class).facingVector(2f);
-            angle = (float)Math.toDegrees(Math.atan2(tar.y - src.y, tar.x - src.x));
+                }else {
+                    src = EntityManager.getInstance().getComponent(source, PhysicalComponent.class).facingVector(2f);
+                    angle = (float) Math.toDegrees(Math.atan2(tar.y - src.y, tar.x - src.x));
 
-            arrow.setPosition(src.x, src.y);
-            arrow.setOriginCenter();
-            arrow.setRotation(angle);
-            arrow.draw(batch);
+                    arrow.setPosition(src.x, src.y);
+                    arrow.setOriginCenter();
+                    arrow.setRotation(angle);
+                    arrow.draw(batch);
+                }
+            }
 
         }
     }

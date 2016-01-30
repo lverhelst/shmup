@@ -1,11 +1,9 @@
 package gameObjects;
 
 
-import com.badlogic.gdx.physics.box2d.Joint;
-
 import java.util.ArrayList;
 
-import Factories.CarFactory;
+import Factories.Factory;
 import ecs.Entity;
 import ecs.components.ChildEntityComponent;
 import ecs.components.HealthComponent;
@@ -17,14 +15,14 @@ import ecs.components.JointComponent;
 public class RepairPowerUp extends PowerUp {
 
     ArrayList<Entity> jointsToRepair;
-    static CarFactory cf;
+    static Factory cf;
 
 
     public RepairPowerUp(){
         super(ChildEntityComponent.class);
         jointsToRepair = new ArrayList<Entity>();
         if(cf == null)
-            cf = new CarFactory("");
+            cf = new Factory("");
     }
 
     @Override

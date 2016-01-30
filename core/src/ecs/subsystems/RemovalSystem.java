@@ -3,6 +3,8 @@ package ecs.subsystems;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
 
+import java.util.ArrayList;
+
 import ecs.Entity;
 import ecs.SubSystem;
 import ecs.components.ChildEntityComponent;
@@ -64,6 +66,7 @@ public class RemovalSystem implements SubSystem{
             if (e.get(PhysicalComponent.class).isRoot) {
                 //Destroy Joints
                 if (e.has(ChildEntityComponent.class)) {
+                    ArrayList<Entity> toRm  = new ArrayList<Entity>();
                     for (Entity child : e.get(ChildEntityComponent.class).childList) {
                         if (child.has(JointComponent.class)) {
 
@@ -73,8 +76,13 @@ public class RemovalSystem implements SubSystem{
                                 child.get(JointComponent.class).joint = null;
                             }
                             e.removeComponent(JointComponent.class);
+                            toRm.add(child);
                         }
                     }
+                    for(Entity rm : toRm){
+                       // e.get(ChildEntityComponent.class).childList.remove(rm);
+                    }
+
                 }
                 e.recursiveRemove(SteeringComponent.class);
             } else {
@@ -88,9 +96,7 @@ public class RemovalSystem implements SubSystem{
                         if (j != null) {
                             ShmupGame.getWorld().destroyJoint(j);
                             (parent.get(JointComponent.class)).joint = null;
-
                         }
-
                         e.removeComponent(JointComponent.class);
                     }
 

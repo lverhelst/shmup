@@ -5,10 +5,11 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.Random;
 
-import Factories.CarFactory;
+import Factories.Factory;
 import MessageManagement.INTENT;
 import ecs.Entity;
 import ecs.SubSystem;
+import ecs.components.ChildEntityComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 
@@ -18,13 +19,13 @@ import Level.Point;
  * Created by Orion on 11/26/2015.
  */
 public class SpawnSystem implements SubSystem{
-    static CarFactory carFactory;
+    static Factory factory;
     static ArrayList<Point> spawnPoints = new ArrayList<Point>();
     static int newSpawn = 0; //TODO: replace with something better
 
 
     public SpawnSystem(String gameMode){
-        carFactory = new CarFactory(gameMode);
+        factory = new Factory(gameMode);
     }
 
 
@@ -52,17 +53,40 @@ public class SpawnSystem implements SubSystem{
                     //At some point we may want a type component to determine if an entity is part of a car/bullet/someother type/boat
                     if(e.get(PhysicalComponent.class).isRoot){
                         //Rebuild the car from the definition
-
-                        newSpawn = (newSpawn + 1) % spawnPoints.size();
-                        carFactory.applyLifeTimeWarranty(e, spawnPoints.get(newSpawn));
+                        newSpawn = (++newSpawn) % spawnPoints.size();
+                        transformEntity(factory.applyLifeTimeWarranty(e), spawnPoints.get(newSpawn));
                     }
+                }
+            }else{
+                if(e.get(PhysicalComponent.class).isRoot){
+                    //Rebuild the car from the definition
+                    newSpawn = (++newSpawn) % spawnPoints.size();
+                    transformEntity(e, spawnPoints.get(newSpawn));
                 }
             }
         }else if(e.has(PhysicalComponent.class)){
-            newSpawn = (newSpawn + 1) % spawnPoints.size();
-            e.get(PhysicalComponent.class).getBody().setTransform(spawnPoints.get(newSpawn).position, newSpawn);
+            newSpawn = (++newSpawn) % spawnPoints.size();
+            transformEntity(e, spawnPoints.get(newSpawn));
+        }
+        System.out.println(newSpawn + " " + newSpawn % spawnPoints.size());
+    }
+
+    /***
+     * Recursively move entity
+     * @param toTransform The entity (or entity heirarchy) to move
+     * @param toPoint Target point to move to
+     */
+    private void transformEntity(Entity toTransform, Point toPoint){
+        if(toTransform.has(ChildEntityComponent.class)){
+            for(Entity uid : toTransform.get(ChildEntityComponent.class).childList){
+                transformEntity(uid, toPoint);
+            }
+        }
+        if(toTransform.has(PhysicalComponent.class)){
+            toTransform.get(PhysicalComponent.class).getBody().setTransform(toPoint.position, toTransform.get(PhysicalComponent.class).getAngleRadians());
         }
     }
+
 
     public void addSpawnPoint(Point spawn) {
         spawnPoints.add(spawn);

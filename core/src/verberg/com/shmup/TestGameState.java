@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 import Input.MyInputAdapter;
-import Factories.CarFactory;
+import Factories.Factory;
 import Level.Level;
 import MessageManagement.INTENT;
 import MessageManagement.MessageManager;
@@ -66,7 +66,7 @@ public class TestGameState extends GameState implements SubSystem {
     Entity testCar;
     boolean gameover;
     Condition ctf_cond;
-    CarFactory carFactory;
+    Factory factory;
     String currentGameMode;
 
     int team_num = 1;
@@ -90,6 +90,8 @@ public class TestGameState extends GameState implements SubSystem {
 
         slightlyWarmMail.clear();
         gameover = false;
+        currentGameMode = (String)params.get("gamemode");
+
         //Steering
         slightlyWarmMail.registerSystem(INTENT.ACCELERATE, new SteeringSystem());
         slightlyWarmMail.registerSystem(INTENT.BOOST, new SteeringSystem());
@@ -107,9 +109,6 @@ public class TestGameState extends GameState implements SubSystem {
         slightlyWarmMail.registerSystem(INTENT.REMOVE, new RemovalSystem());
 
 
-
-
-        currentGameMode = (String)params.get("gamemode");
          //Spawn
          slightlyWarmMail.registerSystem(INTENT.SPAWN, new SpawnSystem(currentGameMode));
          slightlyWarmMail.registerSystem(INTENT.ADDSPAWN, new SpawnSystem(currentGameMode));
@@ -126,9 +125,6 @@ public class TestGameState extends GameState implements SubSystem {
             slightlyWarmMail.registerSystem(INTENT.DIED, ctf_cond = new FreeForAllCondition((params.containsKey("number_of_cars") ? (Integer)params.get("number_of_cars") : 5)
                                                                                                 , (params.containsKey("number_of_kills") ? (Integer)params.get("number_of_kills") : 3)));
         }
-
-
-
 
         slightlyWarmMail.registerSystem(INTENT.WIN_COND_MET, this);
 
@@ -156,12 +152,12 @@ public class TestGameState extends GameState implements SubSystem {
          /**
           * Create cars
           */
-        carFactory = new CarFactory(currentGameMode);
+        factory = new Factory(currentGameMode);
         MyInputAdapter playerInput;
-        testCar = carFactory.produceCarECS(playerInput = new MyInputAdapter());
+        testCar = factory.produceCarECS(playerInput = new MyInputAdapter());
+        factory.addComponentsForGameMode(testCar);
         testCar.addComponent(new CameraAttachmentComponent());
-        carFactory.addComponentsForGameMode(testCar);
-
+        MessageManager.getInstance().addMessage(INTENT.SPAWN, testCar);
 
 
         if(params.containsKey("number_of_cars")){
@@ -175,10 +171,10 @@ public class TestGameState extends GameState implements SubSystem {
             createBots(2);
         }
         if(currentGameMode.equals("Capture the Flag")) {
-            MessageManager.getInstance().addMessage(INTENT.SPAWN, carFactory.makeFlag());
+            MessageManager.getInstance().addMessage(INTENT.SPAWN, factory.makeFlag());
         }
+         MessageManager.getInstance().addMessage(INTENT.SPAWN, factory.makeBeachBall());
 
-        carFactory.spawnBeachBall();
 
         debugRenderer = new Box2DDebugRenderer();
         renderSystem = new RenderSystem();
@@ -188,8 +184,9 @@ public class TestGameState extends GameState implements SubSystem {
     private void createBots(int num_Bots){
         Entity aiCar;
         for(int  i = 0; i < num_Bots; i++){
-            aiCar = carFactory.produceCarECS(new AI());
-            carFactory.addComponentsForGameMode(aiCar);
+            aiCar = factory.produceCarECS(new AI());
+            factory.addComponentsForGameMode(aiCar);
+            MessageManager.getInstance().addMessage(INTENT.SPAWN, aiCar);
         }
     }
 

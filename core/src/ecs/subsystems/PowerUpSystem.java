@@ -1,9 +1,8 @@
 package ecs.subsystems;
 
-import java.util.ArrayList;
 import java.util.Random;
 
-import Factories.CarFactory;
+import Factories.Factory;
 import MessageManagement.INTENT;
 import MessageManagement.MessageManager;
 import ecs.SubSystem;
@@ -48,7 +47,7 @@ public class PowerUpSystem implements SubSystem{
             livePowerUp[i].update();
         }
         if(rand.nextInt(10) == 0 && x < 5){
-            CarFactory.getMoreCarsIntTheShopExe();
+           // MessageManager.getInstance().addMessage(INTENT.SPAWN, Factory.makeDamageOrb(75));
             x++;
         }
     }
