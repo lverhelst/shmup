@@ -10,6 +10,7 @@ import MessageManagement.INTENT;
 import ecs.Entity;
 import ecs.SubSystem;
 import ecs.components.ChildEntityComponent;
+import ecs.components.ControlledComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 
@@ -54,21 +55,30 @@ public class SpawnSystem implements SubSystem{
                     if(e.get(PhysicalComponent.class).isRoot){
                         //Rebuild the car from the definition
                         newSpawn = (++newSpawn) % spawnPoints.size();
-                        transformEntity(factory.applyLifeTimeWarranty(e), spawnPoints.get(newSpawn));
+                        //load into entity, since the passed in entity gets destroyed
+                        Entity toTrans = factory.applyLifeTimeWarranty(e);
+                        transformEntity(toTrans, spawnPoints.get(newSpawn));
+                        factory.addComponentsForGameMode(toTrans);
                     }
                 }
             }else{
                 if(e.get(PhysicalComponent.class).isRoot){
-                    //Rebuild the car from the definition
+                    System.out.println("Repositioning car");
                     newSpawn = (++newSpawn) % spawnPoints.size();
                     transformEntity(e, spawnPoints.get(newSpawn));
+                    factory.addComponentsForGameMode(e);
                 }
             }
+
+
         }else if(e.has(PhysicalComponent.class)){
             newSpawn = (++newSpawn) % spawnPoints.size();
             transformEntity(e, spawnPoints.get(newSpawn));
+            if(e.get(PhysicalComponent.class).isRoot){
+                factory.addComponentsForGameMode(e);
+            }
+
         }
-        System.out.println(newSpawn + " " + newSpawn % spawnPoints.size());
     }
 
     /***
@@ -77,20 +87,21 @@ public class SpawnSystem implements SubSystem{
      * @param toPoint Target point to move to
      */
     private void transformEntity(Entity toTransform, Point toPoint){
+
+        if(toTransform.has(PhysicalComponent.class)){
+            System.out.println(toTransform.get(PhysicalComponent.class).getBody().getJointList().size + " " + toTransform.getName() + " " + toPoint.position.toString());
+            toTransform.get(PhysicalComponent.class).getBody().setTransform(toPoint.position, toTransform.get(PhysicalComponent.class).getAngleRadians());
+        }
         if(toTransform.has(ChildEntityComponent.class)){
             for(Entity uid : toTransform.get(ChildEntityComponent.class).childList){
                 transformEntity(uid, toPoint);
             }
-        }
-        if(toTransform.has(PhysicalComponent.class)){
-            toTransform.get(PhysicalComponent.class).getBody().setTransform(toPoint.position, toTransform.get(PhysicalComponent.class).getAngleRadians());
         }
     }
 
 
     public void addSpawnPoint(Point spawn) {
         spawnPoints.add(spawn);
-        System.out.println(this.toString() + " add spawn: " + ++spawnsAdded);
     }
 
     public Vector2 getSpawnPoint(){

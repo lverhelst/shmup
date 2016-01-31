@@ -7,11 +7,9 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import Input.MyInputAdapter;
@@ -22,6 +20,7 @@ import ecs.components.FlagComponent;
 import ecs.components.HealthComponent;
 import ecs.components.PhysicalComponent;
 import ecs.components.TeamComponent;
+import ecs.components.WeaponComponent;
 import verberg.com.shmup.Constants;
 import verberg.com.shmup.ShmupGame;
 
@@ -30,7 +29,7 @@ import verberg.com.shmup.ShmupGame;
  */
 public class RenderSystem {
 
-    private NinePatchDrawable loadingBar;
+    private NinePatchDrawable healthBar, heatBar;
     private Sprite arrow;
 
 
@@ -39,9 +38,15 @@ public class RenderSystem {
         FileHandle fh = Gdx.files.internal("RedPixel.png");
         Texture tex = new Texture(fh);
         NinePatch loadingBarPatch = new NinePatch(tex, 0, 0, 0, 0);
-        loadingBar = new NinePatchDrawable(loadingBarPatch);
-        arrow = new Sprite(new Texture("arrow.png"));
+        healthBar = new NinePatchDrawable(loadingBarPatch);
 
+        fh = Gdx.files.internal("BluePixel.png");
+        tex = new Texture(fh);
+        loadingBarPatch = new NinePatch(tex, 0, 0, 0, 0);
+        heatBar = new NinePatchDrawable(loadingBarPatch);
+
+
+        arrow = new Sprite(new Texture("arrow.png"));
         arrow.setSize(arrow.getWidth() * 1f / (Constants.PPM * 2f), arrow.getHeight()* 1f / (Constants.PPM * 2f));
     }
 
@@ -56,6 +61,12 @@ public class RenderSystem {
                 if(e.get(PhysicalComponent.class).isRoot)
                     renderHealthComponent(e.get(HealthComponent.class), e.get(PhysicalComponent.class), batch);
             }
+            if(e.has(WeaponComponent.class) && e.has(HealthComponent.class) && e.has(PhysicalComponent.class)){
+                if(e.get(PhysicalComponent.class).isRoot)
+                    renderWeaponComponent(e.get(WeaponComponent.class), e.get(HealthComponent.class), e.get(PhysicalComponent.class), batch);
+            }
+
+
 
             //if CTF is on
             //Possible efficiency improvement here
@@ -110,7 +121,18 @@ public class RenderSystem {
         adjx *= 0.4;
         adjy *= 0.4;
         if(hc.getCur_health() > 0)
-            loadingBar.draw(batch, pc.getBody().getPosition().x + adjx, pc.getBody().getPosition().y + adjy, ((float)hc.getCur_health() / (float)hc.max_health) * 1.0f , 0.25f);
+            healthBar.draw(batch, pc.getBody().getPosition().x + adjx, pc.getBody().getPosition().y + adjy, ((float)hc.getCur_health() / (float)hc.max_health) * 1.0f , 0.25f);
+
+    }
+
+    private void renderWeaponComponent(WeaponComponent wc, HealthComponent hc, PhysicalComponent pc, Batch batch){
+        //replace 5 with PPM from static class
+        float adjx = (float)(Math.cos(pc.getBody().getAngle() + Math.PI)/2) - 1f;
+        float adjy = (float)(Math.sin(pc.getBody().getAngle() + Math.PI/2)) + 1.75f;
+        adjx *= 0.5;
+        adjy *= 0.5;
+        if(hc.getCur_health() > 0)
+            heatBar.draw(batch, pc.getBody().getPosition().x + adjx, pc.getBody().getPosition().y + adjy, ((float)wc.heat/ (float)wc.max_heat) * 1.0f , 0.25f);
 
     }
 }

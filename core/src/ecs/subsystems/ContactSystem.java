@@ -6,6 +6,8 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
+import java.util.UUID;
+
 import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.EntityManager;
@@ -71,7 +73,8 @@ public class ContactSystem implements ContactListener{
             if(b.getUserData() instanceof  Entity) {
                 Entity bEntity = (Entity) b.getUserData();
 
-                if (aEntity.has(HealthComponent.class) && bEntity.has(DamageComponent.class)) {
+                //dont apply damage on self
+                if (!checkOwner(aEntity, bEntity) &&  aEntity.has(HealthComponent.class) && bEntity.has(DamageComponent.class)) {
                     if ((aEntity.get(HealthComponent.class)).getHealthState() != HealthComponent.HEALTH_STATE.DEAD) {
                         //apply damage
                         (aEntity.get(HealthComponent.class)).reduceCur_Health((bEntity.get(DamageComponent.class)).damage);
@@ -80,7 +83,16 @@ public class ContactSystem implements ContactListener{
                             Entity bEntityOwner = null;
                             if(bEntity.has(ParentEntityComponent.class))
                                 bEntityOwner = bEntity.get(ParentEntityComponent.class).parent;
-                            MessageManager.getInstance().addMessage(INTENT.DIED, aEntity, bEntityOwner);
+
+                            UUID aEntityOwner = null;
+                            if(aEntity.has(ParentEntityComponent.class)){
+                                aEntityOwner = aEntity.get(ParentEntityComponent.class).owner;
+                            }
+
+                            System.out.println((aEntityOwner == null ? "(self)" : EntityManager.getInstance().getName(aEntityOwner))
+                                    + ": " + aEntity.getName() + " killed by " + bEntity.getName() + " : (" + (bEntityOwner == null? "self" :  bEntityOwner.getName()) + ")");
+
+                            MessageManager.getInstance().addMessage(INTENT.DIED, aEntity, (bEntityOwner == null ? bEntity : bEntityOwner ));
 
                         }
                     }
@@ -119,5 +131,16 @@ public class ContactSystem implements ContactListener{
                 ((PowerUp)b.getUserData()).applyToEntity(aEntity);
             }
         }
+    }
+
+
+    private boolean checkOwner(Entity a, Entity b){
+        if(a.has(ParentEntityComponent.class)){
+            return a.get(ParentEntityComponent.class).owner.equals(b.getUuid());
+        }
+        if(b.has(ParentEntityComponent.class)){
+            return b.get(ParentEntityComponent.class).owner.equals(a.getUuid());
+        }
+        return false;
     }
 }

@@ -32,6 +32,7 @@ import ecs.components.PhysicalComponent;
 import ecs.components.SelfDestructTimerComponent;
 import ecs.components.TeamComponent;
 import ecs.components.TypeComponent;
+import ecs.components.WeaponComponent;
 import ecs.subsystems.CameraSystem;
 import ecs.subsystems.ContactSystem;
 import ecs.subsystems.FlagUpdateSystem;
@@ -59,6 +60,7 @@ public class TestGameState extends GameState implements SubSystem {
     PowerUpSystem powerupSystem = new PowerUpSystem();
     FlagUpdateSystem flagUpdateSystem = new FlagUpdateSystem();
     SelfDestructTimerSystem selfDestructTimerSystem = new SelfDestructTimerSystem();
+    WeaponSystem weaponSystem = new WeaponSystem();
     RenderSystem renderSystem;
     Box2DDebugRenderer debugRenderer;
     Level test;
@@ -101,8 +103,8 @@ public class TestGameState extends GameState implements SubSystem {
         slightlyWarmMail.registerSystem(INTENT.STRAIGHT, new SteeringSystem());
 
         //Fire
-        slightlyWarmMail.registerSystem(INTENT.FIRE, new WeaponSystem());
-        slightlyWarmMail.registerSystem(INTENT.AIM, new WeaponSystem());
+        slightlyWarmMail.registerSystem(INTENT.FIRE, weaponSystem);
+        slightlyWarmMail.registerSystem(INTENT.AIM, weaponSystem);
 
         //Remove
         slightlyWarmMail.registerSystem(INTENT.DIED, new RemovalSystem());
@@ -155,7 +157,7 @@ public class TestGameState extends GameState implements SubSystem {
         factory = new Factory(currentGameMode);
         MyInputAdapter playerInput;
         testCar = factory.produceCarECS(playerInput = new MyInputAdapter());
-        factory.addComponentsForGameMode(testCar);
+        //factory.addComponentsForGameMode(testCar);
         testCar.addComponent(new CameraAttachmentComponent());
         MessageManager.getInstance().addMessage(INTENT.SPAWN, testCar);
 
@@ -185,7 +187,7 @@ public class TestGameState extends GameState implements SubSystem {
         Entity aiCar;
         for(int  i = 0; i < num_Bots; i++){
             aiCar = factory.produceCarECS(new AI());
-            factory.addComponentsForGameMode(aiCar);
+            //factory.addComponentsForGameMode(aiCar);
             MessageManager.getInstance().addMessage(INTENT.SPAWN, aiCar);
         }
     }
@@ -213,9 +215,11 @@ public class TestGameState extends GameState implements SubSystem {
         // System.out.println("Entities: " + entities.size() + " Box2DBodies " + world.getBodyCount());
 
         inputSystem.update(EntityManager.getInstance().entityList());
-        powerupSystem.update();
+        if(!gameover)
+            powerupSystem.update();
         //steeringSystem.update(entities);
         slightlyWarmMail.update();
+        weaponSystem.update(EntityManager.getInstance().getEntitiesWithComponent(WeaponComponent.class));
         flagUpdateSystem.update(EntityManager.getInstance().getEntitiesWithComponent(FlagComponent.class));
         selfDestructTimerSystem.update(EntityManager.getInstance().getEntitiesWithComponent(SelfDestructTimerComponent.class));
         cameraSystem.update(EntityManager.getInstance().getEntitiesWithComponent(CameraAttachmentComponent.class), cam);

@@ -22,7 +22,8 @@ public class HealthComponent extends Component {
     }
 
     public HEALTH_STATE getHealthState(){
-        if(cur_health < 0) cur_health = 0;
+        if(cur_health < 0)
+            cur_health = 0;
         float state = (float)cur_health/(float)max_health;
         if(state == 1)
         {
@@ -53,7 +54,6 @@ public class HealthComponent extends Component {
      * @return current health
      */
     public int reduceCur_Health(int health){
-
         cur_health -= health;
         if(cur_health < 0)
             cur_health = 0;

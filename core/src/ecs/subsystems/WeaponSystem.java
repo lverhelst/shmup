@@ -6,8 +6,12 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
 import MessageManagement.INTENT;
 import ecs.Entity;
+import ecs.EntityManager;
 import ecs.SubSystem;
 import ecs.components.DamageComponent;
 import ecs.components.HealthComponent;
@@ -24,6 +28,17 @@ import verberg.com.shmup.ShmupGame;
  */
 public class WeaponSystem implements SubSystem {
 
+    public void update(ArrayList<UUID> entityList){
+        for(UUID uid : entityList) {
+            if (EntityManager.getInstance().hasComponent(uid, WeaponComponent.class)){
+                WeaponComponent wc = EntityManager.getInstance().getComponent(uid, WeaponComponent.class);
+                if(wc.heat < wc.max_heat && wc.lastRecharge + wc.rechargeDelay <= System.currentTimeMillis()) {
+                    wc.applyRecharge();
+                }
+            }
+        }
+    }
+
     public void processMessage(INTENT intent, Object ... list) {
         if(list[0].getClass() == Entity.class) {
             Entity e = (Entity)list[0];
@@ -39,6 +54,7 @@ public class WeaponSystem implements SubSystem {
                 fireStuff(e);
             }
         }
+
     }
 
     public void aimStuff(Entity entity, int x, int y){
@@ -68,7 +84,7 @@ public class WeaponSystem implements SubSystem {
             //Move this check to an input system
             //The input system/AI should create intents
 
-            if(wc.lastFire + wc.firingDelay < System.currentTimeMillis()){
+            if(wc.lastFire + wc.firingDelay < System.currentTimeMillis() && wc.heat - wc.required_heat >= 0){
                 Body sourceBody = null;
                 if(entity.has(PhysicalComponent.class)){
                     sourceBody = wc.weaponEntity.get(PhysicalComponent.class).getBody();
@@ -107,8 +123,9 @@ public class WeaponSystem implements SubSystem {
                 circle.dispose();
 
                 wc.lastFire = System.currentTimeMillis();
+                wc.reduceRecharge(wc.required_heat);
 
-                Entity bEntity = new Entity(pc, new ParentEntityComponent(entity), new DamageComponent((int)(20 * wc.multiplier)), new SelfDestructTimerComponent(1000));
+                Entity bEntity = new Entity(pc, new ParentEntityComponent(entity,entity.getUuid()), new DamageComponent((int)(20 * wc.multiplier)), new SelfDestructTimerComponent(1000));
                 bulletFixture.setUserData(bEntity);
             }
         }

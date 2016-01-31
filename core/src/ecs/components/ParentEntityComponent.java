@@ -1,5 +1,7 @@
 package ecs.components;
 
+import java.util.UUID;
+
 import ecs.Component;
 import ecs.Entity;
 
@@ -12,9 +14,11 @@ public class ParentEntityComponent extends Component
 {
     //TODO: change to entity ID
     public Entity parent;
+    public UUID owner;
 
-    public ParentEntityComponent(Entity parent){
+    public ParentEntityComponent(Entity parent, UUID owner){
         this.parent = parent;
+        this.owner = owner;
     }
 
     @Override

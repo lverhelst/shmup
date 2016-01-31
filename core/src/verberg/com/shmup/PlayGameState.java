@@ -17,6 +17,7 @@ import MessageManagement.MessageManager;
 import ecs.Entity;
 import ecs.EntityManager;
 import ecs.components.CameraAttachmentComponent;
+import ecs.components.WeaponComponent;
 import ecs.subsystems.CameraSystem;
 import ecs.subsystems.ContactSystem;
 import ecs.subsystems.InputSystem;
@@ -41,6 +42,7 @@ public class PlayGameState extends GameState {
     InputSystem inputSystem = new InputSystem();
     CameraSystem cameraSystem = new CameraSystem();
     PowerUpSystem powerupSystem = new PowerUpSystem();
+    WeaponSystem weaponSystem = new WeaponSystem();
     RenderSystem renderSystem;
 
     //don't think we need multiple worlds am I right?
@@ -67,8 +69,8 @@ public class PlayGameState extends GameState {
         slightlyWarmMail.registerSystem(INTENT.STRAIGHT, new SteeringSystem());
 
         //Fire
-        slightlyWarmMail.registerSystem(INTENT.FIRE, new WeaponSystem());
-        slightlyWarmMail.registerSystem(INTENT.AIM, new WeaponSystem());
+        slightlyWarmMail.registerSystem(INTENT.FIRE, weaponSystem);
+        slightlyWarmMail.registerSystem(INTENT.AIM, weaponSystem);
 
         //Remove
         slightlyWarmMail.registerSystem(INTENT.DIED, new RemovalSystem());
@@ -97,7 +99,7 @@ public class PlayGameState extends GameState {
         factory = new Factory("Swarm Attack");
 
         Entity testCar = factory.produceCarECS(playerInput);
-        factory.addComponentsForGameMode(testCar);
+        //factory.addComponentsForGameMode(testCar);
         testCar.addComponent(new CameraAttachmentComponent());
         MessageManager.getInstance().addMessage(INTENT.SPAWN, testCar);
 
@@ -114,7 +116,7 @@ public class PlayGameState extends GameState {
         Entity aiCar;
         for(int  i = 0; i < num_Bots; i++){
             aiCar = factory.produceCarECS(new AI());
-            factory.addComponentsForGameMode(aiCar);
+            //factory.addComponentsForGameMode(aiCar);
             MessageManager.getInstance().addMessage(INTENT.SPAWN, aiCar);
         }
     }
@@ -137,6 +139,8 @@ public class PlayGameState extends GameState {
             inputSystem.update(EntityManager.getInstance().entityList());
             powerupSystem.update();
             slightlyWarmMail.update();
+
+            weaponSystem.update(EntityManager.getInstance().getEntitiesWithComponent(WeaponComponent.class));
 
             cameraSystem.update(EntityManager.getInstance().getEntitiesWithComponent(CameraAttachmentComponent.class), cam);
     }

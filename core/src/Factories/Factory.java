@@ -106,10 +106,12 @@ public class Factory {
         e.removeAllComponents();
 
         Entity carBodyEntity = assembleCarBody(cc.ig);
+        System.out.println("In applyLifeTimeWarranty after assemble car body " + carBodyEntity.has(ControlledComponent.class));
+
         for(JsonValue tValue : jTires){
             assembleTire(tValue, carBodyEntity, new Entity());
         }
-        addComponentsForGameMode(carBodyEntity);
+        System.out.println("In applyLifeTimeWarranty after tires " + carBodyEntity.has(ControlledComponent.class));
         return carBodyEntity;
     }
 
@@ -229,8 +231,8 @@ public class Factory {
 
         //create weapon joint
         Entity joint = new Entity("WeaponJoint", new JointComponent(carBodyEntity.get(PhysicalComponent.class).getBody(), weaponBody, new Vector2(0,0), "Weapon", true));
-        joint.addComponent(new ParentEntityComponent(carBodyEntity));
-        weaponEntity.addComponent(new ParentEntityComponent(joint));
+        joint.addComponent(new ParentEntityComponent(carBodyEntity, carBodyEntity.getUuid()));
+        weaponEntity.addComponent(new ParentEntityComponent(joint, carBodyEntity.getUuid()));
         carBodyEntity.get(ChildEntityComponent.class).childList.add(joint);
         carBodyEntity.get(ChildEntityComponent.class).childList.add(weaponEntity);
         carBodyEntity.addComponent(new WeaponComponent(weaponEntity));
@@ -280,8 +282,8 @@ public class Factory {
         joint.removeAllComponents();
         joint = new Entity("JointEntity", new JointComponent(carBodyEntity.get(PhysicalComponent.class).getBody(), tireBody, v2, tireName));
 
-        tireEntity.addComponent(new ParentEntityComponent(joint));
-        joint.addComponent(new ParentEntityComponent(carBodyEntity));
+        tireEntity.addComponent(new ParentEntityComponent(joint,carBodyEntity.getUuid()));
+        joint.addComponent(new ParentEntityComponent(carBodyEntity,carBodyEntity.getUuid()));
         joint.addComponent(new ChildEntityComponent(tireEntity));
         carBodyEntity.get(ChildEntityComponent.class).childList.add(joint);
 
@@ -361,6 +363,7 @@ public class Factory {
     }
 
     public Entity addComponentsForGameMode(Entity actOn){
+
         if(gameMode.equals("Capture the Flag")){
             addWeapon(actOn);
             actOn.addComponent(new HealthComponent(100));

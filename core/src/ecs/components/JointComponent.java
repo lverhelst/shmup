@@ -52,7 +52,7 @@ public class JointComponent extends Component {
     public void dispose()
     {
         if(joint != null) {
-            System.out.println(joint);
+            ShmupGame.getWorld().destroyJoint(joint);
             joint = null;
         }
 
