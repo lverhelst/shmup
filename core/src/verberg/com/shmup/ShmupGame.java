@@ -39,7 +39,6 @@ public class ShmupGame extends ApplicationAdapter {
         hudCam = new OrthographicCamera();
         hudCam.setToOrtho(false, 600, 400);
         gsm = new GameStateManager(this);
-
 	}
 
 
@@ -49,9 +48,6 @@ public class ShmupGame extends ApplicationAdapter {
         gsm.update(STEP);
         gsm.render(STEP);
     }
-
-
-
 
     public SpriteBatch getBatch() {
         return batch;

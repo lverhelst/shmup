@@ -16,4 +16,16 @@ public class Message {
     public Object[] getParameters() { return parameters; }
 
     public void setParameters(Object ... parameters) {this.parameters = parameters; }
+
+    @Override
+    public String toString() {
+        String ret = intent.name() + " Params: ";
+        if(parameters != null) {
+            for (Object i : parameters) {
+                ret += (i != null ? i.toString() : "null parameter") + ";";
+            }
+        }
+        return ret;
+
+    }
 }

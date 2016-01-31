@@ -197,14 +197,19 @@ public class Level {
         }
     }
 
+
+    static int loadPoint, numPnts = 0;
     public void loadPoints(JsonValue maps, float x, float y){
         JsonValue points = maps.get("points");
 
         if(points != null) {
             for (JsonValue point : points) {
+
                 float[] pos = point.get("location").asFloatArray();
                 String type = point.get("type").asString();
                 String subtype = point.get("subtype").asString();
+
+                System.out.println(type + " " + subtype + " point: " + ++numPnts);
 
                 NavigationNode nNode = new NavigationNode((int) (pos[0] + x), (int) (pos[1] + y), 0.4f);
                 navNodes.add(nNode);
@@ -217,6 +222,7 @@ public class Level {
                     if (type.equals("PICKUP")) {
                         //TODO: pick powerup type from subtype
                     } else {
+                        System.out.println("Adding spawn: " + ++loadPoint);
                         MessageManager.getInstance().addMessage(INTENT.ADDSPAWN, newPoint);
                     }
                 }

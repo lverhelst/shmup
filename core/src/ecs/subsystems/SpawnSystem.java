@@ -22,7 +22,7 @@ public class SpawnSystem implements SubSystem{
     static Factory factory;
     static ArrayList<Point> spawnPoints = new ArrayList<Point>();
     static int newSpawn = 0; //TODO: replace with something better
-
+    static int spawnsAdded = 0;
 
     public SpawnSystem(String gameMode){
         factory = new Factory(gameMode);
@@ -90,6 +90,7 @@ public class SpawnSystem implements SubSystem{
 
     public void addSpawnPoint(Point spawn) {
         spawnPoints.add(spawn);
+        System.out.println(this.toString() + " add spawn: " + ++spawnsAdded);
     }
 
     public Vector2 getSpawnPoint(){

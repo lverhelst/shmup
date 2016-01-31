@@ -61,6 +61,7 @@ public class MessageManager {
     public void update() {
         iterating = true;
         for(Message msg : messages){
+           // System.out.println(msg.toString());
             for(SubSystem system: intentList.get(msg.getIntent())) {
                 system.processMessage(msg.getIntent(), msg.getParameters());
             }
@@ -79,4 +80,5 @@ public class MessageManager {
         duringIteration = new ArrayList<Message>();
         iterating = false;
     }
+
 }
