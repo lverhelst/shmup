@@ -56,8 +56,6 @@ public class AI implements IntentGenerator {
 
 
     public void setTarget(Entity e){
-
-
        // System.out.println("Set target");
         target = e;
         //debug = true;
@@ -98,7 +96,6 @@ public class AI implements IntentGenerator {
         }else {
             targetables = EntityManager.getInstance().getEntitiesWithComponent(ControlledComponent.class);
             Entity e = null;
-
             for(UUID uuid : targetables){
                 e = EntityManager.getInstance().getEntity(uuid);
                 if(e.has(TeamComponent.class) && thisEntity.has(TeamComponent.class)
@@ -132,8 +129,11 @@ public class AI implements IntentGenerator {
     }
 
     private void getPathToTarget(Entity controlledEntity){
-        if(target == null)
+        if(target == null){
+            System.out.println("Target is null");
             return;
+
+        }
 
         if(controlledEntity.has(PhysicalComponent.class)){
             if(!controlledEntity.get(PhysicalComponent.class).isRoot)
@@ -144,7 +144,7 @@ public class AI implements IntentGenerator {
 
         if (target.has(PhysicalComponent.class)){
             if(target.has(HealthComponent.class) && controlledEntity.has(HealthComponent.class) && ((target.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD) || controlledEntity.get(HealthComponent.class).getHealthState() == HealthComponent.HEALTH_STATE.DEAD)) {
-                //wander
+
                 return;
             }else{
 
@@ -272,9 +272,6 @@ public class AI implements IntentGenerator {
             if(entity.has(CameraAttachmentComponent.class)){
                 debug = true;
             }
-
-
-
         }
         if( entity.get(PhysicalComponent.class).isRoot) {
             selectTarget(entity);
