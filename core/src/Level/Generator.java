@@ -131,4 +131,57 @@ public class Generator {
             }
         }
     }
+
+    public void fill() {
+        int[][] search = new int[width][height];
+        int maxPos = 0;
+        int maxCount = 0;
+        int place = 0;
+
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+               if(!map[x][y]) {
+                   if(search[x][y] == 0) {
+                       int count = searchMap(search, x, y, ++place);
+                       if(count > maxCount) {
+                           maxCount = count;
+                           maxPos = place;
+                       }
+                   }
+               } else {
+                   search[x][y] = -1;
+               }
+            }
+        }
+
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                if(search[x][y] != maxPos) {
+                    map[x][y] = true;
+                }
+            }
+        }
+    }
+
+    private int searchMap(int[][] search, int x, int y, int place) {
+        search[x][y] = place;
+        int count = 1;
+
+        if(x + 1 < width && !map[x + 1][y] && search[x + 1][y] == 0) {
+            count += searchMap(search, x + 1, y, place);
+        }
+        if(x - 1 >= 0 && !map[x - 1][y] && search[x - 1][y] == 0) {
+            count += searchMap(search, x - 1, y, place);
+
+        }
+        if(y + 1 < height && !map[x][y+1] && search[x][y + 1] == 0) {
+            count +=searchMap(search, x, y+1, place);
+
+        }
+        if(y - 1 >= 0 && !map[x][y-1] && search[x][y - 1] == 0) {
+            count += searchMap(search, x, y-1, place);
+        }
+
+        return count;
+    }
 }

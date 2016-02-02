@@ -90,6 +90,7 @@ public class Level {
         gen.lowerRate = lowerRate;
         gen.density = density;
         gen.smooth(smooth);
+        gen.fill();
 
         String[][] map = gen.getMarchingMap();
         gen.printMap();
