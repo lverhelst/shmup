@@ -142,7 +142,7 @@ public class Generator {
             for (int y = 0; y < height; ++y) {
                if(!map[x][y]) {
                    if(search[x][y] == 0) {
-                       int count = searchMap(search, x, y, ++place);
+                       int count = searchSpace(search, x, y, ++place);
                        if(count > maxCount) {
                            maxCount = count;
                            maxPos = place;
@@ -163,23 +163,38 @@ public class Generator {
         }
     }
 
-    private int searchMap(int[][] search, int x, int y, int place) {
+    private int searchSpace(int[][] search, int x, int y, int place) {
         search[x][y] = place;
         int count = 1;
 
         if(x + 1 < width && !map[x + 1][y] && search[x + 1][y] == 0) {
-            count += searchMap(search, x + 1, y, place);
+            count += searchSpace(search, x + 1, y, place);
         }
         if(x - 1 >= 0 && !map[x - 1][y] && search[x - 1][y] == 0) {
-            count += searchMap(search, x - 1, y, place);
+            count += searchSpace(search, x - 1, y, place);
 
         }
         if(y + 1 < height && !map[x][y+1] && search[x][y + 1] == 0) {
-            count +=searchMap(search, x, y+1, place);
+            count += searchSpace(search, x, y + 1, place);
 
         }
         if(y - 1 >= 0 && !map[x][y-1] && search[x][y - 1] == 0) {
-            count += searchMap(search, x, y-1, place);
+            count += searchSpace(search, x, y - 1, place);
+        }
+
+        if(x + 1 < width && y + 1 < height && !map[x + 1][y + 1] && search[x + 1][y + 1] == 0) {
+            count += searchSpace(search, x + 1, y + 1, place);
+        }
+        if(x - 1 >= 0 && y + 1 < height && !map[x - 1][y + 1] && search[x - 1][y + 1] == 0) {
+            count += searchSpace(search, x - 1, y + 1, place);
+
+        }
+        if(x + 1 < width && y + 1 < height && !map[x + 1][y+1] && search[x + 1][y + 1] == 0) {
+            count += searchSpace(search, x + 1, y - 1, place);
+
+        }
+        if(x - 1 >= 0 && y - 1 >= 0 && !map[x - 1][y-1] && search[x - 1][y - 1] == 0) {
+            count += searchSpace(search, x - 1, y - 1, place);
         }
 
         return count;

@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.JsonValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Stack;
 
 import MessageManagement.INTENT;
@@ -58,7 +59,9 @@ public class Level {
 
         JsonValue blocks = json.get("block");
 
-        HashMap<String, JsonValue> blockList = new HashMap<String, JsonValue>();
+        HashMap<String, ArrayList<JsonValue>> blockList = new HashMap<String, ArrayList<JsonValue>>();
+        Random rand = new Random();
+        ArrayList<JsonValue> cellList;
         String mask;
 
         if(blocks != null) {
@@ -66,11 +69,15 @@ public class Level {
                 mask = block.get("mask").asString();
 
                 if(mask != null) {
-                    //if(!blockList.containsKey(mask)) {
-                    //    blockList.put(mask, new ArrayList<JsonValue>());
-                    //}
+                    if(!blockList.containsKey(mask)) {
+                        blockList.put(mask, new ArrayList<JsonValue>());
+                    }
 
-                    blockList.put(mask, block.get("definition").child);
+                    JsonValue cells = block.get("definition");
+
+                    for(JsonValue cell: cells) {
+                        blockList.get(mask).add(cell);
+                    }
                 }
             }
         }
@@ -93,17 +100,25 @@ public class Level {
         gen.fill();
 
         String[][] map = gen.getMarchingMap();
-        gen.printMap();
 
-        for(int i = 0; i < map.length ; ++i) {
-            for(int j = 0; j < map[i].length; ++j) {
-                JsonValue cell = blockList.get(map[i][j]);
-                float x = j * 4;
-                float y = map.length - i * 4;
+        for(int i = 0; i < map.length - 1; ++i) {
+            for(int j = 0; j < map[i].length - 1; ++j) {
+                cellList = blockList.get(map[i][j]);
 
-                if(cell != null) {
-                    loadShapes(cell, x, y);
-                    loadPoints(cell, x, y);
+                if(cellList == null) {
+                    System.out.println(map[i][j]);
+                }
+
+                if(cellList.size() > 0) {
+                    JsonValue cell = cellList.get(rand.nextInt(cellList.size()));
+
+                    if(cell != null) {
+                        float x = j * 4;
+                        float y = map.length - i * 4;
+
+                        loadShapes(cell, x, y);
+                        loadPoints(cell, x, y);
+                    }
                 }
             }
         }
@@ -128,7 +143,6 @@ public class Level {
 
         loadShapes(map, 0, 0);
         loadPoints(map, 0, 0);
-
 
         //TODO: add joint handling and creation from file
         Body circle = createCircle("WALL", 15.5f, 15.5f, 0.5f, 0.1f, 0.1f, BodyType.StaticBody);
@@ -210,7 +224,7 @@ public class Level {
 
                 if (!type.equals("NODE")) {
                     Point newPoint = new Point();
-                    newPoint.create(type, subtype, pos[0] + x, pos[1] + y);
+                    newPoint.create(type, subtype, (int) (pos[0] + x), (int) (pos[1] + y));
 
                     if (type.equals("PICKUP")) {
                         //TODO: pick powerup type from subtype
